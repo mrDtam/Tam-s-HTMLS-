@@ -7,7 +7,7 @@
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="generateProblem()"></script>
 
     <style>
         body {
@@ -72,6 +72,9 @@
             border: 2px solid #3498db;
             color: #2c3e50;
             min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .problem-display.correct {
             background-color: #e8f8f5;
@@ -89,23 +92,29 @@
             border: 2px solid #bdc3c7;
             border-radius: 8px;
             cursor: crosshair;
-            touch-action: none; /* Prevents scrolling when dragging on mobile */
+            touch-action: none;
             max-width: 100%;
             height: auto;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        button {
+            flex: 1;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            border: none;
         }
         button.submit-btn {
             background-color: #2ecc71;
             color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-weight: bold;
             box-shadow: 0 4px 0 #27ae60;
-            margin-top: 25px;
-            width: 100%;
         }
         button.submit-btn:hover {
             background-color: #27ae60;
@@ -116,10 +125,20 @@
             transform: translateY(4px);
             box-shadow: none;
         }
-        .instructions {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #95a5a6;
+        button.secondary-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            box-shadow: 0 4px 0 #bdc3c7;
+        }
+        button.secondary-btn:hover {
+            background-color: #e0e6ed;
+            color: #34495e;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #95a5a6;
+        }
+        button.secondary-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
         }
 
         @keyframes shake {
@@ -154,7 +173,10 @@
 
     <canvas id="graphCanvas" width="500" height="500"></canvas>
 
-    <button class="submit-btn" onclick="checkAnswer()">Check Answer</button>
+    <div class="action-buttons">
+        <button class="secondary-btn" onclick="generateProblem()">Generate New</button>
+        <button class="submit-btn" onclick="checkAnswer()">Check Answer</button>
+    </div>
 </div>
 
 <script>
@@ -163,23 +185,19 @@
     const problemDisplay = document.getElementById('problemDisplay');
     const streakDisplay = document.getElementById('streak');
 
-    // Grid configuration
-    const gridSize = 20; // -10 to 10
+    const gridSize = 20; 
     const pixelsPerUnit = canvas.width / gridSize;
     const originX = canvas.width / 2;
     const originY = canvas.height / 2;
 
-    // State Variables
     let currentStreak = 0;
-    let targetA = 0, targetB = 0, targetC = 0; // Universal checking variables
+    let targetA = 0, targetB = 0, targetC = 0; 
     let isTransitioning = false;
 
-    // Draggable Points (Start randomly near center)
     let p1 = { x: -3, y: -2 };
     let p2 = { x: 3, y: 4 };
     let draggingPoint = null;
 
-    // --- Math Helpers --- //
     function gcd(a, b) {
         a = Math.abs(a);
         b = Math.abs(b);
@@ -193,7 +211,6 @@
         return val;
     }
 
-    // --- Problem Generation Engine --- //
     function generateProblem() {
         if (isTransitioning) return;
         
@@ -201,23 +218,18 @@
         let problemStr = "";
 
         if (mode === "slopeInt") {
-            // y = mx + b
-            let b = Math.floor(Math.random() * 17) - 8; // Integer y-intercept between -8 and 8
+            let b = Math.floor(Math.random() * 17) - 8; 
             let num = getRandomNonZero(-5, 5);
-            let den = Math.floor(Math.random() * 4) + 1; // Denominator 1 to 4
+            let den = Math.floor(Math.random() * 4) + 1; 
             
-            // Simplify fraction
             let divisor = gcd(num, den);
             num /= divisor;
             den /= divisor;
 
-            // Universal checker (A*p.x + B*p.y = C)
-            // y = (num/den)x + b -> (num)x - (den)y = -den*b
             targetA = num;
             targetB = -den;
             targetC = -den * b;
 
-            // Format for KaTeX
             let mStr = "";
             if (num === 1 && den === 1) mStr = "x";
             else if (num === -1 && den === 1) mStr = "-x";
@@ -227,34 +239,29 @@
             let bStr = "";
             if (b > 0) bStr = mStr !== "" ? ` + ${b}` : `${b}`;
             else if (b < 0) bStr = mStr !== "" ? ` - ${Math.abs(b)}` : `${b}`;
-            else if (mStr === "") bStr = "0"; // y = 0 edge case
+            else if (mStr === "") bStr = "0"; 
 
             problemStr = `\\(y = ${mStr}${bStr}\\)`;
 
         } else {
-            // Ax + By = C (Integer Intercepts)
             let xInt = getRandomNonZero(-8, 8);
             let yInt = getRandomNonZero(-8, 8);
             
-            // x/xInt + y/yInt = 1 -> yInt*x + xInt*y = xInt*yInt
             let A = yInt;
             let B = xInt;
             let C = xInt * yInt;
 
-            // Simplify to Standard Form
             let divisor = gcd(gcd(A, B), C);
             A /= divisor;
             B /= divisor;
             C /= divisor;
 
-            // Ensure A is positive
             if (A < 0) { A = -A; B = -B; C = -C; }
 
             targetA = A;
             targetB = B;
             targetC = C;
 
-            // Format for KaTeX
             let aStr = A === 1 ? "x" : (A === -1 ? "-x" : `${A}x`);
             if (A === 0) aStr = "";
 
@@ -267,11 +274,9 @@
             problemStr = `\\(${aStr} ${bStr} = ${C}\\)`;
         }
 
-        // Reset points to default positions
         p1 = { x: -2, y: -2 };
         p2 = { x: 2, y: 2 };
         
-        // Ensure starting line isn't accidentally the correct answer
         if (targetA * p1.x + targetB * p1.y === targetC && targetA * p2.x + targetB * p2.y === targetC) {
             p1.y = -3; 
         }
@@ -279,43 +284,66 @@
         problemDisplay.innerHTML = problemStr;
         problemDisplay.className = "problem-display";
         
-        if (window.renderMathInElement) renderMathInElement(problemDisplay);
+        if (window.renderMathInElement) {
+            renderMathInElement(problemDisplay, {
+                delimiters: [ {left: "\\(", right: "\\)", display: false} ]
+            });
+        }
         draw();
     }
 
-    // --- Drawing Engine --- //
     function mapX(mathX) { return originX + mathX * pixelsPerUnit; }
     function mapY(mathY) { return originY - mathY * pixelsPerUnit; }
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw Grid
+        // Draw Grid Lines
         ctx.lineWidth = 1;
         ctx.strokeStyle = "#ecf0f1";
         for (let i = -10; i <= 10; i++) {
-            // Vertical lines
             ctx.beginPath(); ctx.moveTo(mapX(i), 0); ctx.lineTo(mapX(i), canvas.height); ctx.stroke();
-            // Horizontal lines
             ctx.beginPath(); ctx.moveTo(0, mapY(i)); ctx.lineTo(canvas.width, mapY(i)); ctx.stroke();
         }
 
         // Draw Axes
         ctx.lineWidth = 2;
-        ctx.strokeStyle = "#95a5a6";
-        ctx.beginPath(); ctx.moveTo(mapX(0), 0); ctx.lineTo(mapX(0), canvas.height); ctx.stroke(); // Y-axis
-        ctx.beginPath(); ctx.moveTo(0, mapY(0)); ctx.lineTo(canvas.width, mapY(0)); ctx.stroke(); // X-axis
+        ctx.strokeStyle = "#7f8c8d";
+        ctx.beginPath(); ctx.moveTo(mapX(0), 0); ctx.lineTo(mapX(0), canvas.height); ctx.stroke(); 
+        ctx.beginPath(); ctx.moveTo(0, mapY(0)); ctx.lineTo(canvas.width, mapY(0)); ctx.stroke(); 
 
-        // Draw Line connecting P1 and P2 (extending to edges)
+        // Draw Ticks and Labels
+        ctx.fillStyle = "#34495e";
+        ctx.font = "12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        for (let i = -10; i <= 10; i++) {
+            if (i !== 0) {
+                // X-axis ticks
+                ctx.beginPath(); ctx.moveTo(mapX(i), mapY(0) - 4); ctx.lineTo(mapX(i), mapY(0) + 4); ctx.stroke();
+                // X-axis numbers (every 2 units to prevent clutter)
+                if (i % 2 === 0) ctx.fillText(i, mapX(i), mapY(0) + 14);
+
+                // Y-axis ticks
+                ctx.beginPath(); ctx.moveTo(mapX(0) - 4, mapY(i)); ctx.lineTo(mapX(0) + 4, mapY(i)); ctx.stroke();
+                // Y-axis numbers (every 2 units)
+                if (i % 2 === 0) {
+                    ctx.textAlign = "right";
+                    ctx.fillText(i, mapX(0) - 8, mapY(i));
+                    ctx.textAlign = "center"; // reset for next x-label
+                }
+            }
+        }
+
+        // Draw Line connecting P1 and P2
         if (p1.x !== p2.x || p1.y !== p2.y) {
             ctx.lineWidth = 3;
             ctx.strokeStyle = "#3498db";
             
-            // Calculate extended line bounds
             let dx = p2.x - p1.x;
             let dy = p2.y - p1.y;
             
-            // Cast points far off screen
             let extendX1 = p1.x - dx * 20;
             let extendY1 = p1.y - dy * 20;
             let extendX2 = p2.x + dx * 20;
@@ -327,7 +355,6 @@
             ctx.stroke();
         }
 
-        // Draw Points
         drawPoint(p1, "#e74c3c");
         drawPoint(p2, "#e74c3c");
     }
@@ -342,17 +369,14 @@
         ctx.stroke();
     }
 
-    // --- Interaction Engine (Mouse & Touch) --- //
     function getMousePos(evt) {
         const rect = canvas.getBoundingClientRect();
-        // Handle both Mouse and Touch events
         const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
         const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
         
         const pixelX = clientX - rect.left;
         const pixelY = clientY - rect.top;
         
-        // Convert pixel coordinates to Math grid and SNAP to integer
         return {
             x: Math.round((pixelX - originX) / pixelsPerUnit),
             y: Math.round((originY - pixelY) / pixelsPerUnit)
@@ -364,7 +388,6 @@
         evt.preventDefault();
         const pos = getMousePos(evt);
         
-        // Check if clicked near p1 or p2 (within ~1 grid unit leeway)
         if (Math.abs(pos.x - p1.x) <= 1 && Math.abs(pos.y - p1.y) <= 1) draggingPoint = p1;
         else if (Math.abs(pos.x - p2.x) <= 1 && Math.abs(pos.y - p2.y) <= 1) draggingPoint = p2;
     }
@@ -374,7 +397,6 @@
         evt.preventDefault();
         const pos = getMousePos(evt);
         
-        // Boundary enforcement (-10 to 10)
         draggingPoint.x = Math.max(-10, Math.min(10, pos.x));
         draggingPoint.y = Math.max(-10, Math.min(10, pos.y));
         draw();
@@ -384,7 +406,6 @@
         draggingPoint = null;
     }
 
-    // Event Listeners
     canvas.addEventListener('mousedown', handleStart);
     canvas.addEventListener('mousemove', handleMove);
     canvas.addEventListener('mouseup', handleEnd);
@@ -394,14 +415,11 @@
     canvas.addEventListener('touchmove', handleMove, {passive: false});
     canvas.addEventListener('touchend', handleEnd);
 
-    // --- Validation Engine --- //
     function checkAnswer() {
         if (isTransitioning) return;
 
-        // Points cannot be on top of each other
         if (p1.x === p2.x && p1.y === p2.y) return;
 
-        // Check if both P1 and P2 satisfy the target equation A*x + B*y = C
         const p1Correct = (targetA * p1.x + targetB * p1.y === targetC);
         const p2Correct = (targetA * p2.x + targetB * p2.y === targetC);
 
@@ -411,7 +429,6 @@
             currentStreak++;
             streakDisplay.innerText = currentStreak;
             
-            // Draw line green
             ctx.strokeStyle = "#2ecc71";
             ctx.stroke();
 
@@ -429,9 +446,6 @@
             }, 500);
         }
     }
-
-    // Initialize
-    generateProblem();
 </script>
 
 </body>
