@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riemann Sum & Trapezoidal Rule Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+        }
+        h1 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 24px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input, select {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="number"] {
+            width: 80px;
+        }
+        select {
+            width: 180px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fafafa;
+            display: block;
+            width: 100%;
+            height: 400px;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-left: 5px solid #3498db;
+            border-radius: 4px;
+            font-size: 18px;
+        }
+        .results span {
+            font-weight: bold;
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Area Approximation Generator</h1>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="funcSelect">Function f(x)</label>
+            <select id="funcSelect">
+                <option value="quadratic">x² + 1</option>
+                <option value="inverted">-(x - 3)² + 15</option>
+                <option value="sine">5sin(x) + 6</option>
+                <option value="rational">12 / x</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="methodSelect">Method</label>
+            <select id="methodSelect">
+                <option value="LRAM">Left Riemann (LRAM)</option>
+                <option value="RRAM">Right Riemann (RRAM)</option>
+                <option value="TRAP">Trapezoidal (TRAP)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="inputA">Start [a]</label>
+            <input type="number" id="inputA" value="0" step="1">
+        </div>
+
+        <div class="control-group">
+            <label for="inputB">End [b]</label>
+            <input type="number" id="inputB" value="5" step="1">
+        </div>
+
+        <div class="control-group">
+            <label for="inputN">Subintervals (n)</label>
+            <input type="number" id="inputN" value="5" min="1" max="200" step="1">
+        </div>
+    </div>
+
+    <canvas id="mathCanvas" width="840" height="400"></canvas>
+
+    <div class="results">
+        Estimated Area: <span id="areaResult">0.00</span>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('mathCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // UI Elements
+    const funcSelect = document.getElementById('funcSelect');
+    const methodSelect = document.getElementById('methodSelect');
+    const inputA = document.getElementById('inputA');
+    const inputB = document.getElementById('inputB');
+    const inputN = document.getElementById('inputN');
+    const areaResult = document.getElementById('areaResult');
+
+    // Preset Functions dictionary
+    const functions = {
+        'quadratic': (x) => Math.pow(x, 2) + 1,
+        'inverted': (x) => -Math.pow(x - 3, 2) + 15,
+        'sine': (x) => 5 * Math.sin(x) + 6,
+        'rational': (x) => x === 0 ? null : 12 / x 
+    };
+
+    function draw() {
+        // 1. Get user inputs
+        const f = functions[funcSelect.value];
+        const method = methodSelect.value;
+        const a = parseFloat(inputA.value);
+        const b = parseFloat(inputB.value);
+        const n = parseInt(inputN.value);
+
+        // Input validation
+        if (isNaN(a) || isNaN(b) || isNaN(n) || n <= 0 || a >= b) {
+            areaResult.textContent = "Invalid bounds";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            return;
+        }
+
+        const dx = (b - a) / n;
+        let area = 0;
+
+        // 2. Determine graph bounds for scaling
+        const margin = 40;
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // X bounds with some padding so it doesn't touch the edges
+        const xPad = (b - a) * 0.1;
+        const minX = a - xPad;
+        const maxX = b + xPad;
+
+        // Evaluate function to find Y bounds
+        let minY = 0; // Lock min Y to 0 or below to always show x-axis
+        let maxY = 1;
+
+        for (let i = 0; i <= 100; i++) {
+            const x = minX + (i / 100) * (maxX - minX);
+            const y = f(x);
+            if (y !== null) {
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+        }
+        
+        // Add Y padding
+        maxY += (maxY - minY) * 0.1;
+
+        // Mapping functions from Math space to Canvas pixel space
+        const mapX = (x) => margin + ((x - minX) / (maxX - minX)) * (width - 2 * margin);
+        const mapY = (y) => height - margin - ((y - minY) / (maxY - minY)) * (height - 2 * margin);
+
+        // 3. Clear Canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // 4. Draw Axes
+        ctx.beginPath();
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 1;
+        // X-axis
+        const xAxisY = mapY(0);
+        ctx.moveTo(mapX(minX), xAxisY);
+        ctx.lineTo(mapX(maxX), xAxisY);
+        // Y-axis (if visible)
+        if (minX <= 0 && maxX >= 0) {
+            const yAxisX = mapX(0);
+            ctx.moveTo(yAxisX, mapY(minY));
+            ctx.lineTo(yAxisX, mapY(maxY));
+        }
+        ctx.stroke();
+
+        // 5. Draw Riemann Rectangles / Trapezoids
+        ctx.fillStyle = 'rgba(52, 152, 219, 0.4)'; // Transparent blue
+        ctx.strokeStyle = '#2980b9'; // Solid blue border
+        ctx.lineWidth = 1.5;
+
+        for (let i = 0; i < n; i++) {
+            const x1 = a + i * dx;
+            const x2 = a + (i + 1) * dx;
+            const y1 = f(x1);
+            const y2 = f(x2);
+
+            if (y1 === null || y2 === null) continue;
+
+            const px1 = mapX(x1);
+            const px2 = mapX(x2);
+            const py0 = mapY(0);
+
+            ctx.beginPath();
+            if (method === 'LRAM') {
+                const py1 = mapY(y1);
+                ctx.moveTo(px1, py0);
+                ctx.lineTo(px1, py1);
+                ctx.lineTo(px2, py1);
+                ctx.lineTo(px2, py0);
+                area += y1 * dx;
+            } else if (method === 'RRAM') {
+                const py2 = mapY(y2);
+                ctx.moveTo(px1, py0);
+                ctx.lineTo(px1, py2);
+                ctx.lineTo(px2, py2);
+                ctx.lineTo(px2, py0);
+                area += y2 * dx;
+            } else if (method === 'TRAP') {
+                const py1 = mapY(y1);
+                const py2 = mapY(y2);
+                ctx.moveTo(px1, py0);
+                ctx.lineTo(px1, py1);
+                ctx.lineTo(px2, py2);
+                ctx.lineTo(px2, py0);
+                area += ((y1 + y2) / 2) * dx;
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // 6. Draw true function curve on top
+        ctx.beginPath();
+        ctx.strokeStyle = '#e74c3c'; // Red curve
+        ctx.lineWidth = 2.5;
+        let firstPoint = true;
+        for (let i = 0; i <= 200; i++) {
+            const x = minX + (i / 200) * (maxX - minX);
+            const y = f(x);
+            if (y !== null) {
+                if (firstPoint) {
+                    ctx.moveTo(mapX(x), mapY(y));
+                    firstPoint = false;
+                } else {
+                    ctx.lineTo(mapX(x), mapY(y));
+                }
+            }
+        }
+        ctx.stroke();
+
+        // 7. Update Area Result text
+        areaResult.textContent = area.toFixed(4);
+    }
+
+    // Attach Event Listeners to redraw automatically when inputs change
+    const inputs = [funcSelect, methodSelect, inputA, inputB, inputN];
+    inputs.forEach(input => input.addEventListener('input', draw));
+
+    // Initial draw
+    draw();
+</script>
+
+</body>
+</html>

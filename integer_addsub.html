@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integer Operations Practice</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .streak-counter {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        #streak {
+            color: #3498db;
+            font-size: 22px;
+        }
+        .problem-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .problem-display {
+            font-size: 40px;
+            color: #2c3e50;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        input[type="number"] {
+            font-size: 32px;
+            padding: 10px;
+            width: 120px;
+            text-align: center;
+            border: 3px solid #bdc3c7;
+            border-radius: 8px;
+            color: #2c3e50;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        input[type="number"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+        }
+        input[type="number"].correct {
+            background-color: #e8f8f5;
+            border-color: #2ecc71;
+            color: #27ae60;
+        }
+        input[type="number"].wrong {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            color: #c0392b;
+            animation: shake 0.4s;
+        }
+        
+        /* Hide the HTML5 number arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        button.submit-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #2980b9;
+        }
+        button.submit-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1f618d;
+        }
+        button.submit-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .instructions {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #95a5a6;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Integer Operations</h1>
+    <div class="streak-counter">Current Streak: <span id="streak">0</span></div>
+    
+    <div class="problem-container">
+        <div class="problem-display" id="problemDisplay">
+            </div>
+        <div class="input-wrapper">
+            <input type="number" id="answerInput" autocomplete="off" placeholder="?">
+        </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="checkAnswer()">Submit</button>
+    
+    <div class="instructions">Tip: Type your answer and press <strong>Enter</strong></div>
+</div>
+
+<script>
+    let currentStreak = 0;
+    let currentAnswer = 0;
+    let isTransitioning = false;
+
+    const inputField = document.getElementById('answerInput');
+    const problemDisplay = document.getElementById('problemDisplay');
+    const streakDisplay = document.getElementById('streak');
+
+    // Utility: Get random integer excluding 0
+    function getRandomNonZero(min, max) {
+        let val;
+        do {
+            val = Math.floor(Math.random() * (max - min + 1)) + min;
+        } while (val === 0);
+        return val;
+    }
+
+    function generateProblem() {
+        isTransitioning = false;
+        
+        // Generate values between -30 and 30
+        let a = getRandomNonZero(-30, 30);
+        let b = getRandomNonZero(-30, 30);
+        
+        // Randomly choose addition or subtraction
+        let isAddition = Math.random() >= 0.5;
+        
+        // Calculate correct answer
+        currentAnswer = isAddition ? (a + b) : (a - b);
+        
+        // Format the problem string
+        let operatorStr = isAddition ? "+" : "-";
+        
+        // If the second number is negative, wrap it in parentheses for proper notation
+        let bStr = b < 0 ? `(${b})` : `${b}`;
+        
+        let problemStr = `\\(${a} ${operatorStr} ${bStr} = \\)`;
+        problemDisplay.innerHTML = problemStr;
+        
+        // Render the math
+        if (window.renderMathInElement) {
+            renderMathInElement(problemDisplay);
+        }
+
+        // Reset and focus input
+        inputField.value = '';
+        inputField.disabled = false;
+        inputField.classList.remove('correct', 'wrong');
+        inputField.focus();
+    }
+
+    function checkAnswer() {
+        if (isTransitioning) return;
+        
+        let userAnswer = parseInt(inputField.value, 10);
+        
+        // If they click submit without entering a number, do nothing
+        if (isNaN(userAnswer)) return;
+
+        isTransitioning = true;
+        inputField.disabled = true; // Lock input while animating
+
+        if (userAnswer === currentAnswer) {
+            // Correct Answer
+            inputField.classList.add('correct');
+            currentStreak++;
+            streakDisplay.innerText = currentStreak;
+            
+            // Auto-advance after a brief flash
+            setTimeout(generateProblem, 600);
+        } else {
+            // Wrong Answer
+            inputField.classList.add('wrong');
+            currentStreak = 0;
+            streakDisplay.innerText = currentStreak;
+            
+            // Clear input and let them try again after animation
+            setTimeout(() => {
+                inputField.classList.remove('wrong');
+                inputField.disabled = false;
+                inputField.value = '';
+                inputField.focus();
+                isTransitioning = false;
+            }, 600);
+        }
+    }
+
+    // Allow pressing "Enter" to submit
+    inputField.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            checkAnswer();
+        }
+    });
+
+    // Start the app
+    window.onload = generateProblem;
+</script>
+
+</body>
+</html>
