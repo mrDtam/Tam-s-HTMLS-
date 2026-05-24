@@ -96,7 +96,12 @@
             margin-bottom: 20px;
         }
 
-        .back-btn {
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
             background-color: #ecf0f1;
             color: #7f8c8d;
             border: none;
@@ -106,7 +111,9 @@
             cursor: pointer;
             font-weight: bold;
             font-family: inherit;
+            transition: background-color 0.2s;
         }
+        .icon-btn:hover { background-color: #e0e6ed; }
 
         .streak-counter {
             font-size: 20px;
@@ -178,7 +185,6 @@
             75% { transform: translateX(-5px) translateY(4px); }
         }
 
-        /* Sparkle animation for getting it right */
         .confetti {
             position: absolute;
             font-size: 40px;
@@ -214,7 +220,10 @@
 
     <div id="gameScreen">
         <div class="game-header">
-            <button class="back-btn" onclick="showMenu()">🔙 Menu</button>
+            <div class="btn-group">
+                <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
+                <button class="icon-btn" id="muteBtn" onclick="toggleMusic()">🎵 On</button>
+            </div>
             <div class="streak-counter">⭐ Streak: <span id="streakDisplay">0</span></div>
         </div>
 
@@ -232,8 +241,121 @@
     let currentStreak = 0;
     let isTransitioning = false;
 
+    // --- Audio Engine (Web Audio API) ---
+    let audioCtx;
+    let bgmInterval;
+    let isMusicPlaying = true;
+
+    // Pentatonic scale for light, happy background music
+    const pentatonicScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25]; // C4 to C5
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function playSuccessSound() {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        osc.type = 'triangle'; // Gives a nice chime-like tone
+        
+        // Fast magical arpeggio (C5, E5, G5)
+        const now = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.1);
+        osc.frequency.setValueAtTime(783.99, now + 0.2);
+        
+        // Volume envelope
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.15, now + 0.05); // Not too loud
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        
+        osc.start(now);
+        osc.stop(now + 0.6);
+    }
+
+    function playWrongSound() {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        osc.type = 'sine'; 
+        
+        const now = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(200, now); // Low, soft boop
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
+        
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.1, now + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        
+        osc.start(now);
+        osc.stop(now + 0.2);
+    }
+
+    function startBackgroundMusic() {
+        if (!audioCtx || !isMusicPlaying || bgmInterval) return;
+        
+        // Plays a random soft note every 450ms
+        bgmInterval = setInterval(() => {
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.type = 'sine'; // Softest waveform
+            
+            // Pick a random note from the pentatonic scale
+            const randomFreq = pentatonicScale[Math.floor(Math.random() * pentatonicScale.length)];
+            osc.frequency.value = randomFreq;
+            
+            const now = audioCtx.currentTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.03, now + 0.1); // Extremely quiet
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.5); // Long fade out
+            
+            osc.start(now);
+            osc.stop(now + 1.5);
+        }, 450);
+    }
+
+    function stopBackgroundMusic() {
+        if (bgmInterval) {
+            clearInterval(bgmInterval);
+            bgmInterval = null;
+        }
+    }
+
+    function toggleMusic() {
+        isMusicPlaying = !isMusicPlaying;
+        const muteBtn = document.getElementById('muteBtn');
+        if (isMusicPlaying) {
+            muteBtn.innerText = "🎵 On";
+            startBackgroundMusic();
+        } else {
+            muteBtn.innerText = "🔇 Off";
+            stopBackgroundMusic();
+        }
+    }
+
     // --- Navigation ---
     function startGame(number) {
+        initAudio(); // Browsers require audio to be initialized upon a user click
+        if (isMusicPlaying) startBackgroundMusic();
+
         currentMultiplier = number;
         currentStreak = 0;
         document.getElementById('streakDisplay').innerText = currentStreak;
@@ -245,6 +367,7 @@
     }
 
     function showMenu() {
+        stopBackgroundMusic();
         document.getElementById('gameScreen').style.display = 'none';
         document.getElementById('menuScreen').style.display = 'block';
     }
@@ -265,39 +388,30 @@
     function generateProblem() {
         isTransitioning = false;
         
-        // Pick a random number to multiply by (1 through 10)
         let multiplicand = getRandomInt(1, 10);
         let correctAnswer = currentMultiplier * multiplicand;
 
-        // Display the problem (using the standard × symbol instead of letter x)
         document.getElementById('problemDisplay').innerText = `${currentMultiplier} × ${multiplicand}`;
 
-        // Build distractors (wrong answers)
         let options = new Set();
         options.add(correctAnswer);
 
-        // Smart distractors:
-        // 1. Next multiple up (e.g., if 7x4=28, distractor is 35)
         options.add(currentMultiplier * (multiplicand + 1));
-        
-        // 2. Next multiple down
         if (multiplicand > 1) {
             options.add(currentMultiplier * (multiplicand - 1));
         }
 
-        // 3. Just a random close number
         while(options.size < 4) {
-            let offset = getRandomInt(-5, 5);
+            let offset = getRandomInt(-4, 4);
             let randomWrong = correctAnswer + offset;
             if (randomWrong > 0 && randomWrong !== correctAnswer) {
                 options.add(randomWrong);
             }
         }
 
-        // Render Buttons
         let optionsArray = shuffleArray(Array.from(options));
         const grid = document.getElementById('optionsGrid');
-        grid.innerHTML = ''; // Clear old buttons
+        grid.innerHTML = ''; 
 
         optionsArray.forEach(opt => {
             let btn = document.createElement('button');
@@ -314,30 +428,26 @@
         if (isCorrect) {
             isTransitioning = true;
             btn.classList.add('correct');
+            playSuccessSound();
             
-            // Increment streak
             currentStreak++;
             document.getElementById('streakDisplay').innerText = currentStreak;
 
-            // Spawn a little star emoji where they clicked
             createSparkle(event.clientX, event.clientY);
 
-            // Wait 1 second, then generate next question
             setTimeout(generateProblem, 1000);
         } else {
-            // They got it wrong
             btn.classList.add('wrong');
-            currentStreak = 0; // Reset streak
-            document.getElementById('streakDisplay').innerText = currentStreak;
+            playWrongSound();
             
-            // Note: We intentionally don't auto-advance here. 
-            // We let them click the other buttons until they find the right one!
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
         }
     }
 
     // --- Fun Visual Effects ---
     function createSparkle(x, y) {
-        const emojis = ['⭐', '🎉', '🚀', '🌟'];
+        const emojis = ['⭐', '🎉', '🚀', '🌟', '✨'];
         const sparkle = document.createElement('div');
         sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
         sparkle.className = 'confetti';
@@ -346,7 +456,6 @@
         
         document.body.appendChild(sparkle);
 
-        // Remove the element after the animation finishes
         setTimeout(() => {
             sparkle.remove();
         }, 1000);
