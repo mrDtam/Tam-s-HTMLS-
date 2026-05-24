@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Multiplication!</title>
+    
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7FFF7;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 4px solid var(--secondary);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 32px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* --- Menu Screen --- */
+        #menuScreen {
+            display: block;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .menu-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #3b9b95;
+            transition: transform 0.1s, box-shadow 0.1s;
+            font-family: inherit;
+        }
+
+        .menu-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #3b9b95;
+        }
+
+        .menu-btn:nth-child(even) {
+            background-color: var(--primary);
+            box-shadow: 0 6px 0 #c95555;
+        }
+        .menu-btn:nth-child(even):active {
+            box-shadow: 0 0 0 #c95555;
+        }
+
+        /* --- Game Screen --- */
+        #gameScreen {
+            display: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+        }
+
+        .streak-counter {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f39c12;
+            background: #fff3e0;
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 2px solid #f39c12;
+        }
+
+        .problem-display {
+            font-size: 60px;
+            font-weight: bold;
+            color: var(--dark);
+            margin: 20px 0 30px 0;
+            background: var(--accent);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: var(--dark);
+            border: 4px solid var(--secondary);
+            padding: 25px 10px;
+            font-size: 36px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 0 var(--secondary);
+            font-family: inherit;
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 var(--secondary);
+        }
+
+        .option-btn.correct {
+            background-color: #2ecc71 !important;
+            border-color: #27ae60 !important;
+            color: white !important;
+            box-shadow: 0 6px 0 #27ae60 !important;
+            transform: scale(1.05);
+        }
+
+        .option-btn.wrong {
+            background-color: #ecf0f1;
+            border-color: #bdc3c7;
+            color: #95a5a6;
+            box-shadow: 0 2px 0 #bdc3c7;
+            transform: translateY(4px);
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) translateY(4px); }
+            25% { transform: translateX(-5px) translateY(4px); }
+            50% { transform: translateX(5px) translateY(4px); }
+            75% { transform: translateX(-5px) translateY(4px); }
+        }
+
+        /* Sparkle animation for getting it right */
+        .confetti {
+            position: absolute;
+            font-size: 40px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="menuScreen">
+        <h1>✨ Magic Math! ✨</h1>
+        <h2>Which number are we practicing today?</h2>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="startGame(2)">Practicing 2's</button>
+            <button class="menu-btn" onclick="startGame(3)">Practicing 3's</button>
+            <button class="menu-btn" onclick="startGame(4)">Practicing 4's</button>
+            <button class="menu-btn" onclick="startGame(5)">Practicing 5's</button>
+            <button class="menu-btn" onclick="startGame(6)">Practicing 6's</button>
+            <button class="menu-btn" onclick="startGame(7)">Practicing 7's</button>
+            <button class="menu-btn" onclick="startGame(8)">Practicing 8's</button>
+            <button class="menu-btn" onclick="startGame(9)">Practicing 9's</button>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="game-header">
+            <button class="back-btn" onclick="showMenu()">🔙 Menu</button>
+            <div class="streak-counter">⭐ Streak: <span id="streakDisplay">0</span></div>
+        </div>
+
+        <div class="problem-display" id="problemDisplay">
+            </div>
+
+        <div class="options-grid" id="optionsGrid">
+            </div>
+    </div>
+
+</div>
+
+<script>
+    let currentMultiplier = 2;
+    let currentStreak = 0;
+    let isTransitioning = false;
+
+    // --- Navigation ---
+    function startGame(number) {
+        currentMultiplier = number;
+        currentStreak = 0;
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        generateProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+    }
+
+    // --- Math Logic ---
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function generateProblem() {
+        isTransitioning = false;
+        
+        // Pick a random number to multiply by (1 through 10)
+        let multiplicand = getRandomInt(1, 10);
+        let correctAnswer = currentMultiplier * multiplicand;
+
+        // Display the problem (using the standard × symbol instead of letter x)
+        document.getElementById('problemDisplay').innerText = `${currentMultiplier} × ${multiplicand}`;
+
+        // Build distractors (wrong answers)
+        let options = new Set();
+        options.add(correctAnswer);
+
+        // Smart distractors:
+        // 1. Next multiple up (e.g., if 7x4=28, distractor is 35)
+        options.add(currentMultiplier * (multiplicand + 1));
+        
+        // 2. Next multiple down
+        if (multiplicand > 1) {
+            options.add(currentMultiplier * (multiplicand - 1));
+        }
+
+        // 3. Just a random close number
+        while(options.size < 4) {
+            let offset = getRandomInt(-5, 5);
+            let randomWrong = correctAnswer + offset;
+            if (randomWrong > 0 && randomWrong !== correctAnswer) {
+                options.add(randomWrong);
+            }
+        }
+
+        // Render Buttons
+        let optionsArray = shuffleArray(Array.from(options));
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; // Clear old buttons
+
+        optionsArray.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = (e) => handleGuess(btn, opt === correctAnswer, e);
+            grid.appendChild(btn);
+        });
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            
+            // Increment streak
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            // Spawn a little star emoji where they clicked
+            createSparkle(event.clientX, event.clientY);
+
+            // Wait 1 second, then generate next question
+            setTimeout(generateProblem, 1000);
+        } else {
+            // They got it wrong
+            btn.classList.add('wrong');
+            currentStreak = 0; // Reset streak
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            // Note: We intentionally don't auto-advance here. 
+            // We let them click the other buttons until they find the right one!
+        }
+    }
+
+    // --- Fun Visual Effects ---
+    function createSparkle(x, y) {
+        const emojis = ['⭐', '🎉', '🚀', '🌟'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 20) + 'px';
+        sparkle.style.top = (y - 20) + 'px';
+        
+        document.body.appendChild(sparkle);
+
+        // Remove the element after the animation finishes
+        setTimeout(() => {
+            sparkle.remove();
+        }, 1000);
+    }
+
+</script>
+
+</body>
+</html>
