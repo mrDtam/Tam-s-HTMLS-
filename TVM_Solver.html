@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVM Financial Calculator</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-width: 650px;
+            width: 100%;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .instructions {
+            background-color: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #2c3e50;
+            border-radius: 0 4px 4px 0;
+        }
+        .instructions strong {
+            color: #2980b9;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .tvm-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .tvm-row label {
+            width: 120px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .tvm-row input[type="number"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .tvm-row input[type="number"]:focus {
+            border-color: #3498db;
+        }
+        .tvm-row input.solved-val {
+            background-color: #e8f8f5;
+            border-color: #2ecc71;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .solve-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #2980b9;
+            transition: all 0.2s;
+            width: 90px;
+        }
+        .solve-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1f618d;
+        }
+        .solve-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .setting-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .setting-group label {
+            font-weight: bold;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .setting-group select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7;
+            font-size: 14px;
+        }
+
+        .formula-display {
+            padding: 20px;
+            background-color: #fdfbf7;
+            border: 2px solid #f39c12;
+            border-radius: 8px;
+            color: #d35400;
+            text-align: center;
+            font-size: 18px;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: auto;
+        }
+        .formula-title {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            color: #e67e22;
+        }
+        
+        .clear-btn {
+            width: 100%;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background-color 0.2s;
+        }
+        .clear-btn:hover { background-color: #c0392b; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Time Value of Money (TVM)</h1>
+    
+    <div class="instructions">
+        <strong>Cash Flow Rule:</strong> Money leaving your pocket (investments, deposits) must be <strong>negative</strong>. Money entering your pocket (loans received, withdrawals) must be <strong>positive</strong>.
+    </div>
+
+    <div class="settings-row">
+        <div class="setting-group">
+            <label>C/Y & P/Y:</label>
+            <select id="cySelect">
+                <option value="1">Annually (1)</option>
+                <option value="2">Semi-Annually (2)</option>
+                <option value="4">Quarterly (4)</option>
+                <option value="12" selected>Monthly (12)</option>
+                <option value="365">Daily (365)</option>
+            </select>
+        </div>
+        <div class="setting-group">
+            <label>PMT Timing:</label>
+            <select id="pmtTiming">
+                <option value="0" selected>END</option>
+                <option value="1">BEGIN</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="grid-container">
+        <div class="tvm-row">
+            <label>N (Periods)</label>
+            <input type="number" id="val-n" step="any">
+            <button class="solve-btn" onclick="solveTVM('N')">Solve N</button>
+        </div>
+        <div class="tvm-row">
+            <label>I/Y (%)</label>
+            <input type="number" id="val-i" step="any">
+            <button class="solve-btn" onclick="solveTVM('I')">Solve I/Y</button>
+        </div>
+        <div class="tvm-row">
+            <label>PV ($)</label>
+            <input type="number" id="val-pv" step="any">
+            <button class="solve-btn" onclick="solveTVM('PV')">Solve PV</button>
+        </div>
+        <div class="tvm-row">
+            <label>PMT ($)</label>
+            <input type="number" id="val-pmt" step="any">
+            <button class="solve-btn" onclick="solveTVM('PMT')">Solve PMT</button>
+        </div>
+        <div class="tvm-row">
+            <label>FV ($)</label>
+            <input type="number" id="val-fv" step="any">
+            <button class="solve-btn" onclick="solveTVM('FV')">Solve FV</button>
+        </div>
+    </div>
+
+    <div class="formula-display" id="formulaBox">
+        <div class="formula-title">Mathematical Translation</div>
+        <div id="mathEquation">\( \text{Fill in your variables and click 'Solve' to see the algebra.} \)</div>
+    </div>
+
+    <button class="clear-btn" onclick="clearAll()">Clear All Fields</button>
+</div>
+
+<script>
+    function getVal(id) {
+        let v = parseFloat(document.getElementById(id).value);
+        return isNaN(v) ? 0 : v;
+    }
+
+    function clearAll() {
+        ['val-n', 'val-i', 'val-pv', 'val-pmt', 'val-fv'].forEach(id => {
+            let el = document.getElementById(id);
+            el.value = '';
+            el.classList.remove('solved-val');
+        });
+        document.getElementById('mathEquation').innerHTML = "\\( \\text{Ready.} \\)";
+        if (window.renderMathInElement) renderMathInElement(document.getElementById('formulaBox'));
+    }
+
+    function solveTVM(target) {
+        // Clear previous highlights
+        ['val-n', 'val-i', 'val-pv', 'val-pmt', 'val-fv'].forEach(id => {
+            document.getElementById(id).classList.remove('solved-val');
+        });
+
+        let N = getVal('val-n');
+        let I = getVal('val-i');
+        let PV = getVal('val-pv');
+        let PMT = getVal('val-pmt');
+        let FV = getVal('val-fv');
+        
+        let CY = parseFloat(document.getElementById('cySelect').value);
+        let type = parseInt(document.getElementById('pmtTiming').value);
+        
+        let r = (I / 100) / CY;
+
+        try {
+            if (target === 'FV') {
+                if (r === 0) FV = -(PV + PMT * N);
+                else FV = -(PV * Math.pow(1+r, N) + PMT * ((Math.pow(1+r, N) - 1) / r) * (1 + r * type));
+                document.getElementById('val-fv').value = FV.toFixed(2);
+                updateFormula('FV', FV, PV, PMT, r, N, CY);
+            } 
+            else if (target === 'PV') {
+                if (r === 0) PV = -(FV + PMT * N);
+                else PV = -(FV * Math.pow(1+r, -N) + PMT * ((1 - Math.pow(1+r, -N)) / r) * (1 + r * type));
+                document.getElementById('val-pv').value = PV.toFixed(2);
+                updateFormula('PV', PV, FV, PMT, r, N, CY);
+            }
+            else if (target === 'PMT') {
+                if (r === 0) PMT = -(FV + PV) / N;
+                else PMT = -(FV * Math.pow(1+r, -N) + PV) / ( ((1 - Math.pow(1+r, -N)) / r) * (1 + r * type) );
+                document.getElementById('val-pmt').value = PMT.toFixed(2);
+                updateFormula('PMT', PMT, PV, FV, r, N, CY);
+            }
+            else if (target === 'N') {
+                if (r === 0) N = -(FV + PV) / PMT;
+                else {
+                    let pmt_adj = PMT * (1 + r * type);
+                    let num = pmt_adj - FV * r;
+                    let den = pmt_adj + PV * r;
+                    if (num / den <= 0) throw new Error("Logarithm Error: Cannot reach this Future Value with these parameters.");
+                    N = Math.log(num / den) / Math.log(1+r);
+                }
+                document.getElementById('val-n').value = N.toFixed(2);
+                document.getElementById('mathEquation').innerHTML = `\\( N = \\frac{\\ln(\\dots)}{\\ln(1 + r)} \\approx ${N.toFixed(2)} \\)`;
+            }
+            else if (target === 'I') {
+                // Bisection method for Interest Rate
+                let low = -0.9999;
+                let high = 10.0; // Up to 1000%
+                
+                let f = (rate) => {
+                    if (rate === 0) return PV + PMT * N + FV;
+                    return PV + PMT * ((1 - Math.pow(1+rate, -N)) / rate) * (1 + rate * type) + FV * Math.pow(1+rate, -N);
+                };
+
+                let fLow = f(low);
+                let fHigh = f(high);
+
+                if (fLow * fHigh > 0) {
+                    throw new Error("ERR: SIGN MATCH. Ensure inflows (positive) and outflows (negative) have opposite signs.");
+                }
+
+                let best_r = 0;
+                for (let iter = 0; iter < 100; iter++) {
+                    let mid = (low + high) / 2;
+                    let fMid = f(mid);
+                    if (Math.abs(fMid) < 1e-7) { best_r = mid; break; }
+                    if (fLow * fMid < 0) { high = mid; fHigh = fMid; }
+                    else { low = mid; fLow = fMid; }
+                    best_r = mid;
+                }
+
+                I = best_r * CY * 100;
+                document.getElementById('val-i').value = I.toFixed(4);
+                document.getElementById('mathEquation').innerHTML = `\\( 0 = PV + PMT\\left[\\frac{1-(1+r)^{-N}}{r}\\right] + \\frac{FV}{(1+r)^N} \\implies I/Y \\approx ${I.toFixed(4)}\\% \\)`;
+            }
+
+            // Highlight the solved field
+            document.getElementById('val-' + target.toLowerCase()).classList.add('solved-val');
+            
+            // Render the new math formula
+            if (window.renderMathInElement) renderMathInElement(document.getElementById('formulaBox'));
+
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+    // Generates the algebraic formula substitution based on what was solved
+    function updateFormula(solvedFor, ans, val1, val2, r, n, cy) {
+        let eq = "";
+        let rStr = r === 0 ? "0" : `\\left(\\frac{I}{${cy}}\\right)`;
+        
+        if (solvedFor === 'FV') {
+            eq = `\\( FV = - \\left[ ${val1}(1+${rStr})^{${n}} + ${val2} \\left( \\frac{(1+${rStr})^{${n}} - 1}{${rStr}} \\right) \\right] = ${ans.toFixed(2)} \\)`;
+        } 
+        else if (solvedFor === 'PV') {
+            eq = `\\( PV = - \\left[ \\frac{${val1}}{(1+${rStr})^{${n}}} + ${val2} \\left( \\frac{1 - (1+${rStr})^{-${n}}}{${rStr}} \\right) \\right] = ${ans.toFixed(2)} \\)`;
+        }
+        else if (solvedFor === 'PMT') {
+            eq = `\\( PMT = - \\frac{${val2} + ${val1}(1+${rStr})^{${n}}}{\\frac{(1+${rStr})^{${n}} - 1}{${rStr}}} = ${ans.toFixed(2)} \\)`;
+        }
+        
+        document.getElementById('mathEquation').innerHTML = eq;
+    }
+</script>
+
+</body>
+</html>

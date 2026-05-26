@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magical Spelling Adventure!</title>
+    
+    <style>
+        :root {
+            --primary: #9b59b6;
+            --secondary: #3498db;
+            --accent: #f1c40f;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+            background-color: #e8f4f8;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            border: 4px solid var(--primary);
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 32px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+
+        /* --- Menu Screen --- */
+        #menuScreen {
+            display: block;
+        }
+
+        .play-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #2980b9;
+            transition: transform 0.1s, box-shadow 0.1s;
+            font-family: inherit;
+            margin-top: 20px;
+        }
+
+        .play-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 0 0 #2980b9;
+        }
+
+        /* --- Game Screen --- */
+        #gameScreen {
+            display: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 20px;
+            font-weight: bold;
+            color: #d35400;
+            background: #fdebd0;
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 2px solid #f39c12;
+        }
+
+        .prompt-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--dark);
+            margin: 10px 0 25px 0;
+            padding: 15px;
+            background: #f0f3f4;
+            border-radius: 15px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: var(--dark);
+            border: 3px solid var(--secondary);
+            padding: 20px 10px;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 5px 0 var(--secondary);
+            font-family: inherit;
+            letter-spacing: 1px;
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 var(--secondary);
+        }
+
+        .option-btn.correct {
+            background-color: #2ecc71 !important;
+            border-color: #27ae60 !important;
+            color: white !important;
+            box-shadow: 0 5px 0 #27ae60 !important;
+            transform: scale(1.02);
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            color: #c0392b;
+            box-shadow: 0 2px 0 #c0392b;
+            transform: translateY(3px);
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) translateY(3px); }
+            25% { transform: translateX(-5px) translateY(3px); }
+            50% { transform: translateX(5px) translateY(3px); }
+            75% { transform: translateX(-5px) translateY(3px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 40px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="menuScreen">
+        <h1>📚 Spot the Imposter! 🕵️‍♀️</h1>
+        <p class="subtitle">Only one word is spelled correctly. Can you find it?</p>
+        <button class="play-btn" onclick="startGame()">Start Playing!</button>
+    </div>
+
+    <div id="gameScreen">
+        <div class="game-header">
+            <div class="btn-group">
+                <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
+                <button class="icon-btn" id="muteBtn" onclick="toggleMusic()">🎵 On</button>
+            </div>
+            <div class="streak-counter">🔥 Streak: <span id="streakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-text">
+            Which word is spelled correctly?
+        </div>
+
+        <div class="options-grid" id="optionsGrid">
+            </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Word Database (Grade 3/4 Tricky Words) ---
+    // Canadian-friendly (avoiding words like color/colour that have valid regional differences)
+    const wordBank = [
+        { c: "because", w: ["becuse", "becuase", "beacause"] },
+        { c: "friend", w: ["freind", "frend", "friand"] },
+        { c: "beautiful", w: ["beutiful", "beautyful", "beatifull"] },
+        { c: "surprise", w: ["suprise", "serprise", "surprize"] },
+        { c: "caught", w: ["cought", "cawt", "caugt"] },
+        { c: "enough", w: ["enuff", "enoug", "inough"] },
+        { c: "library", w: ["libary", "librery", "libarey"] },
+        { c: "answer", w: ["anser", "answre", "ancer"] },
+        { c: "ocean", w: ["oshun", "ocian", "osean"] },
+        { c: "science", w: ["sience", "sciense", "sicence"] },
+        { c: "scissors", w: ["sissors", "scisors", "cissors"] },
+        { c: "island", w: ["iland", "iseland", "islend"] },
+        { c: "tomorrow", w: ["tommorow", "tomorow", "tommorrow"] },
+        { c: "different", w: ["diffrent", "diferent", "differant"] },
+        { c: "piece", w: ["peice", "peese", "peece"] },
+        { c: "quiet", w: ["quite", "qiuet", "quyet"] },
+        { c: "through", w: ["thru", "throug", "threwgh"] },
+        { c: "minute", w: ["minit", "minuet", "minnut"] },
+        { c: "people", w: ["peple", "peopel", "peeple"] },
+        { c: "believe", w: ["beleive", "belive", "beleeve"] },
+        { c: "weird", w: ["wierd", "werid", "weerd"] },
+        { c: "guess", w: ["gess", "geuss", "gesse"] },
+        { c: "machine", w: ["masheen", "machin", "macheen"] },
+        { c: "straight", w: ["strate", "straigt", "streight"] },
+        { c: "Wednesday", w: ["Wensday", "Wednesdey", "Whensday"] }
+    ];
+
+    let currentStreak = 0;
+    let isTransitioning = false;
+    let currentWordObj = null;
+
+    // --- Audio Engine (Web Audio API) ---
+    let audioCtx;
+    let bgmInterval;
+    let isMusicPlaying = true;
+
+    // Happy pentatonic scale
+    const pentatonicScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function playSuccessSound() {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.type = 'triangle'; 
+        
+        const now = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.1);
+        osc.frequency.setValueAtTime(783.99, now + 0.2);
+        
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.15, now + 0.05); 
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        
+        osc.start(now);
+        osc.stop(now + 0.6);
+    }
+
+    function playWrongSound() {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.type = 'sine'; 
+        
+        const now = audioCtx.currentTime;
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
+        
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.1, now + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        
+        osc.start(now);
+        osc.stop(now + 0.2);
+    }
+
+    function startBackgroundMusic() {
+        if (!audioCtx || !isMusicPlaying || bgmInterval) return;
+        
+        bgmInterval = setInterval(() => {
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.type = 'sine'; 
+            
+            const randomFreq = pentatonicScale[Math.floor(Math.random() * pentatonicScale.length)];
+            osc.frequency.value = randomFreq;
+            
+            const now = audioCtx.currentTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.03, now + 0.1); 
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.5); 
+            
+            osc.start(now);
+            osc.stop(now + 1.5);
+        }, 500); // Slightly slower for relaxed reading
+    }
+
+    function stopBackgroundMusic() {
+        if (bgmInterval) {
+            clearInterval(bgmInterval);
+            bgmInterval = null;
+        }
+    }
+
+    function toggleMusic() {
+        isMusicPlaying = !isMusicPlaying;
+        const muteBtn = document.getElementById('muteBtn');
+        if (isMusicPlaying) {
+            muteBtn.innerText = "🎵 On";
+            startBackgroundMusic();
+        } else {
+            muteBtn.innerText = "🔇 Off";
+            stopBackgroundMusic();
+        }
+    }
+
+    // --- Game Logic ---
+    function startGame() {
+        initAudio(); 
+        if (isMusicPlaying) startBackgroundMusic();
+
+        currentStreak = 0;
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        generateProblem();
+    }
+
+    function showMenu() {
+        stopBackgroundMusic();
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function generateProblem() {
+        isTransitioning = false;
+        
+        // Pick a random word that isn't the one we just played
+        let newWordObj;
+        do {
+            newWordObj = wordBank[Math.floor(Math.random() * wordBank.length)];
+        } while (currentWordObj === newWordObj);
+        
+        currentWordObj = newWordObj;
+
+        // Combine the correct word and its specific distractors into one array
+        let options = [currentWordObj.c, ...currentWordObj.w];
+        
+        // Shuffle the buttons
+        let optionsArray = shuffleArray(options);
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; 
+
+        optionsArray.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = (e) => handleGuess(btn, opt === currentWordObj.c, e);
+            grid.appendChild(btn);
+        });
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccessSound();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            createSparkle(event.clientX, event.clientY);
+
+            // Wait 1.2 seconds so she can look at the correct spelling before it vanishes
+            setTimeout(generateProblem, 1200);
+        } else {
+            btn.classList.add('wrong');
+            playWrongSound();
+            
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+        }
+    }
+
+    // --- Visual Effects ---
+    function createSparkle(x, y) {
+        const emojis = ['🌟', '✨', '🎈', '🎉', '📚'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 20) + 'px';
+        sparkle.style.top = (y - 20) + 'px';
+        
+        document.body.appendChild(sparkle);
+
+        setTimeout(() => {
+            sparkle.remove();
+        }, 1000);
+    }
+
+</script>
+
+</body>
+</html>
