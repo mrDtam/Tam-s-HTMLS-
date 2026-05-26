@@ -221,9 +221,9 @@
 </div>
 
 <script>
-    // --- Word Database (Grade 3/4 Tricky Words) ---
-    // Canadian-friendly (avoiding words like color/colour that have valid regional differences)
+    // --- 100 Word Database ---
     const wordBank = [
+        // Original Trick Words (25)
         { c: "because", w: ["becuse", "becuase", "beacause"] },
         { c: "friend", w: ["freind", "frend", "friand"] },
         { c: "beautiful", w: ["beutiful", "beautyful", "beatifull"] },
@@ -248,7 +248,100 @@
         { c: "guess", w: ["gess", "geuss", "gesse"] },
         { c: "machine", w: ["masheen", "machin", "macheen"] },
         { c: "straight", w: ["strate", "straigt", "streight"] },
-        { c: "Wednesday", w: ["Wensday", "Wednesdey", "Whensday"] }
+        { c: "Wednesday", w: ["Wensday", "Wednesdey", "Whensday"] },
+        
+        // Days of the week (6 - Wednesday is above)
+        { c: "Monday", w: ["Munday", "Mondy", "Monnday"] },
+        { c: "Tuesday", w: ["Teusday", "Tuseday", "Tusday"] },
+        { c: "Thursday", w: ["Thirsday", "Thersday", "Thurday"] },
+        { c: "Friday", w: ["Fridaye", "Fridy", "Fryday"] },
+        { c: "Saturday", w: ["Saterday", "Saturdy", "Satterday"] },
+        { c: "Sunday", w: ["Sundy", "Sunnday", "Sondy"] },
+
+        // Months of the year (11)
+        { c: "January", w: ["Janury", "Janurary", "Januery"] },
+        { c: "February", w: ["Febuary", "Febrary", "Feburary"] },
+        { c: "March", w: ["Martch", "Mrtch", "Marcht"] },
+        { c: "April", w: ["Aperil", "Aprill", "Apeirl"] },
+        { c: "June", w: ["Joon", "Juen", "Junne"] },
+        { c: "July", w: ["Juli", "Juley", "Jooly"] },
+        { c: "August", w: ["Augest", "Ogust", "Augast"] },
+        { c: "September", w: ["Septemper", "Septamber", "Septeber"] },
+        { c: "October", w: ["Octobar", "Oktuber", "Octobor"] },
+        { c: "November", w: ["Novembar", "Novamber", "Novembre"] },
+        { c: "December", w: ["Decembar", "Desember", "Decembre"] },
+
+        // Numbers (12)
+        { c: "eight", w: ["eigt", "aight", "eith"] },
+        { c: "eleven", w: ["elevan", "ellven", "alevin"] },
+        { c: "twelve", w: ["twelf", "twelv", "twellve"] },
+        { c: "thirteen", w: ["thurteen", "thirtien", "thirten"] },
+        { c: "fourteen", w: ["forteen", "fourtien", "fourten"] },
+        { c: "fifteen", w: ["fiveteen", "fiften", "fivten"] },
+        { c: "twenty", w: ["twentey", "twentie", "twintey"] },
+        { c: "thirty", w: ["thurty", "thierty", "thirtie"] },
+        { c: "forty", w: ["fourty", "forthey", "fortey"] },
+        { c: "fifty", w: ["fivety", "fiftey", "fifftey"] },
+        { c: "hundred", w: ["hundered", "hundrid", "hunderd"] },
+        { c: "thousand", w: ["thousend", "thosand", "thouzand"] },
+
+        // Colors (6)
+        { c: "purple", w: ["purpel", "purpple", "pirple"] },
+        { c: "orange", w: ["orenge", "oringe", "orrange"] },
+        { c: "yellow", w: ["yelow", "yellew", "yallow"] },
+        { c: "brown", w: ["broun", "browne", "braun"] },
+        { c: "white", w: ["wite", "whight", "whiet"] },
+        { c: "black", w: ["blak", "bllack", "blacke"] },
+
+        // Shapes (4)
+        { c: "square", w: ["sqare", "squair", "skware"] },
+        { c: "circle", w: ["sircle", "circel", "surcle"] },
+        { c: "triangle", w: ["tryangle", "triangel", "triangal"] },
+        { c: "rectangle", w: ["rectangel", "recktangle", "rectangal"] },
+
+        // Animals (10)
+        { c: "monkey", w: ["monky", "munkey", "monkee"] },
+        { c: "elephant", w: ["elefant", "eliphant", "ellephant"] },
+        { c: "giraffe", w: ["jeraffe", "giraff", "jiraffe"] },
+        { c: "dolphin", w: ["dolfin", "dolphen", "dallphin"] },
+        { c: "penguin", w: ["pinguin", "pengwin", "pengin"] },
+        { c: "turtle", w: ["tertle", "turttel", "turtel"] },
+        { c: "rabbit", w: ["rabit", "rabbet", "rhabit"] },
+        { c: "lizard", w: ["lizzard", "liserd", "lizerd"] },
+        { c: "spider", w: ["spidar", "speider", "spyder"] },
+        { c: "butterfly", w: ["butterfley", "buterfly", "budderfly"] },
+
+        // Family / People (6)
+        { c: "mother", w: ["muther", "mothar", "mothre"] },
+        { c: "father", w: ["fathor", "fathar", "fathre"] },
+        { c: "brother", w: ["bruther", "brothar", "brothre"] },
+        { c: "sister", w: ["siser", "sistar", "cister"] },
+        { c: "family", w: ["famly", "familey", "fammily"] },
+        { c: "cousin", w: ["cuzin", "cousing", "cosin"] },
+
+        // Nature / Space (10)
+        { c: "weather", w: ["wether", "weathur", "waether"] },
+        { c: "summer", w: ["sumer", "sommar", "summur"] },
+        { c: "winter", w: ["wintar", "wintre", "wonter"] },
+        { c: "autumn", w: ["autum", "ottumn", "awtumn"] },
+        { c: "spring", w: ["sprin", "sping", "spreng"] },
+        { c: "flower", w: ["flowre", "flour", "flowar"] },
+        { c: "forest", w: ["forrest", "forist", "forast"] },
+        { c: "mountain", w: ["montain", "mountin", "mountein"] },
+        { c: "planet", w: ["plannet", "planit", "planat"] },
+        { c: "earth", w: ["erth", "urth", "earht"] },
+
+        // School / Home Items (10)
+        { c: "school", w: ["shool", "skool", "scool"] },
+        { c: "teacher", w: ["techer", "teachar", "teechir"] },
+        { c: "pencil", w: ["pensil", "pencel", "pensel"] },
+        { c: "window", w: ["windo", "wendow", "windoe"] },
+        { c: "kitchen", w: ["kichen", "kitchin", "kitschen"] },
+        { c: "garden", w: ["gardan", "gardin", "gareden"] },
+        { c: "picture", w: ["pitcher", "picter", "pikcher"] },
+        { c: "computer", w: ["computter", "computar", "compyuter"] },
+        { c: "blanket", w: ["blankit", "blancket", "blankat"] },
+        { c: "pillow", w: ["pilow", "pillo", "pellow"] }
     ];
 
     let currentStreak = 0;
@@ -333,7 +426,7 @@
             
             osc.start(now);
             osc.stop(now + 1.5);
-        }, 500); // Slightly slower for relaxed reading
+        }, 500);
     }
 
     function stopBackgroundMusic() {
@@ -386,7 +479,6 @@
     function generateProblem() {
         isTransitioning = false;
         
-        // Pick a random word that isn't the one we just played
         let newWordObj;
         do {
             newWordObj = wordBank[Math.floor(Math.random() * wordBank.length)];
@@ -394,11 +486,9 @@
         
         currentWordObj = newWordObj;
 
-        // Combine the correct word and its specific distractors into one array
         let options = [currentWordObj.c, ...currentWordObj.w];
-        
-        // Shuffle the buttons
         let optionsArray = shuffleArray(options);
+        
         const grid = document.getElementById('optionsGrid');
         grid.innerHTML = ''; 
 
@@ -424,7 +514,6 @@
 
             createSparkle(event.clientX, event.clientY);
 
-            // Wait 1.2 seconds so she can look at the correct spelling before it vanishes
             setTimeout(generateProblem, 1200);
         } else {
             btn.classList.add('wrong');
