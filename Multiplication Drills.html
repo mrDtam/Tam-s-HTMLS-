@@ -275,7 +275,7 @@
         osc.frequency.setValueAtTime(783.99, now + 0.2);
         
         // Volume envelope
-        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.setValueAtTime(1, now);
         gainNode.gain.linearRampToValueAtTime(0.15, now + 0.05); // Not too loud
         gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
         
