@@ -323,7 +323,7 @@
             osc.frequency.value = randomFreq;
             
             const now = audioCtx.currentTime;
-            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.setValueAtTime(0.4, now);
             gainNode.gain.linearRampToValueAtTime(0.03, now + 0.1); // Extremely quiet
             gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.5); // Long fade out
             
