@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systems of Equations Pro</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- Menu Screen --- */
+        #menuScreen { display: block; }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        .menu-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #2980b9;
+            transition: all 0.2s;
+        }
+        .menu-btn:hover { background-color: #2980b9; transform: translateY(2px); box-shadow: 0 2px 0 #1f618d; }
+        .menu-btn:active { transform: translateY(4px); box-shadow: none; }
+        .menu-btn.elim-btn { background-color: #9b59b6; box-shadow: 0 4px 0 #8e44ad; }
+        .menu-btn.elim-btn:hover { background-color: #8e44ad; box-shadow: 0 2px 0 #732d91; }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+        }
+        .back-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .back-btn:hover { background-color: #e0e6ed; }
+        
+        .system-display {
+            font-size: 26px;
+            margin: 0 0 25px 0;
+            padding: 20px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid #f39c12;
+            color: #d35400;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .phase-container {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.4s;
+        }
+        .phase-container.active { display: block; }
+        
+        .prompt-title {
+            font-size: 20px;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* MCQ Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: white;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+            padding: 15px 10px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+        }
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: #3498db;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #2980b9;
+        }
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        /* Input Rows */
+        .input-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        .input-row input {
+            width: 80px;
+            padding: 10px;
+            font-size: 20px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            text-align: center;
+            outline: none;
+        }
+        .input-row input:focus { border-color: #3498db; }
+        
+        .submit-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #27ae60;
+            margin-top: 15px;
+        }
+        .submit-btn:hover { background-color: #27ae60; transform: translateY(2px); box-shadow: 0 2px 0 #1e8449; }
+        
+        .feedback {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        .feedback.error { color: #e74c3c; animation: shake 0.4s; }
+        .feedback.success { color: #27ae60; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Systems of Equations</h1>
+    
+    <div id="menuScreen">
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="startMode('sub')">1. Solve by Substitution</button>
+            <button class="menu-btn elim-btn" onclick="startMode('elim')">2. Solve by Elimination</button>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="game-header">
+            <button class="back-btn" onclick="showMenu()">🔙 Menu</button>
+        </div>
+
+        <div class="system-display" id="systemDisplay"></div>
+
+        <div class="phase-container" id="phase1">
+            <div class="prompt-title" id="promptText1">Step 1: Setup</div>
+            <div class="options-grid" id="optionsGrid1"></div>
+        </div>
+
+        <div class="phase-container" id="phase2">
+            <div class="prompt-title" id="promptText2">Step 2: Simplify</div>
+            <div class="options-grid" id="optionsGrid2"></div>
+        </div>
+
+        <div class="phase-container" id="phase3">
+            <div class="prompt-title" id="promptText3">Step 3: Solve for the first variable</div>
+            <div class="input-row">
+                <span id="var1Label">x = </span> <input type="number" id="ansVar1">
+            </div>
+            <button class="submit-btn" onclick="checkPhase3()">Submit</button>
+            <div class="feedback" id="feedback3"></div>
+        </div>
+
+        <div class="phase-container" id="phase4">
+            <div class="prompt-title" id="promptText4">Step 4: Plug it back in to find the other variable</div>
+            <div class="input-row">
+                <span id="var2Label">y = </span> <input type="number" id="ansVar2">
+            </div>
+            <button class="submit-btn" onclick="checkPhase4()">Final Answer</button>
+            <div class="feedback" id="feedback4"></div>
+        </div>
+        
+        <button id="nextBtn" class="submit-btn" style="display:none; width:100%; margin-top:20px;" onclick="generateProblem()">Generate Next System</button>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'sub';
+    
+    let state = {
+        x: 0, y: 0,
+        m: 0, b: 0, A: 0, B: 0, C: 0, // Substitution vars
+        eq1: {a: 0, b: 0, c: 0}, eq2: {a: 0, b: 0, c: 0}, // Elim vars
+        elimTarget: 'y', mult1: 1, mult2: 1,
+        firstVarName: 'x', firstVarAns: 0,
+        secondVarName: 'y', secondVarAns: 0
+    };
+
+    function getRandomNonZero(min, max) {
+        let val;
+        do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0);
+        return val;
+    }
+
+    function formatTerm(coeff, variable, isFirst = false) {
+        if (coeff === 0) return "";
+        let absCoeff = Math.abs(coeff);
+        let coeffStr = (absCoeff === 1 && variable !== '') ? "" : absCoeff;
+        let sign = (coeff < 0) ? (isFirst ? "-" : " - ") : (isFirst ? "" : " + ");
+        return `${sign}${coeffStr}${variable}`;
+    }
+
+    function formatStandardEq(a, b, c) {
+        let xTerm = formatTerm(a, 'x', true);
+        let yTerm = formatTerm(b, 'y', a === 0);
+        return `${xTerm}${yTerm} = ${c}`;
+    }
+
+    function shuffle(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function startMode(mode) {
+        currentMode = mode;
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        generateProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+    }
+
+    function hideAllPhases() {
+        ['phase1', 'phase2', 'phase3', 'phase4'].forEach(p => {
+            document.getElementById(p).classList.remove('active');
+        });
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('feedback3').innerText = '';
+        document.getElementById('feedback4').innerText = '';
+        document.getElementById('ansVar1').value = '';
+        document.getElementById('ansVar2').value = '';
+    }
+
+    function generateProblem() {
+        hideAllPhases();
+        document.getElementById('phase1').classList.add('active');
+
+        // Integer Answers Guaranteed
+        state.x = getRandomNonZero(-8, 8);
+        state.y = getRandomNonZero(-8, 8);
+
+        if (currentMode === 'sub') {
+            state.firstVarName = 'x'; state.firstVarAns = state.x;
+            state.secondVarName = 'y'; state.secondVarAns = state.y;
+
+            state.m = getRandomNonZero(-4, 4);
+            state.b = state.y - (state.m * state.x);
+            
+            state.A = getRandomNonZero(-5, 5);
+            do { state.B = getRandomNonZero(-5, 5); } while (state.B === -state.m);
+            state.C = (state.A * state.x) + (state.B * state.y);
+
+            let eq1Str = `y = ${formatTerm(state.m, 'x', true)} ${state.b > 0 ? '+ ' + state.b : (state.b < 0 ? '- ' + Math.abs(state.b) : '')}`;
+            
+            document.getElementById('systemDisplay').innerHTML = `
+                <div>\\(\\text{Eq 1: } \\quad ${eq1Str}\\)</div>
+                <div>\\(\\text{Eq 2: } \\quad ${formatStandardEq(state.A, state.B, state.C)}\\)</div>
+            `;
+            
+            loadSubPhase1();
+        } 
+        else {
+            let a1 = getRandomNonZero(-5, 5); let b1 = getRandomNonZero(-5, 5);
+            let c1 = (a1 * state.x) + (b1 * state.y);
+            let a2, b2;
+            do {
+                a2 = getRandomNonZero(-5, 5); b2 = getRandomNonZero(-5, 5);
+            } while ((a1*b2 === a2*b1) || (Math.abs(a1) === Math.abs(a2) && Math.abs(b1) === Math.abs(b2))); 
+            
+            let c2 = (a2 * state.x) + (b2 * state.y);
+
+            state.eq1 = {a: a1, b: b1, c: c1};
+            state.eq2 = {a: a2, b: b2, c: c2};
+            state.elimTarget = Math.random() > 0.5 ? 'x' : 'y';
+            
+            state.firstVarName = state.elimTarget === 'x' ? 'y' : 'x';
+            state.firstVarAns = state.elimTarget === 'x' ? state.y : state.x;
+            state.secondVarName = state.elimTarget === 'x' ? 'x' : 'y';
+            state.secondVarAns = state.elimTarget === 'x' ? state.x : state.y;
+
+            document.getElementById('systemDisplay').innerHTML = `
+                <div>\\(\\text{Eq 1: } \\quad ${formatStandardEq(a1, b1, c1)}\\)</div>
+                <div>\\(\\text{Eq 2: } \\quad ${formatStandardEq(a2, b2, c2)}\\)</div>
+            `;
+            
+            loadElimPhase1();
+        }
+
+        if (window.renderMathInElement) renderMathInElement(document.getElementById('systemDisplay'));
+    }
+
+    // --- Phase 1 & 2 Generators ---
+    function renderMCQ(gridId, options, nextPhaseFn) {
+        let grid = document.getElementById(gridId);
+        grid.innerHTML = '';
+        let shuffled = shuffle([...options]);
+        
+        shuffled.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt.text;
+            btn.onclick = () => {
+                if (opt.isCorrect) {
+                    btn.style.backgroundColor = '#e8f8f5'; btn.style.borderColor = '#2ecc71';
+                    setTimeout(nextPhaseFn, 500);
+                } else {
+                    btn.classList.add('wrong');
+                    setTimeout(() => { btn.classList.remove('wrong'); generateProblem(); }, 600); // Restart problem on bad strategy
+                }
+            };
+            grid.appendChild(btn);
+        });
+        if (window.renderMathInElement) renderMathInElement(grid);
+    }
+
+    function loadSubPhase1() {
+        document.getElementById('promptText1').innerText = "Substitute Eq 1 into Eq 2. Which setup is correct?";
+        let bStr = state.b > 0 ? `+ ${state.b}` : (state.b < 0 ? `- ${Math.abs(state.b)}` : "");
+        let innerSub = `${formatTerm(state.m, 'x', true)} ${bStr}`.trim();
+        let wrongInnerSign = `${formatTerm(state.m, 'x', true)} ${state.b > 0 ? '- '+state.b : '+ '+Math.abs(state.b)}`.trim();
+        
+        let correctEq = `\\(${formatTerm(state.A, 'x', true)} ${state.B>0?'+':'-'} ${Math.abs(state.B)}(${innerSub}) = ${state.C}\\)`;
+        let dist1 = `\\(${formatTerm(state.A, `(${innerSub})`, true)} ${state.B>0?'+':'-'} ${Math.abs(state.B)}y = ${state.C}\\)`; // Sub into x
+        let dist2 = `\\(${formatTerm(state.A, 'x', true)} ${state.B>0?'+':'-'} ${Math.abs(state.B)}(${wrongInnerSign}) = ${state.C}\\)`; // Sign error
+
+        let options = [{text: correctEq, isCorrect: true}, {text: dist1, isCorrect: false}, {text: dist2, isCorrect: false}];
+        renderMCQ('optionsGrid1', options, () => {
+            document.getElementById('phase1').classList.remove('active');
+            document.getElementById('phase2').classList.add('active');
+            loadSubPhase2();
+        });
+    }
+
+    function loadSubPhase2() {
+        document.getElementById('promptText2').innerText = "Distribute and combine like terms. What is the simplified equation?";
+        
+        let sumCoeff = state.A + (state.B * state.m);
+        let constTerm = state.B * state.b;
+        
+        let formatLinEq = (c, bTerm) => `\\(${c}x ${bTerm > 0 ? '+ '+bTerm : (bTerm < 0 ? '- '+Math.abs(bTerm) : '')} = ${state.C}\\)`;
+        
+        let correctEq = formatLinEq(sumCoeff, constTerm);
+        let dist1 = formatLinEq(sumCoeff, state.b); // forgot to mult B to b
+        let dist2 = formatLinEq(state.A + state.m, constTerm); // forgot to mult B to m
+
+        let options = [{text: correctEq, isCorrect: true}, {text: dist1, isCorrect: false}, {text: dist2, isCorrect: false}];
+        renderMCQ('optionsGrid2', options, () => {
+            document.getElementById('phase2').classList.remove('active');
+            document.getElementById('phase3').classList.add('active');
+            document.getElementById('var1Label').innerText = `${state.firstVarName} = `;
+        });
+    }
+
+    function loadElimPhase1() {
+        let t = state.elimTarget;
+        document.getElementById('promptText1').innerText = `We want to eliminate ${t} by adding. Multiply the equations so the ${t} coefficients are opposites:`;
+        
+        let coeff1 = t === 'x' ? state.eq1.a : state.eq1.b;
+        let coeff2 = t === 'x' ? state.eq2.a : state.eq2.b;
+
+        let abs1 = Math.abs(coeff1); let abs2 = Math.abs(coeff2);
+        let gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+        let lcm = (abs1 * abs2) / gcd(abs1, abs2);
+
+        state.mult1 = lcm / abs1;
+        state.mult2 = lcm / abs2;
+
+        if (Math.sign(coeff1 * state.mult1) === Math.sign(coeff2 * state.mult2)) {
+            state.mult2 = -state.mult2;
+        }
+
+        let correctStr = `Multiply Eq 1 by ${state.mult1} and Eq 2 by ${state.mult2}`;
+        let swappedStr = `Multiply Eq 1 by ${state.mult2} and Eq 2 by ${state.mult1}`;
+        let wrongSignStr = `Multiply Eq 1 by ${state.mult1} and Eq 2 by ${-state.mult2}`;
+
+        let options = [{text: correctStr, isCorrect: true}, {text: swappedStr, isCorrect: false}];
+        if (wrongSignStr !== swappedStr) options.push({text: wrongSignStr, isCorrect: false});
+        else options.push({text: `Multiply Eq 1 by 2 and Eq 2 by -2`, isCorrect: false});
+
+        renderMCQ('optionsGrid1', options, () => {
+            document.getElementById('phase1').classList.remove('active');
+            document.getElementById('phase2').classList.add('active');
+            loadElimPhase2();
+        });
+    }
+
+    function loadElimPhase2() {
+        document.getElementById('promptText2').innerText = "Add the two multiplied equations together. What is the resulting equation?";
+        
+        let keepVar = state.firstVarName;
+        let keepCoeff1 = keepVar === 'x' ? state.eq1.a : state.eq1.b;
+        let keepCoeff2 = keepVar === 'x' ? state.eq2.a : state.eq2.b;
+
+        let sumCoeff = (state.mult1 * keepCoeff1) + (state.mult2 * keepCoeff2);
+        let sumConst = (state.mult1 * state.eq1.c) + (state.mult2 * state.eq2.c);
+
+        let correctEq = `\\(${formatTerm(sumCoeff, keepVar, true)} = ${sumConst}\\)`;
+        let dist1 = `\\(${formatTerm(sumCoeff, keepVar, true)} = ${state.eq1.c + state.eq2.c}\\)`; // Forgot to mult constants
+        let dist2 = `\\(${formatTerm((state.mult1 * keepCoeff1) - (state.mult2 * keepCoeff2), keepVar, true)} = ${sumConst}\\)`; // Subtracted coefficients
+
+        let options = [{text: correctEq, isCorrect: true}, {text: dist1, isCorrect: false}, {text: dist2, isCorrect: false}];
+        renderMCQ('optionsGrid2', options, () => {
+            document.getElementById('phase2').classList.remove('active');
+            document.getElementById('phase3').classList.add('active');
+            document.getElementById('var1Label').innerText = `${state.firstVarName} = `;
+        });
+    }
+
+    // --- Phase 3 & 4 (Input Verification) ---
+    function checkPhase3() {
+        let guess = parseInt(document.getElementById('ansVar1').value);
+        let fb = document.getElementById('feedback3');
+        if (isNaN(guess)) { fb.innerText = "Enter a number."; fb.className = 'feedback error'; return; }
+
+        if (guess === state.firstVarAns) {
+            fb.innerText = "Correct! Now substitute it back.";
+            fb.className = 'feedback success';
+            setTimeout(() => {
+                document.getElementById('phase4').classList.add('active');
+                document.getElementById('var2Label').innerText = `${state.secondVarName} = `;
+            }, 600);
+        } else {
+            fb.innerText = "Arithmetic error. Try solving the simplified equation again.";
+            fb.className = 'feedback error';
+        }
+    }
+
+    function checkPhase4() {
+        let guess = parseInt(document.getElementById('ansVar2').value);
+        let fb = document.getElementById('feedback4');
+        if (isNaN(guess)) { fb.innerText = "Enter a number."; fb.className = 'feedback error'; return; }
+
+        if (guess === state.secondVarAns) {
+            fb.innerText = `System Solved! Solution: (${state.x}, ${state.y})`;
+            fb.className = 'feedback success';
+            document.getElementById('nextBtn').style.display = 'block';
+        } else {
+            fb.innerText = "Arithmetic error. Check your substitution.";
+            fb.className = 'feedback error';
+        }
+    }
+
+    window.onload = () => {
+        if (window.renderMathInElement) {
+            renderMathInElement(document.body, { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+        }
+    }
+</script>
+
+</body>
+</html>

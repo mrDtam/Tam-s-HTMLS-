@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polynomial Powerhouse</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-width: 750px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .disclaimer {
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-bottom: 25px;
+        }
+
+        /* --- Menu Screen --- */
+        #menuScreen { display: block; }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .menu-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #2980b9;
+            transition: all 0.2s;
+        }
+        .menu-btn:hover { background-color: #2980b9; transform: translateY(2px); box-shadow: 0 2px 0 #1f618d; }
+        .menu-btn:active { transform: translateY(4px); box-shadow: none; }
+        
+        .menu-btn.high-level {
+            background-color: #e67e22;
+            box-shadow: 0 4px 0 #d35400;
+        }
+        .menu-btn.high-level:hover { background-color: #d35400; box-shadow: 0 2px 0 #a04000; }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .back-btn:hover { background-color: #e0e6ed; }
+        
+        .streak-counter {
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+            background: #e8f8f5;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid #27ae60;
+        }
+
+        .prompt-title {
+            font-size: 20px;
+            color: #34495e;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .problem-display {
+            font-size: 34px;
+            margin: 0 0 30px 0;
+            padding: 25px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid #f39c12;
+            color: #d35400;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+        }
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+            padding: 20px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+        }
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: #3498db;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #2980b9;
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #2ecc71 !important;
+            box-shadow: 0 4px 0 #27ae60 !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .problem-display { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Polynomial Distribution</h1>
+    <div class="disclaimer">Analyze the operations carefully before selecting your answer.</div>
+    
+    <div id="menuScreen">
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="startMode(1)">1. Simplify Polynomials (Collect Like Terms)</button>
+            <button class="menu-btn" onclick="startMode(2)">2. Add Polynomials</button>
+            <button class="menu-btn" onclick="startMode(3)">3. Subtract Polynomials</button>
+            <button class="menu-btn high-level" onclick="startMode(4)">4. Distribute (1 × 2 or 1 × 3)</button>
+            <button class="menu-btn high-level" onclick="startMode(5)">5. Expand Binomials (2 × 2 FOIL)</button>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="game-header">
+            <button class="back-btn" onclick="showMenu()">🔙 Menu</button>
+            <div class="streak-counter">Streak: <span id="streakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-title" id="promptTitle">Simplify the expression:</div>
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+</div>
+
+<script>
+    // --- Miniature Computer Algebra System (CAS) ---
+    class Term {
+        constructor(c, vars = {}) {
+            this.c = c;
+            this.vars = vars; // e.g. {x: 2, y: 1}
+        }
+        
+        get signature() {
+            return Object.keys(this.vars).sort().map(k => `${k}${this.vars[k]}`).join('');
+        }
+        
+        get degree() {
+            return Object.values(this.vars).reduce((sum, v) => sum + v, 0);
+        }
+
+        toString() {
+            if (this.c === 0) return "0";
+            
+            let vKeys = Object.keys(this.vars).sort();
+            let vStr = vKeys.map(k => {
+                if (this.vars[k] === 1) return k;
+                if (this.vars[k] > 1) return `${k}^{${this.vars[k]}}`;
+                return "";
+            }).join('');
+            
+            if (vStr === "") return this.c.toString();
+            if (this.c === 1) return vStr;
+            if (this.c === -1) return "-" + vStr;
+            return this.c + vStr;
+        }
+
+        clone() {
+            return new Term(this.c, { ...this.vars });
+        }
+    }
+
+    function multiplyTerms(t1, t2) {
+        let newC = t1.c * t2.c;
+        let newVars = { ...t1.vars };
+        for (let k in t2.vars) {
+            newVars[k] = (newVars[k] || 0) + t2.vars[k];
+        }
+        return new Term(newC, newVars);
+    }
+
+    function simplifyPoly(terms) {
+        let map = {};
+        terms.forEach(t => {
+            let sig = t.signature;
+            if (!map[sig]) map[sig] = t.clone();
+            else map[sig].c += t.c;
+        });
+        
+        let simplified = Object.values(map).filter(t => t.c !== 0);
+        if (simplified.length === 0) return [new Term(0)];
+
+        // Standard Form Sort: Highest degree first, then alphabetically
+        simplified.sort((a, b) => {
+            if (a.degree !== b.degree) return b.degree - a.degree;
+            return a.signature.localeCompare(b.signature);
+        });
+        return simplified;
+    }
+
+    function polyToStr(terms, raw = false) {
+        let poly = raw ? terms : simplifyPoly(terms);
+        if (poly.length === 0) return "0";
+        
+        let str = poly[0].toString();
+        for (let i = 1; i < poly.length; i++) {
+            let tStr = poly[i].toString();
+            if (tStr.startsWith("-")) {
+                str += " - " + tStr.substring(1);
+            } else {
+                str += " + " + tStr;
+            }
+        }
+        return str;
+    }
+
+    function multiplyPolys(p1, p2) {
+        let result = [];
+        p1.forEach(t1 => {
+            p2.forEach(t2 => {
+                result.push(multiplyTerms(t1, t2));
+            });
+        });
+        return simplifyPoly(result);
+    }
+
+    // --- Distractor Mutator Engine ---
+    function generateDistractors(correctPoly) {
+        let distractors = new Set();
+        
+        // Mutator 1: Flip a random sign
+        let d1 = correctPoly.map(t => t.clone());
+        if (d1.length > 0) {
+            let idx = Math.floor(Math.random() * d1.length);
+            d1[idx].c *= -1;
+            distractors.add(polyToStr(d1));
+        }
+
+        // Mutator 2: Arithmetic error on a coefficient
+        let d2 = correctPoly.map(t => t.clone());
+        if (d2.length > 0) {
+            let idx = Math.floor(Math.random() * d2.length);
+            d2[idx].c += (d2[idx].c > 0 ? 2 : -2);
+            distractors.add(polyToStr(d2));
+        }
+
+        // Mutator 3: Missing/Extra variable exponent
+        let d3 = correctPoly.map(t => t.clone());
+        if (d3.length > 0) {
+            let idx = Math.floor(Math.random() * d3.length);
+            let keys = Object.keys(d3[idx].vars);
+            if (keys.length > 0) {
+                d3[idx].vars[keys[0]] += 1; // Bump exponent
+            } else {
+                d3[idx].vars['x'] = 1; // Add an x to a constant
+            }
+            distractors.add(polyToStr(d3));
+        }
+        
+        return Array.from(distractors);
+    }
+
+    // --- Game Logic ---
+    let currentMode = 1;
+    let currentStreak = 0;
+    let isTransitioning = false;
+
+    function getRandomNonZero(min, max) {
+        let val;
+        do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0);
+        return val;
+    }
+    
+    function getRandomVars() {
+        // Keeps it to either a/b/c or x/y/z for readability
+        return Math.random() > 0.5 ? ['x', 'y', 'z'] : ['a', 'b', 'c'];
+    }
+
+    function generateRandomTerm(varsSet, maxDegree=2) {
+        let c = getRandomNonZero(-8, 8);
+        let vars = {};
+        // 80% chance to have a variable, 20% constant
+        if (Math.random() > 0.2) {
+            let v = varsSet[Math.floor(Math.random() * 2)]; // usually just use first two vars
+            vars[v] = getRandomNonZero(1, maxDegree);
+        }
+        return new Term(c, vars);
+    }
+
+    function startMode(mode) {
+        currentMode = mode;
+        currentStreak = 0;
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        generateProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+    }
+
+    function shuffle(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function generateProblem() {
+        isTransitioning = false;
+        let vSet = getRandomVars();
+        
+        let promptTeX = "";
+        let correctPoly = [];
+
+        if (currentMode === 1) {
+            document.getElementById('promptTitle').innerText = "Simplify the expression:";
+            // Generate 4-5 terms with overlapping variables to collect
+            let t1 = generateRandomTerm(vSet, 2);
+            let t2 = generateRandomTerm(vSet, 2);
+            let t3 = new Term(getRandomNonZero(-6, 6), {...t1.vars}); // Like term for t1
+            let t4 = new Term(getRandomNonZero(-6, 6), {...t2.vars}); // Like term for t2
+            let t5 = new Term(getRandomNonZero(-9, 9), {}); // Constant
+            
+            let rawTerms = shuffle([t1, t2, t3, t4, t5]);
+            promptTeX = polyToStr(rawTerms, true);
+            correctPoly = simplifyPoly(rawTerms);
+        } 
+        else if (currentMode === 2 || currentMode === 3) {
+            document.getElementById('promptTitle').innerText = currentMode === 2 ? "Add the polynomials:" : "Subtract the polynomials:";
+            
+            let p1 = [generateRandomTerm(vSet, 2), generateRandomTerm(vSet, 1), new Term(getRandomNonZero(-5,5))];
+            let p2 = [new Term(getRandomNonZero(-5,5), {...p1[0].vars}), generateRandomTerm(vSet, 1), new Term(getRandomNonZero(-5,5))];
+            
+            p1 = simplifyPoly(p1); p2 = simplifyPoly(p2);
+            
+            if (currentMode === 2) {
+                promptTeX = `\\left(${polyToStr(p1)}\\right) + \\left(${polyToStr(p2)}\\right)`;
+                correctPoly = simplifyPoly([...p1, ...p2]);
+            } else {
+                promptTeX = `\\left(${polyToStr(p1)}\\right) - \\left(${polyToStr(p2)}\\right)`;
+                let negativeP2 = p2.map(t => multiplyTerms(new Term(-1), t));
+                correctPoly = simplifyPoly([...p1, ...negativeP2]);
+            }
+        }
+        else if (currentMode === 4) {
+            document.getElementById('promptTitle').innerText = "Distribute and simplify:";
+            let p1 = [generateRandomTerm(vSet, 1)]; // Monomial
+            let p2 = simplifyPoly([generateRandomTerm(vSet, 2), generateRandomTerm(vSet, 1), new Term(getRandomNonZero(-5, 5))]); // Binomial or Trinomial
+            
+            promptTeX = `${polyToStr(p1, true)}\\left(${polyToStr(p2)}\\right)`;
+            correctPoly = multiplyPolys(p1, p2);
+        }
+        else if (currentMode === 5) {
+            document.getElementById('promptTitle').innerText = "Expand and simplify:";
+            // FOIL: (ax + b)(cx + d)
+            let v = vSet[0];
+            let p1 = simplifyPoly([new Term(getRandomNonZero(1, 4), {[v]: 1}), new Term(getRandomNonZero(-6, 6))]);
+            let p2 = simplifyPoly([new Term(getRandomNonZero(1, 4), {[v]: 1}), new Term(getRandomNonZero(-6, 6))]);
+            
+            promptTeX = `\\left(${polyToStr(p1)}\\right)\\left(${polyToStr(p2)}\\right)`;
+            correctPoly = multiplyPolys(p1, p2);
+        }
+
+        document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`;
+
+        let correctStr = polyToStr(correctPoly);
+        let optionSet = new Set();
+        optionSet.add(correctStr);
+        
+        let mutators = generateDistractors(correctPoly);
+        mutators.forEach(m => {
+            if (m !== correctStr && optionSet.size < 4) optionSet.add(m);
+        });
+        
+        // Failsafe padding
+        while(optionSet.size < 4) {
+            let fallback = generateRandomTerm(vSet, 2);
+            let fbStr = polyToStr([fallback, generateRandomTerm(vSet, 1)]);
+            if (!optionSet.has(fbStr)) optionSet.add(fbStr);
+        }
+
+        let optionsArray = shuffle(Array.from(optionSet));
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; 
+
+        optionsArray.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `\\(${opt}\\)`;
+            btn.onclick = () => handleGuess(btn, opt === correctStr);
+            grid.appendChild(btn);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+        }
+    }
+
+    function handleGuess(btn, isCorrect) {
+        if (isTransitioning) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            setTimeout(generateProblem, 800);
+        } else {
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            
+            setTimeout(() => {
+                display.classList.remove('error');
+                generateProblem(); // Instantly punish guesses with a new problem
+            }, 600);
+        }
+    }
+</script>
+
+</body>
+</html>

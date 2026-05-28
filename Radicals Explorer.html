@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radical Mastery</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-width: 650px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .disclaimer {
+            color: #7f8c8d;
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 25px;
+        }
+
+        /* --- Menu Screen --- */
+        #menuScreen { display: block; }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .menu-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #2980b9;
+            transition: all 0.2s;
+        }
+        .menu-btn:hover { background-color: #2980b9; transform: translateY(2px); box-shadow: 0 2px 0 #1f618d; }
+        .menu-btn:active { transform: translateY(4px); box-shadow: none; }
+        
+        .menu-btn.high-level {
+            background-color: #9b59b6;
+            box-shadow: 0 4px 0 #8e44ad;
+            margin-top: 10px;
+        }
+        .menu-btn.high-level:hover { background-color: #8e44ad; box-shadow: 0 2px 0 #732d91; }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .back-btn:hover { background-color: #e0e6ed; }
+        
+        .streak-counter {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f39c12;
+            background: #fdfbf7;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid #f39c12;
+        }
+
+        .prompt-title {
+            font-size: 18px;
+            color: #7f8c8d;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .problem-display {
+            font-size: 42px;
+            margin: 0 0 30px 0;
+            padding: 25px;
+            background-color: #f0f8ff;
+            border-radius: 12px;
+            border: 2px solid #3498db;
+            color: #2c3e50;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+            padding: 20px 10px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+        }
+        .option-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #3498db;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #2980b9;
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #2ecc71 !important;
+            box-shadow: 0 4px 0 #27ae60 !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+
+        @media (max-width: 480px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .problem-display { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Radical Mastery</h1>
+    <div class="disclaimer">* Assume all variables \(x \geq 0\)</div>
+    
+    <div id="menuScreen">
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="startMode(1)">1. Simplify Radicals (Numbers Only)</button>
+            <button class="menu-btn" onclick="startMode(2)">2. Simplify Radicals (With Variables)</button>
+            <button class="menu-btn" onclick="startMode(3)">3. Mixed to Entire Radicals</button>
+            <button class="menu-btn" onclick="startMode(4)">4. Cube Roots Focus</button>
+            <button class="menu-btn high-level" onclick="startMode(5)">🔥 5. The Gauntlet (Mix Everything) 🔥</button>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="game-header">
+            <button class="back-btn" onclick="showMenu()">🔙 Menu</button>
+            <div class="streak-counter">Streak: <span id="streakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-title" id="promptTitle">Simplify the radical:</div>
+        <div class="problem-display" id="problemDisplay">
+            </div>
+
+        <div class="options-grid" id="optionsGrid">
+            </div>
+    </div>
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let isTransitioning = false;
+
+    const squareFree = [2, 3, 5, 6, 7, 10, 11, 13, 14, 15];
+    const cubeFree = [2, 3, 4, 5, 6, 7, 9, 10, 12, 15];
+
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    // --- Mathematical String Generator ---
+    // Intelligently formats algebraic terms (e.g., 1x^1 -> x)
+    function formatTerm(c, e) {
+        if (c === 0) return "0";
+        let str = "";
+        
+        if (c === 1 && e > 0) str = "";
+        else str = c.toString();
+
+        if (e === 1) str += "x";
+        else if (e > 1) str += `x^{${e}}`;
+
+        if (str === "") return "1"; 
+        return str;
+    }
+
+    // Combines an outside term and inside term into a perfect LaTeX radical
+    function buildRadical(outC, outE, inC, inE, root) {
+        let outStr = formatTerm(outC, outE);
+        if (outStr === "1") outStr = ""; // Hide the 1 if it's attached to a root
+
+        let inStr = formatTerm(inC, inE);
+        let rootStr = root === 3 ? "\\sqrt[3]" : "\\sqrt";
+
+        // Perfect root trap (no radical left)
+        if (inC === 1 && inE === 0) {
+            return outStr === "" ? "1" : formatTerm(outC, outE);
+        }
+
+        return `${outStr}${rootStr}{${inStr}}`;
+    }
+
+    // --- Core Game Logic ---
+    function startMode(mode) {
+        currentMode = mode;
+        currentStreak = 0;
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        generateProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+    }
+
+    function shuffle(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function generateProblem() {
+        isTransitioning = false;
+        
+        let mode = currentMode;
+        if (mode === 5) mode = getRandomInt(1, 4); // The Gauntlet randomly picks a mode
+
+        let promptTeX = "";
+        let correctTeX = "";
+        let distractors = [];
+
+        if (mode === 1) {
+            // Simplify Numbers (Square Roots)
+            document.getElementById('promptTitle').innerText = "Simplify the radical:";
+            let a = getRandomInt(2, 10);
+            let b = getRandomEl(squareFree);
+            
+            promptTeX = buildRadical(1, 0, (a*a*b), 0, 2);
+            correctTeX = buildRadical(a, 0, b, 0, 2);
+            distractors.push(buildRadical(b, 0, a, 0, 2));
+            distractors.push(buildRadical(a*a, 0, b, 0, 2));
+            distractors.push(buildRadical(a*2, 0, b, 0, 2));
+        } 
+        else if (mode === 2) {
+            // Simplify Variables
+            document.getElementById('promptTitle').innerText = "Simplify the radical:";
+            let a = getRandomInt(2, 6);
+            let b = getRandomEl(squareFree.slice(0, 5)); // Keep numbers small
+            let n = getRandomInt(1, 4); // outer exp
+            let m = getRandomInt(0, 1); // inner exp
+            
+            promptTeX = buildRadical(1, 0, (a*a*b), (2*n + m), 2);
+            correctTeX = buildRadical(a, n, b, m, 2);
+            
+            // Smart Distractors
+            distractors.push(buildRadical(a, 2*n, b, m, 2)); // forgot to halve exponent
+            distractors.push(buildRadical(a*a, n, b, m, 2)); // forgot to root coefficient
+            distractors.push(buildRadical(a, n, b, m+1, 2)); // left extra inside
+        }
+        else if (mode === 3) {
+            // Mixed to Entire
+            document.getElementById('promptTitle').innerText = "Write as an ENTIRE radical:";
+            
+            let useVars = Math.random() > 0.5;
+            let a = getRandomInt(2, 8);
+            let b = getRandomEl(squareFree.slice(0, 5));
+            
+            if (useVars) {
+                let n = getRandomInt(1, 3);
+                let m = getRandomInt(0, 1);
+                promptTeX = buildRadical(a, n, b, m, 2);
+                correctTeX = buildRadical(1, 0, (a*a*b), (2*n + m), 2);
+                distractors.push(buildRadical(1, 0, (a*b), (n+m), 2)); // didn't square
+                distractors.push(buildRadical(1, 0, (2*a*b), (2*n+m), 2)); // times 2 instead of square
+                distractors.push(buildRadical(1, 0, (a*a*b), (n*n+m), 2)); // squared exponent instead of mult by 2
+            } else {
+                promptTeX = buildRadical(a, 0, b, 0, 2);
+                correctTeX = buildRadical(1, 0, (a*a*b), 0, 2);
+                distractors.push(buildRadical(1, 0, (a*b), 0, 2));
+                distractors.push(buildRadical(1, 0, (2*a*b), 0, 2));
+                distractors.push(buildRadical(1, 0, (a*b*b), 0, 2));
+            }
+        }
+        else if (mode === 4) {
+            // Cube Roots
+            let isSimplify = Math.random() > 0.5;
+            let a = getRandomInt(2, 4);
+            let b = getRandomEl(cubeFree.slice(0, 5));
+            let n = getRandomInt(1, 2);
+            let m = getRandomInt(0, 2);
+
+            if (isSimplify) {
+                document.getElementById('promptTitle').innerText = "Simplify the cube root:";
+                promptTeX = buildRadical(1, 0, (a*a*a*b), (3*n + m), 3);
+                correctTeX = buildRadical(a, n, b, m, 3);
+                distractors.push(buildRadical(a, 3*n, b, m, 3)); // forgot to root exp
+                distractors.push(buildRadical(a*a, n, b, m, 3)); // squared coeff instead of cubed
+                distractors.push(buildRadical(a, n, b, m+1, 3)); 
+            } else {
+                document.getElementById('promptTitle').innerText = "Write as an ENTIRE cube root:";
+                promptTeX = buildRadical(a, n, b, m, 3);
+                correctTeX = buildRadical(1, 0, (a*a*a*b), (3*n + m), 3);
+                distractors.push(buildRadical(1, 0, (a*a*b), (2*n+m), 3)); // squared instead of cubed
+                distractors.push(buildRadical(1, 0, (3*a*b), (3*n+m), 3)); // times 3
+                distractors.push(buildRadical(1, 0, (a*b), (n+m), 3)); // didn't cube
+            }
+        }
+
+        document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`;
+
+        // Ensure 4 unique options
+        let optionSet = new Set();
+        optionSet.add(correctTeX);
+        distractors.forEach(d => {
+            // Avoid duplicate text options in case math overlaps
+            if(d !== correctTeX && optionSet.size < 4) optionSet.add(d);
+        });
+        
+        // Failsafe randoms if distractors overlapped
+        while(optionSet.size < 4) {
+            let r = buildRadical(getRandomInt(2, 10), 0, getRandomInt(2, 10), 0, mode === 4 ? 3 : 2);
+            if (!optionSet.has(r)) optionSet.add(r);
+        }
+
+        let optionsArray = shuffle(Array.from(optionSet));
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; 
+
+        optionsArray.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `\\(${opt}\\)`;
+            btn.onclick = () => handleGuess(btn, opt === correctTeX);
+            grid.appendChild(btn);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+        }
+    }
+
+    function handleGuess(btn, isCorrect) {
+        if (isTransitioning) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            setTimeout(generateProblem, 800);
+        } else {
+            // Penalty!
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            
+            setTimeout(() => {
+                display.classList.remove('error');
+                generateProblem(); // Reset problem on wrong guess
+            }, 600);
+        }
+    }
+
+    // Auto-render any initial math
+    window.onload = () => {
+        if (window.renderMathInElement) {
+            renderMathInElement(document.body, { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+        }
+    }
+</script>
+
+</body>
+</html>

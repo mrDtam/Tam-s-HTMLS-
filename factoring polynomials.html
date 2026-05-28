@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factoring Master</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-width: 750px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .disclaimer {
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-bottom: 25px;
+        }
+
+        /* --- Menu Screen --- */
+        #menuScreen { display: block; }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .menu-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #2980b9;
+            transition: all 0.2s;
+        }
+        .menu-btn:hover { background-color: #2980b9; transform: translateY(2px); box-shadow: 0 2px 0 #1f618d; }
+        .menu-btn:active { transform: translateY(4px); box-shadow: none; }
+        
+        .menu-btn.high-level {
+            background-color: #9b59b6;
+            box-shadow: 0 4px 0 #8e44ad;
+            grid-column: 1 / -1;
+        }
+        .menu-btn.high-level:hover { background-color: #8e44ad; box-shadow: 0 2px 0 #732d91; }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .back-btn:hover { background-color: #e0e6ed; }
+        
+        .streak-counter {
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+            background: #e8f8f5;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid #27ae60;
+        }
+
+        .prompt-title {
+            font-size: 20px;
+            color: #34495e;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .problem-display {
+            font-size: 38px;
+            margin: 0 0 30px 0;
+            padding: 25px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid #f39c12;
+            color: #d35400;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            line-height: 1.5;
+        }
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+            padding: 20px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+        }
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: #3498db;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #2980b9;
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #2ecc71 !important;
+            box-shadow: 0 4px 0 #27ae60 !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .options-grid { grid-template-columns: 1fr; }
+            .problem-display { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Factoring Master</h1>
+    <div class="disclaimer">Analyze the structure of the polynomial before making your choice.</div>
+    
+    <div id="menuScreen">
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="startMode(1)">1. Factor \(x^2 + bx + c\)</button>
+            <button class="menu-btn" onclick="startMode(2)">2. Factor \(ax^2 + bx + c\)</button>
+            <button class="menu-btn" onclick="startMode(3)">3. Difference of Squares</button>
+            <button class="menu-btn" onclick="startMode(4)">4. Factor with GCF</button>
+            <button class="menu-btn" onclick="startMode(5)">5. Factor by Grouping</button>
+            <button class="menu-btn high-level" onclick="startMode(6)">6. The Ultimate Mix</button>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="game-header">
+            <button class="back-btn" onclick="showMenu()">🔙 Menu</button>
+            <div class="streak-counter">Streak: <span id="streakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-title" id="promptTitle">Factor the polynomial:</div>
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let isTransitioning = false;
+    let state = {};
+
+    function getRandomNonZero(min, max) {
+        let val;
+        do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0);
+        return val;
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffle(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // --- Math Safeguards (GCD) ---
+    function gcd(x, y) {
+        x = Math.abs(x);
+        y = Math.abs(y);
+        while(y) {
+            let t = y;
+            y = x % y;
+            x = t;
+        }
+        return x;
+    }
+    
+    function gcd3(x, y, z) {
+        return gcd(gcd(x, y), z);
+    }
+
+    // --- LaTeX Formatters ---
+    function term(c, v, isFirst) {
+        if (c === 0) return "";
+        let absC = Math.abs(c);
+        let cStr = (absC === 1 && v !== "") ? "" : absC;
+        let sign = (c < 0) ? (isFirst ? "-" : " - ") : (isFirst ? "" : " + ");
+        return `${sign}${cStr}${v}`;
+    }
+
+    function formatBinomial(a, b, v = 'x') {
+        return `(${term(a, v, true)}${term(b, '', false)})`;
+    }
+
+    function formatQuadratic(a, b, c, v = 'x') {
+        let p1 = term(a, `${v}^2`, true);
+        let p2 = term(b, v, p1 === "");
+        let p3 = term(c, "", p1 === "" && p2 === "");
+        return `${p1}${p2}${p3}`;
+    }
+
+    function formatCubic(a, b, c, d, v = 'x') {
+        let p1 = term(a, `${v}^3`, true);
+        let p2 = term(b, `${v}^2`, p1 === "");
+        let p3 = term(c, v, p1 === "" && p2 === "");
+        let p4 = term(d, "", p1 === "" && p2 === "" && p3 === "");
+        return `${p1}${p2}${p3}${p4}`;
+    }
+
+    // --- Game Navigation ---
+    function startMode(mode) {
+        currentMode = mode;
+        currentStreak = 0;
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        generateProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('menuScreen'), { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+        }
+    }
+
+    // --- Problem Generation Logic ---
+    function generateProblem() {
+        isTransitioning = false;
+        
+        let mode = currentMode;
+        if (mode === 6) mode = getRandomNonZero(1, 5); 
+
+        document.getElementById('promptTitle').innerText = "Factor completely:";
+
+        if (mode === 1) generateM1();
+        else if (mode === 2) generateM2();
+        else if (mode === 3) generateM3();
+        else if (mode === 4) generateM4();
+        else if (mode === 5) generateM5();
+    }
+
+    function generateM1() {
+        let r1 = getRandomNonZero(-9, 9);
+        let r2; do { r2 = getRandomNonZero(-9, 9); } while (r1 === -r2);
+
+        let b = r1 + r2;
+        let c = r1 * r2;
+
+        let prompt = formatQuadratic(1, b, c);
+        let correct = `${formatBinomial(1, r1)}${formatBinomial(1, r2)}`;
+        
+        let dist1 = `${formatBinomial(1, -r1)}${formatBinomial(1, -r2)}`; 
+        let dist2 = `${formatBinomial(1, r1)}${formatBinomial(1, -r2)}`; 
+        let dist3 = `${formatBinomial(1, r1+1)}${formatBinomial(1, r2-1)}`; 
+
+        renderProblem(prompt, correct, [dist1, dist2, dist3]);
+    }
+
+    function generateM2() {
+        let a, c, b, d, A, B, C;
+        do {
+            a = getRandomNonZero(2, 5);
+            c = getRandomNonZero(1, 4);
+            b = getRandomNonZero(-6, 6);
+            d = getRandomNonZero(-6, 6);
+            A = a * c;
+            B = a * d + b * c;
+            C = b * d;
+        } while (
+            a*c === 1 || b*d === 0 || B === 0 || 
+            gcd(a, b) > 1 || gcd(c, d) > 1 || gcd3(A, B, C) > 1
+        );
+
+        let prompt = formatQuadratic(A, B, C);
+        let correct = `${formatBinomial(a, b)}${formatBinomial(c, d)}`;
+        
+        let dist1 = `${formatBinomial(a, -b)}${formatBinomial(c, -d)}`; 
+        let dist2 = `${formatBinomial(a, d)}${formatBinomial(c, b)}`; 
+        let dist3 = `${formatBinomial(a, b)}${formatBinomial(c, -d)}`; 
+
+        renderProblem(prompt, correct, [dist1, dist2, dist3]);
+    }
+
+    function generateM3() {
+        let a, b;
+        do {
+            a = getRandomNonZero(1, 6);
+            b = getRandomNonZero(1, 10);
+        } while (gcd(a, b) > 1); 
+        
+        let prompt = formatQuadratic(a*a, 0, -(b*b));
+        let correct = `${formatBinomial(a, b)}${formatBinomial(a, -b)}`;
+        
+        let dist1 = `${formatBinomial(a, b)}^2`; 
+        let dist2 = `${formatBinomial(a, -b)}^2`;
+        let dist3 = `${formatBinomial(a*a, b)}${formatBinomial(a*a, -b)}`; 
+
+        renderProblem(prompt, correct, [dist1, dist2, dist3]);
+    }
+
+    // Mode 4 (Multi-Path GCF)
+    function generateM4() {
+        let k = getRandomNonZero(2, 5);
+        let subType = getRandomInt(0, 3);
+        state.m4 = { k, subType };
+
+        let A, B, C, inner, correctPhase1, dist1, dist2, dist3;
+
+        if (subType === 0) {
+            // Path 0: GCF Only (Remaining trinomial is prime)
+            let a, b, c;
+            do {
+                a = getRandomNonZero(-3, 3);
+                b = getRandomNonZero(-6, 6);
+                c = getRandomNonZero(-6, 6);
+                let disc = b*b - 4*a*c;
+            } while ( (b*b - 4*a*c >= 0 && Number.isInteger(Math.sqrt(b*b - 4*a*c))) || gcd3(a, b, c) > 1 );
+
+            A = k * a; B = k * b; C = k * c;
+            inner = formatQuadratic(a, b, c);
+            
+            document.getElementById('promptTitle').innerText = "Factor completely (Hint: Look for a GCF):";
+            let prompt = formatQuadratic(A, B, C);
+            
+            correctPhase1 = `${k}(${inner})`;
+            dist1 = `${k}(${formatQuadratic(a, b, c+1)})`; 
+            dist2 = `${k}x(${formatQuadratic(a, b, 0)} ${term(C, '', false)})`; 
+            dist3 = `${k}(${formatQuadratic(a, b+1, c)})`; 
+
+            // This is a 1-Phase problem because the inside is prime.
+            renderProblem(prompt, correctPhase1, [dist1, dist2, dist3], null, true);
+            return;
+        } 
+        else if (subType === 1) {
+            // Path 1: GCF + Mode 1
+            let r1 = getRandomNonZero(-9, 9);
+            let r2; do { r2 = getRandomNonZero(-9, 9); } while (r1 === -r2);
+            let b = r1 + r2; let c = r1 * r2;
+            A = k; B = k * b; C = k * c;
+            inner = formatQuadratic(1, b, c);
+            state.m4.r1 = r1; state.m4.r2 = r2;
+            dist3 = `(${formatBinomial(1, r1*k)}${formatBinomial(1, r2)})`;
+        }
+        else if (subType === 2) {
+            // Path 2: GCF + Mode 2
+            let a, c, b, d;
+            do {
+                a = getRandomNonZero(2, 5); c = getRandomNonZero(1, 4);
+                b = getRandomNonZero(-6, 6); d = getRandomNonZero(-6, 6);
+            } while (a*c === 1 || b*d === 0 || (a*d + b*c) === 0 || gcd(a, b) > 1 || gcd(c, d) > 1);
+            let inA = a*c; let inB = a*d + b*c; let inC = b*d;
+            A = k * inA; B = k * inB; C = k * inC;
+            inner = formatQuadratic(inA, inB, inC);
+            state.m4.a = a; state.m4.b = b; state.m4.c = c; state.m4.d = d;
+            dist3 = `(${formatBinomial(a*k, b)}${formatBinomial(c, d)})`;
+        }
+        else if (subType === 3) {
+            // Path 3: GCF + Mode 3 (Difference of Squares)
+            let a, b;
+            do {
+                a = getRandomNonZero(1, 6); b = getRandomNonZero(1, 10);
+            } while (gcd(a, b) > 1);
+            A = k * a * a; B = 0; C = k * -b * b;
+            inner = formatQuadratic(a*a, 0, -(b*b));
+            state.m4.a = a; state.m4.b = b;
+            dist3 = `(${formatBinomial(a*k, b)}${formatBinomial(a, -b)})`;
+        }
+
+        state.m4.orig = formatQuadratic(A, B, C);
+        state.m4.step1 = `${k}(${inner})`;
+
+        document.getElementById('promptTitle').innerText = "Step 1: Factor out the Greatest Common Factor (GCF)";
+        let prompt = state.m4.orig;
+        correctPhase1 = state.m4.step1;
+        
+        dist1 = `${k}(${formatQuadratic(A/k, B/k, (C/k)+1)})`; 
+        dist2 = `${k}x(${formatQuadratic(A/k, B/k, 0)} ${term(C, '', false)})`; 
+
+        renderProblem(prompt, correctPhase1, [dist1, dist2, dist3], loadM4Phase2, false);
+    }
+
+    function loadM4Phase2() {
+        document.getElementById('promptTitle').innerText = "Step 2: Completely factor the remaining polynomial";
+        let prompt = `\\begin{aligned} &${state.m4.orig} \\\\ &${state.m4.step1} \\end{aligned}`;
+        
+        let correct, dist1, dist2, dist3;
+        let k = state.m4.k;
+
+        if (state.m4.subType === 1) {
+            let r1 = state.m4.r1, r2 = state.m4.r2;
+            correct = `${k}${formatBinomial(1, r1)}${formatBinomial(1, r2)}`;
+            dist1 = `${k}${formatBinomial(1, -r1)}${formatBinomial(1, -r2)}`;
+            dist2 = `${formatBinomial(k, r1)}${formatBinomial(1, r2)}`; 
+            dist3 = `${k}${formatBinomial(1, r1)}^2`; 
+        } 
+        else if (state.m4.subType === 2) {
+            let a = state.m4.a, b = state.m4.b, c = state.m4.c, d = state.m4.d;
+            correct = `${k}${formatBinomial(a, b)}${formatBinomial(c, d)}`;
+            dist1 = `${k}${formatBinomial(a, -b)}${formatBinomial(c, -d)}`;
+            dist2 = `${formatBinomial(k*a, b)}${formatBinomial(c, d)}`; 
+            dist3 = `${k}${formatBinomial(a, d)}${formatBinomial(c, b)}`; 
+        } 
+        else if (state.m4.subType === 3) {
+            let a = state.m4.a, b = state.m4.b;
+            correct = `${k}${formatBinomial(a, b)}${formatBinomial(a, -b)}`;
+            dist1 = `${k}${formatBinomial(a, b)}^2`;
+            dist2 = `${k}${formatBinomial(a, -b)}^2`;
+            dist3 = `${formatBinomial(k*a, b)}${formatBinomial(a, -b)}`;
+        }
+
+        renderProblem(prompt, correct, [dist1, dist2, dist3], null, true, true);
+    }
+
+    // Mode 5 (Phased)
+    function generateM5() {
+        let a = getRandomNonZero(1, 4);
+        let c = getRandomNonZero(-5, 5);
+        let b = getRandomNonZero(-5, 5);
+
+        let A = a;
+        let B = a * c;
+        let C = b;
+        let D = b * c;
+
+        state.m5 = { a, b, c, A, B, C, D };
+
+        document.getElementById('promptTitle').innerText = "Step 1: Factor by grouping the first two and last two terms";
+        let prompt = formatCubic(A, B, C, D);
+        
+        let correctPhase1 = `${term(a, 'x^2', true)}(x ${term(c, '', false)}) ${term(b, '', false)}(x ${term(c, '', false)})`;
+        let dist1 = `${term(a, 'x^2', true)}(x ${term(c, '', false)}) ${term(-b, '', false)}(x ${term(c, '', false)})`;
+        let dist2 = `${term(a, 'x^2', true)}(x ${term(-c, '', false)}) ${term(b, '', false)}(x ${term(c, '', false)})`;
+        let dist3 = `${term(a, 'x^2', true)}(x ${term(c, '', false)}) ${term(b, '', false)}(x ${term(-c, '', false)})`;
+
+        renderProblem(prompt, correctPhase1, [dist1, dist2, dist3], loadM5Phase2, false);
+    }
+
+    function loadM5Phase2() {
+        document.getElementById('promptTitle').innerText = "Step 2: Write the final factored form";
+        
+        let origPoly = formatCubic(state.m5.A, state.m5.B, state.m5.C, state.m5.D);
+        let step1 = `${term(state.m5.a, 'x^2', true)}(x ${term(state.m5.c, '', false)}) ${term(state.m5.b, '', false)}(x ${term(state.m5.c, '', false)})`;
+        let prompt = `\\begin{aligned} &${origPoly} \\\\ &${step1} \\end{aligned}`;
+        
+        let correct = `${formatBinomial(state.m5.a, state.m5.b, 'x^2')}${formatBinomial(1, state.m5.c, 'x')}`;
+        let dist1 = `${formatBinomial(state.m5.a, -state.m5.b, 'x^2')}${formatBinomial(1, state.m5.c, 'x')}`;
+        let dist2 = `${formatBinomial(state.m5.a, state.m5.b, 'x')}${formatBinomial(1, state.m5.c, 'x')}`;
+        let dist3 = `${formatBinomial(state.m5.a, state.m5.b, 'x^2')}${formatBinomial(1, -state.m5.c, 'x')}`;
+
+        renderProblem(prompt, correct, [dist1, dist2, dist3], null, true, true);
+    }
+
+    // --- Shared Render Engine ---
+    function renderProblem(promptTeX, correctTeX, distractors, nextPhaseFn = null, isFinalPhase = true, isAligned = false) {
+        
+        document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`;
+
+        let optionSet = new Set();
+        optionSet.add(correctTeX);
+        distractors.forEach(d => {
+            if (d !== correctTeX && optionSet.size < 4) optionSet.add(d);
+        });
+
+        let optionsArray = shuffle(Array.from(optionSet));
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; 
+
+        optionsArray.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `\\(${opt}\\)`;
+            btn.onclick = () => {
+                if (isTransitioning) return;
+                
+                if (opt === correctTeX) {
+                    btn.classList.add('correct');
+                    if (isFinalPhase) {
+                        isTransitioning = true;
+                        currentStreak++;
+                        document.getElementById('streakDisplay').innerText = currentStreak;
+                        setTimeout(generateProblem, 1000);
+                    } else {
+                        isTransitioning = true;
+                        setTimeout(() => {
+                            isTransitioning = false;
+                            nextPhaseFn();
+                        }, 600);
+                    }
+                } else {
+                    currentStreak = 0;
+                    document.getElementById('streakDisplay').innerText = currentStreak;
+                    
+                    let display = document.getElementById('problemDisplay');
+                    display.classList.add('error');
+                    
+                    setTimeout(() => {
+                        display.classList.remove('error');
+                        generateProblem(); 
+                    }, 600);
+                }
+            };
+            grid.appendChild(btn);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+        }
+    }
+
+    window.onload = () => {
+        if (window.renderMathInElement) {
+            renderMathInElement(document.body, { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+        }
+    }
+</script>
+
+</body>
+</html>

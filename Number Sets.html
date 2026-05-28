@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Sets Sorting</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 26px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .instructions {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+        .pool {
+            background-color: #ecf0f1;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 60px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .num-pill {
+            background-color: white;
+            border: 2px solid #34495e;
+            color: #2c3e50;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.1s, border-color 0.2s, background-color 0.2s;
+        }
+        .num-pill:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+        .num-pill.correct {
+            border-color: #27ae60;
+            background-color: #e8f8f5;
+            color: #27ae60;
+        }
+        .num-pill.incorrect {
+            border-color: #e74c3c;
+            background-color: #fadbd8;
+            color: #c0392b;
+            animation: shake 0.4s;
+        }
+
+        .diagram-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: stretch;
+            margin-bottom: 30px;
+        }
+
+        .set-box {
+            border-radius: 12px;
+            padding: 40px 15px 15px 15px;
+            position: relative;
+            min-height: 60px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 10px;
+            transition: background-color 0.2s;
+        }
+        
+        .set-label {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .rational {
+            border: 3px solid #f39c12;
+            background-color: rgba(243, 156, 18, 0.05);
+            flex: 3;
+        }
+        .rational .set-label { color: #d35400; }
+
+        .integer {
+            border: 3px solid #3498db;
+            background-color: rgba(52, 152, 219, 0.1);
+            width: 100%;
+            margin-top: 10px;
+        }
+        .integer .set-label { color: #2980b9; }
+
+        .whole {
+            border: 3px solid #9b59b6;
+            background-color: rgba(155, 89, 182, 0.15);
+            width: 100%;
+            margin-top: 10px;
+        }
+        .whole .set-label { color: #8e44ad; }
+
+        .natural {
+            border: 3px solid #2ecc71;
+            background-color: rgba(46, 204, 113, 0.2);
+            width: 100%;
+            margin-top: 10px;
+            min-height: 80px;
+        }
+        .natural .set-label { color: #27ae60; }
+
+        .irrational {
+            border: 3px solid #e74c3c;
+            background-color: rgba(231, 76, 60, 0.05);
+            flex: 1;
+            min-width: 150px;
+        }
+        .irrational .set-label { color: #c0392b; }
+
+        .set-box.drag-over { background-color: rgba(0, 0, 0, 0.08); }
+        .pool.drag-over { background-color: #e0e6ed; }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .check-btn {
+            background-color: #3498db;
+            color: white;
+            box-shadow: 0 4px 0 #2980b9;
+        }
+        .check-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1f618d;
+        }
+        .check-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .reset-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            box-shadow: 0 4px 0 #bdc3c7;
+        }
+        .reset-btn:hover {
+            background-color: #e0e6ed;
+            color: #34495e;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #95a5a6;
+        }
+        .reset-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        #feedbackMsg {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            min-height: 27px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        @media (max-width: 768px) {
+            .diagram-container { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>The Real Number System</h1>
+    <div class="instructions">Drag each number into its <strong>most specific</strong> set. Evaluate them carefully!</div>
+    
+    <div id="numberPool" class="pool" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+        </div>
+
+    <div class="diagram-container">
+        <div id="rational" class="set-box rational" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+            <span class="set-label">Rational (Q)</span>
+            
+            <div id="integer" class="set-box integer" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <span class="set-label">Integer (Z)</span>
+                
+                <div id="whole" class="set-box whole" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <span class="set-label">Whole (W)</span>
+                    
+                    <div id="natural" class="set-box natural" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                        <span class="set-label">Natural (N)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="irrational" class="set-box irrational" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+            <span class="set-label">Irrational (I)</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="check-btn" onclick="checkAnswers()">Check Sorting</button>
+        <button class="reset-btn" onclick="initGame()">Generate New Numbers</button>
+    </div>
+
+    <div id="feedbackMsg"></div>
+</div>
+
+<script>
+    // --- Generative Math Engine ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function generateNumbers() {
+        let nums = [];
+        let idCounter = 1;
+        const addNum = (tex, target) => { nums.push({ id: "n" + idCounter++, tex, target }); };
+
+        // 1. Natural Tricks (2 items)
+        let natRoot = getRandomInt(2, 10);
+        addNum(`\\sqrt{${natRoot * natRoot}}`, "natural"); // e.g., \sqrt{81}
+        let natNum = getRandomInt(2, 12); 
+        let natDen = getRandomInt(2, 5);
+        addNum(`\\frac{${natNum * natDen}}{${natDen}}`, "natural"); // e.g., 20/4
+
+        // 2. Whole Tricks (2 items)
+        addNum(getRandomEl(["0", "0.0"]), "whole");
+        let wholeDen = getRandomInt(2, 9);
+        addNum(getRandomEl([`\\sqrt{0}`, `\\frac{0}{${wholeDen}}`]), "whole");
+
+        // 3. Integer Tricks (3 items)
+        let intNeg = getRandomInt(1, 15);
+        addNum(`-${intNeg}`, "integer");
+        let intRoot = getRandomInt(2, 9);
+        addNum(`-\\,\\sqrt{${intRoot * intRoot}}`, "integer"); // e.g., -\sqrt{25}
+        let intNum = getRandomInt(2, 10); 
+        let intDen = getRandomInt(2, 5);
+        addNum(`\\frac{-${intNum * intDen}}{${intDen}}`, "integer"); // e.g., -12/3
+
+        // 4. Rational Tricks (4 items)
+        let ratDecimals = ["0.25", "0.5", "-1.5", "-4.25", "2.75", "-0.1"];
+        addNum(getRandomEl(ratDecimals), "rational");
+        
+        let repDigits = [1, 3, 6, 7];
+        addNum(`0.\\overline{${getRandomEl(repDigits)}}`, "rational"); // e.g., 0.333...
+        
+        let rootDecimals = ["0.01", "0.04", "0.09", "0.16", "0.25", "0.36", "0.81", "1.44"];
+        addNum(`\\sqrt{${getRandomEl(rootDecimals)}}`, "rational"); // e.g., \sqrt{0.04}
+        
+        let fractions = ["\\frac{1}{2}", "\\frac{3}{4}", "-\\frac{2}{3}", "\\frac{5}{8}", "\\frac{7}{10}"];
+        addNum(getRandomEl(fractions), "rational");
+
+        // 5. Irrational Tricks (3 items)
+        let piVars = ["\\pi", "2\\pi", "-3\\pi", "\\frac{\\pi}{2}", "\\frac{\\pi}{4}"];
+        addNum(getRandomEl(piVars), "irrational");
+        
+        let nonSquares = [2, 3, 5, 6, 7, 8, 10, 11, 12, 14, 15, 20];
+        let ir1 = getRandomEl(nonSquares);
+        addNum(`\\sqrt{${ir1}}`, "irrational"); // e.g., \sqrt{7}
+        
+        let ir2; 
+        do { ir2 = getRandomEl(nonSquares); } while (ir1 === ir2);
+        addNum(`-\\sqrt{${ir2}}`, "irrational"); // Ensure distinct from ir1
+
+        return nums;
+    }
+
+    function shuffle(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function initGame() {
+        const pool = document.getElementById('numberPool');
+        pool.innerHTML = '';
+        
+        ['natural', 'whole', 'integer', 'rational', 'irrational'].forEach(id => {
+            const zone = document.getElementById(id);
+            Array.from(zone.children).forEach(child => {
+                if (child.classList.contains('num-pill')) child.remove();
+            });
+        });
+
+        document.getElementById('feedbackMsg').innerText = "";
+
+        // Generate and shuffle new numbers dynamically
+        let activeNumbers = generateNumbers();
+        let shuffled = shuffle(activeNumbers);
+        
+        shuffled.forEach(num => {
+            let pill = document.createElement('div');
+            pill.id = num.id;
+            pill.className = 'num-pill';
+            pill.draggable = true;
+            pill.ondragstart = dragStart;
+            pill.dataset.target = num.target;
+            pill.innerHTML = `\\(${num.tex}\\)`;
+            pool.appendChild(pill);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(pool, { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+        }
+    }
+
+    // --- Drag and Drop Logic ---
+    function dragStart(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+        ev.target.classList.remove('correct', 'incorrect');
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+        if (ev.target.classList.contains('set-box') || ev.target.id === 'numberPool') {
+            ev.target.classList.add('drag-over');
+        }
+    }
+
+    function dragLeave(ev) {
+        if (ev.target.classList.contains('set-box') || ev.target.id === 'numberPool') {
+            ev.target.classList.remove('drag-over');
+        }
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        ev.stopPropagation(); 
+        
+        let target = ev.target;
+        target.classList.remove('drag-over');
+
+        while (!target.classList.contains('set-box') && target.id !== 'numberPool' && target !== document.body) {
+            target = target.parentNode;
+        }
+
+        if (target.classList.contains('set-box') || target.id === 'numberPool') {
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            target.appendChild(draggedElement);
+            draggedElement.classList.remove('correct', 'incorrect');
+        }
+    }
+
+    // --- Validation Engine ---
+    function checkAnswers() {
+        const pills = document.querySelectorAll('.num-pill');
+        let allCorrect = true;
+        let anyUnplaced = false;
+
+        pills.forEach(pill => {
+            pill.classList.remove('correct', 'incorrect');
+            const parent = pill.parentNode;
+            
+            if (parent.id === 'numberPool') {
+                anyUnplaced = true;
+                return; 
+            }
+
+            const expectedTarget = pill.dataset.target;
+            const actualPlacement = parent.id;
+
+            if (expectedTarget === actualPlacement) {
+                pill.classList.add('correct');
+            } else {
+                pill.classList.add('incorrect');
+                allCorrect = false;
+                
+                setTimeout(() => { pill.classList.remove('incorrect'); }, 400);
+                setTimeout(() => { 
+                    pill.style.borderColor = '#e74c3c';
+                    pill.style.backgroundColor = '#fadbd8';
+                    pill.style.color = '#c0392b';
+                }, 410);
+            }
+        });
+
+        pills.forEach(pill => {
+            pill.addEventListener('dragstart', function() {
+                this.style.borderColor = '';
+                this.style.backgroundColor = '';
+                this.style.color = '';
+            }, {once: true});
+        });
+
+        const msgBox = document.getElementById('feedbackMsg');
+        
+        if (anyUnplaced) {
+            msgBox.style.color = "#d35400";
+            msgBox.innerText = "Sort all numbers before checking!";
+        } else if (allCorrect) {
+            msgBox.style.color = "#27ae60";
+            msgBox.innerText = "Excellent! You categorized all the tricky numbers correctly.";
+        } else {
+            msgBox.style.color = "#c0392b";
+            msgBox.innerText = "Some numbers are in the wrong set. Remember to simplify first!";
+        }
+    }
+
+    window.onload = initGame;
+</script>
+
+</body>
+</html>
