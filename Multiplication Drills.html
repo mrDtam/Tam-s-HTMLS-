@@ -116,11 +116,11 @@
         .icon-btn:hover { background-color: #e0e6ed; }
 
         .streak-counter {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #f39c12;
             background: #fff3e0;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 15px;
             border: 2px solid #f39c12;
         }
@@ -197,6 +197,11 @@
             100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
         }
 
+        @media (max-width: 480px) {
+            .game-header { flex-direction: column; gap: 15px; }
+            .streak-counter { width: 100%; box-sizing: border-box; text-align: center; }
+        }
+
     </style>
 </head>
 <body>
@@ -224,7 +229,7 @@
                 <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
                 <button class="icon-btn" id="muteBtn" onclick="toggleMusic()">🎵 On</button>
             </div>
-            <div class="streak-counter">⭐ Streak: <span id="streakDisplay">0</span></div>
+            <div class="streak-counter">⭐ Streak: <span id="streakDisplay">0</span> | 🏆 Best: <span id="highStreakDisplay">0</span></div>
         </div>
 
         <div class="problem-display" id="problemDisplay">
@@ -239,6 +244,7 @@
 <script>
     let currentMultiplier = 2;
     let currentStreak = 0;
+    let highestStreak = 0; // NEW VARIABLE
     let isTransitioning = false;
 
     // --- Audio Engine (Web Audio API) ---
@@ -353,7 +359,7 @@
 
     // --- Navigation ---
     function startGame(number) {
-        initAudio(); // Browsers require audio to be initialized upon a user click
+        initAudio(); 
         if (isMusicPlaying) startBackgroundMusic();
 
         currentMultiplier = number;
@@ -430,8 +436,15 @@
             btn.classList.add('correct');
             playSuccessSound();
             
+            // INCREMENT CURRENT STREAK
             currentStreak++;
             document.getElementById('streakDisplay').innerText = currentStreak;
+
+            // CHECK & UPDATE HIGHEST STREAK
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
 
             createSparkle(event.clientX, event.clientY);
 
@@ -440,6 +453,7 @@
             btn.classList.add('wrong');
             playWrongSound();
             
+            // RESET CURRENT STREAK ON MISTAKE
             currentStreak = 0; 
             document.getElementById('streakDisplay').innerText = currentStreak;
         }
