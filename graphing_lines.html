@@ -322,16 +322,16 @@
             if (i !== 0) {
                 // X-axis ticks
                 ctx.beginPath(); ctx.moveTo(mapX(i), mapY(0) - 4); ctx.lineTo(mapX(i), mapY(0) + 4); ctx.stroke();
-                // X-axis numbers (every 2 units to prevent clutter)
+                // X-axis numbers
                 if (i % 2 === 0) ctx.fillText(i, mapX(i), mapY(0) + 14);
 
                 // Y-axis ticks
                 ctx.beginPath(); ctx.moveTo(mapX(0) - 4, mapY(i)); ctx.lineTo(mapX(0) + 4, mapY(i)); ctx.stroke();
-                // Y-axis numbers (every 2 units)
+                // Y-axis numbers
                 if (i % 2 === 0) {
                     ctx.textAlign = "right";
                     ctx.fillText(i, mapX(0) - 8, mapY(i));
-                    ctx.textAlign = "center"; // reset for next x-label
+                    ctx.textAlign = "center"; 
                 }
             }
         }
@@ -371,11 +371,22 @@
 
     function getMousePos(evt) {
         const rect = canvas.getBoundingClientRect();
-        const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-        const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
         
-        const pixelX = clientX - rect.left;
-        const pixelY = clientY - rect.top;
+        // Safely handle both mouse and touch events
+        let clientX = evt.clientX;
+        let clientY = evt.clientY;
+        if (evt.touches && evt.touches.length > 0) {
+            clientX = evt.touches[0].clientX;
+            clientY = evt.touches[0].clientY;
+        }
+        
+        // Calculate the scaling ratio (Internal Canvas Size / Visual CSS Size)
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        // Apply the scale so the coordinates match, no matter how small the screen is
+        const pixelX = (clientX - rect.left) * scaleX;
+        const pixelY = (clientY - rect.top) * scaleY;
         
         return {
             x: Math.round((pixelX - originX) / pixelsPerUnit),
@@ -385,16 +396,26 @@
 
     function handleStart(evt) {
         if (isTransitioning) return;
-        evt.preventDefault();
+        // Prevent default only if cancelable (stops mobile scrolling while dragging)
+        if (evt.cancelable) evt.preventDefault(); 
+        
         const pos = getMousePos(evt);
         
-        if (Math.abs(pos.x - p1.x) <= 1 && Math.abs(pos.y - p1.y) <= 1) draggingPoint = p1;
-        else if (Math.abs(pos.x - p2.x) <= 1 && Math.abs(pos.y - p2.y) <= 1) draggingPoint = p2;
+        // Increased hit tolerance from 1 to 1.5 to make it easier for fat fingers on mobile
+        const hitTolerance = 1.5;
+        
+        if (Math.abs(pos.x - p1.x) <= hitTolerance && Math.abs(pos.y - p1.y) <= hitTolerance) {
+            draggingPoint = p1;
+        }
+        else if (Math.abs(pos.x - p2.x) <= hitTolerance && Math.abs(pos.y - p2.y) <= hitTolerance) {
+            draggingPoint = p2;
+        }
     }
 
     function handleMove(evt) {
         if (!draggingPoint) return;
-        evt.preventDefault();
+        if (evt.cancelable) evt.preventDefault(); 
+        
         const pos = getMousePos(evt);
         
         draggingPoint.x = Math.max(-10, Math.min(10, pos.x));
@@ -411,6 +432,7 @@
     canvas.addEventListener('mouseup', handleEnd);
     canvas.addEventListener('mouseleave', handleEnd);
 
+    // Passive false is needed to prevent scrolling while drawing
     canvas.addEventListener('touchstart', handleStart, {passive: false});
     canvas.addEventListener('touchmove', handleMove, {passive: false});
     canvas.addEventListener('touchend', handleEnd);
