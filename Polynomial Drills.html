@@ -375,6 +375,11 @@
     function showMenu() {
         document.getElementById('gameScreen').style.display = 'none';
         document.getElementById('menuScreen').style.display = 'block';
+        
+        // --- ADD THESE TWO LINES ---
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+        // ---------------------------
     }
 
     function shuffle(array) {
