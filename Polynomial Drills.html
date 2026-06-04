@@ -198,7 +198,7 @@
     <div id="gameScreen">
         <div class="game-header">
             <button class="back-btn" onclick="showMenu()">🔙 Menu</button>
-            <div class="streak-counter">Streak: <span id="streakDisplay">0</span></div>
+            <div class="streak-counter">Streak: <span id="streakDisplay">0</span> | Best: <span id="highStreakDisplay">0</span></div>
         </div>
 
         <div class="prompt-title" id="promptTitle">Simplify the expression:</div>
@@ -338,6 +338,7 @@
     // --- Game Logic ---
     let currentMode = 1;
     let currentStreak = 0;
+    let highestStreak = 0; // Add this line
     let isTransitioning = false;
 
     function getRandomNonZero(min, max) {
@@ -485,6 +486,13 @@
             
             currentStreak++;
             document.getElementById('streakDisplay').innerText = currentStreak;
+
+            // --- ADD THIS BLOCK ---
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+            // ----------------------
 
             setTimeout(generateProblem, 800);
         } else {
