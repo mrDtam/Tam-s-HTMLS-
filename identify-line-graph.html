@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identify the Graph</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="generateProblem()"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .radio-group {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2c3e50;
+            user-select: none;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        #streak {
+            color: #3498db;
+            font-size: 20px;
+        }
+        canvas {
+            background-color: #fff;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .option-btn {
+            background-color: white;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 15px 10px;
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #34495e;
+            box-shadow: 0 4px 0 #bdc3c7;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: #3498db;
+            background-color: #f0f8ff;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #2980b9;
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .option-btn:disabled {
+            cursor: default;
+        }
+        .option-btn.correct {
+            background-color: #e8f8f5;
+            border-color: #2ecc71;
+            color: #27ae60;
+            box-shadow: 0 4px 0 #27ae60;
+            transform: translateY(0);
+        }
+        .option-btn.wrong {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            color: #c0392b;
+            box-shadow: 0 4px 0 #c0392b;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Identify The Equation</h1>
+    
+    <div class="controls">
+        <label class="radio-group">
+            <input type="radio" name="mode" value="slopeInt" checked onchange="generateProblem()"> y = mx + b
+        </label>
+        <label class="radio-group">
+            <input type="radio" name="mode" value="standard" onchange="generateProblem()"> Ax + By = C
+        </label>
+    </div>
+
+    <div class="stats">
+        <span>Select the correct equation:</span>
+        <span>Streak: <span id="streak">0</span></span>
+    </div>
+    
+    <canvas id="graphCanvas" width="500" height="500"></canvas>
+
+    <div class="options-grid" id="optionsGrid">
+        </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const streakDisplay = document.getElementById('streak');
+
+    const gridSize = 20; // -10 to 10
+    const pixelsPerUnit = canvas.width / gridSize;
+    const originX = canvas.width / 2;
+    const originY = canvas.height / 2;
+
+    let currentStreak = 0;
+    let isTransitioning = false;
+
+    function gcd(a, b) {
+        a = Math.abs(a);
+        b = Math.abs(b);
+        while (b) { let temp = b; b = a % b; a = temp; }
+        return a;
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // --- Formatters ---
+    function formatSlopeInt(n, d, b) {
+        if (d === 0) return "\\(x = " + b + "\\)"; 
+        
+        let mStr = "";
+        if (n === 0) mStr = "";
+        else if (n === 1 && d === 1) mStr = "x";
+        else if (n === -1 && d === 1) mStr = "-x";
+        else if (d === 1) mStr = `${n}x`;
+        else mStr = (n * d < 0 ? "-" : "") + `\\frac{${Math.abs(n)}}{${Math.abs(d)}}x`;
+
+        let bStr = "";
+        if (b > 0) bStr = mStr !== "" ? ` + ${b}` : `${b}`;
+        else if (b < 0) bStr = mStr !== "" ? ` - ${Math.abs(b)}` : `${b}`;
+        else if (n === 0) bStr = "0";
+
+        return `\\(y = ${mStr}${bStr}\\)`;
+    }
+
+    function formatStandard(n, d, b) {
+        let A = n;
+        let B = -d;
+        let C = -d * b;
+
+        if (A < 0) { A = -A; B = -B; C = -C; }
+        if (A === 0) { B = 1; C = b; }
+
+        let aStr = A === 1 ? "x" : (A === -1 ? "-x" : `${A}x`);
+        if (A === 0) aStr = "";
+
+        let bStr = "";
+        if (B === 1) bStr = aStr !== "" ? "+ y" : "y";
+        else if (B === -1) bStr = aStr !== "" ? "- y" : "-y";
+        else if (B > 0) bStr = aStr !== "" ? `+ ${B}y` : `${B}y`;
+        else if (B < 0) bStr = aStr !== "" ? `- ${Math.abs(B)}y` : `${B}y`;
+
+        return `\\(${aStr} ${bStr} = ${C}\\)`;
+    }
+
+    // --- Generation & Drawing ---
+    function generateProblem() {
+        if (isTransitioning) return;
+        optionsGrid.innerHTML = '';
+
+        const mode = document.querySelector('input[name="mode"]:checked').value;
+        let n, d, b;
+
+        if (mode === "standard") {
+            // Branch 1: Force perfect integer x and y intercepts for Standard Form
+            let xInt, yInt;
+            do {
+                xInt = getRandomInt(-8, 8);
+                yInt = getRandomInt(-8, 8);
+            } while (xInt === 0 || yInt === 0);
+
+            // Slope m = -yInt / xInt
+            let rise = -yInt;
+            let run = xInt;
+
+            let divisor = gcd(rise, run);
+            n = rise / divisor;
+            d = run / divisor;
+            b = yInt;
+
+            if (d < 0) { n = -n; d = -d; }
+
+        } else {
+            // Branch 2: Standard integer y-intercept and rational slope for Slope-Intercept
+            b = getRandomInt(-8, 8); 
+            
+            let x2, y2;
+            do {
+                x2 = getRandomInt(-10, 10);
+                y2 = getRandomInt(-10, 10);
+            } while (x2 === 0 || (x2 === 0 && y2 === b));
+
+            let rise = y2 - b;
+            let run = x2;
+
+            let divisor = gcd(rise, run);
+            n = rise / divisor;
+            d = run / divisor;
+
+            if (d < 0) { n = -n; d = -d; }
+        }
+
+        const formatEq = mode === "slopeInt" ? formatSlopeInt : formatStandard;
+
+        const correctAnswer = formatEq(n, d, b);
+        let optionsSet = new Set();
+        optionsSet.add(correctAnswer);
+
+        // Targeted Distractors
+        const distractors = [
+            formatEq(-n, d, b),    
+            formatEq(d, n, b),     
+            formatEq(n, d, -b),    
+            formatEq(-d, n, b),    
+            formatEq(n, d, b + (b > 0 ? -2 : 2)) 
+        ];
+
+        for (let dist of distractors) {
+            if (optionsSet.size < 4 && dist !== correctAnswer && !dist.includes("NaN")) {
+                optionsSet.add(dist);
+            }
+        }
+
+        while (optionsSet.size < 4) {
+            let rn = getRandomInt(-5, 5);
+            let rd = getRandomInt(1, 5);
+            let rb = getRandomInt(-8, 8);
+            let randOpt = formatEq(rn, rd, rb);
+            if (randOpt !== correctAnswer) optionsSet.add(randOpt);
+        }
+
+        let optionsArray = shuffleArray(Array.from(optionsSet));
+        optionsArray.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt;
+            btn.onclick = () => handleGuess(btn, opt === correctAnswer);
+            optionsGrid.appendChild(btn);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(optionsGrid, {
+                delimiters: [ {left: "\\(", right: "\\)", display: false} ]
+            });
+        }
+
+        drawGraph(n, d, b);
+    }
+
+    function mapX(mathX) { return originX + mathX * pixelsPerUnit; }
+    function mapY(mathY) { return originY - mathY * pixelsPerUnit; }
+
+    function drawGraph(n, d, b) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Grid
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#ecf0f1";
+        for (let i = -10; i <= 10; i++) {
+            ctx.beginPath(); ctx.moveTo(mapX(i), 0); ctx.lineTo(mapX(i), canvas.height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, mapY(i)); ctx.lineTo(canvas.width, mapY(i)); ctx.stroke();
+        }
+
+        // Draw Axes
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#7f8c8d";
+        ctx.beginPath(); ctx.moveTo(mapX(0), 0); ctx.lineTo(mapX(0), canvas.height); ctx.stroke(); 
+        ctx.beginPath(); ctx.moveTo(0, mapY(0)); ctx.lineTo(canvas.width, mapY(0)); ctx.stroke(); 
+
+        // Draw Ticks and Labels
+        ctx.fillStyle = "#34495e";
+        ctx.font = "12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        for (let i = -10; i <= 10; i++) {
+            if (i !== 0) {
+                ctx.beginPath(); ctx.moveTo(mapX(i), mapY(0) - 4); ctx.lineTo(mapX(i), mapY(0) + 4); ctx.stroke();
+                if (i % 2 === 0) ctx.fillText(i, mapX(i), mapY(0) + 14);
+
+                ctx.beginPath(); ctx.moveTo(mapX(0) - 4, mapY(i)); ctx.lineTo(mapX(0) + 4, mapY(i)); ctx.stroke();
+                if (i % 2 === 0) {
+                    ctx.textAlign = "right";
+                    ctx.fillText(i, mapX(0) - 8, mapY(i));
+                    ctx.textAlign = "center"; 
+                }
+            }
+        }
+
+        // Draw the target line
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#3498db";
+        
+        let x1 = -20;
+        let y1 = (n / d) * x1 + b;
+        let x2 = 20;
+        let y2 = (n / d) * x2 + b;
+
+        ctx.beginPath();
+        ctx.moveTo(mapX(x1), mapY(y1));
+        ctx.lineTo(mapX(x2), mapY(y2));
+        ctx.stroke();
+
+        // Anchor dot on y-intercept
+        ctx.beginPath();
+        ctx.arc(mapX(0), mapY(b), 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#e74c3c";
+        ctx.fill();
+
+        // Anchor dot on x-intercept (Guaranteed integer in Standard Form)
+        let xInt = (n !== 0) ? - (d * b) / n : null;
+        if (xInt !== null && Number.isInteger(xInt) && xInt >= -10 && xInt <= 10) {
+            ctx.beginPath();
+            ctx.arc(mapX(xInt), mapY(0), 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // --- State Management ---
+    function handleGuess(btn, isCorrect) {
+        if (isTransitioning) return;
+
+        const allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(b => b.disabled = true);
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            currentStreak++;
+            streakDisplay.innerText = currentStreak;
+
+            ctx.strokeStyle = "#2ecc71";
+            ctx.stroke();
+
+            setTimeout(() => {
+                isTransitioning = false;
+                generateProblem();
+            }, 800);
+        } else {
+            btn.classList.add('wrong');
+            currentStreak = 0;
+            streakDisplay.innerText = currentStreak;
+            
+            setTimeout(() => {
+                btn.classList.remove('wrong');
+                allBtns.forEach(b => b.disabled = false);
+            }, 500);
+        }
+    }
+
+</script>
+
+</body>
+</html>
