@@ -12,6 +12,7 @@
             --accent: #FFE66D;
             --dark: #2C3E50;
             --light: #F7FFF7;
+            --purple: #9b59b6;
         }
 
         body {
@@ -82,6 +83,47 @@
         }
         .menu-btn:nth-child(even):active {
             box-shadow: 0 0 0 #c95555;
+        }
+
+        /* Mixed Practice Section */
+        .mixed-section {
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 3px dashed var(--secondary);
+        }
+        .mixed-section h2 {
+            color: var(--purple);
+            margin-bottom: 5px;
+        }
+        .mixed-input-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .mixed-input-group input {
+            width: 70px;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 15px;
+            border: 4px solid var(--purple);
+            color: var(--dark);
+            font-family: inherit;
+            outline: none;
+        }
+        .mixed-input-group input:focus {
+            box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.2);
+        }
+        .mixed-btn {
+            background-color: var(--purple) !important;
+            box-shadow: 0 6px 0 #8e44ad !important;
+            padding: 15px 25px;
+        }
+        .mixed-btn:active {
+            box-shadow: 0 0 0 #8e44ad !important;
         }
 
         /* --- Game Screen --- */
@@ -221,6 +263,15 @@
             <button class="menu-btn" onclick="startGame(8)">Practicing 8's</button>
             <button class="menu-btn" onclick="startGame(9)">Practicing 9's</button>
         </div>
+
+        <div class="mixed-section">
+            <h2>Or mix it up!</h2>
+            <p style="color: #7f8c8d; font-size: 16px; margin: 0;">Practice everything up to...</p>
+            <div class="mixed-input-group">
+                <input type="number" id="mixedMax" value="7" min="2" max="15" onclick="this.select();">
+                <button class="menu-btn mixed-btn" onclick="startMixedGame()">Start Mixed!</button>
+            </div>
+        </div>
     </div>
 
     <div id="gameScreen">
@@ -244,8 +295,12 @@
 <script>
     let currentMultiplier = 2;
     let currentStreak = 0;
-    let highestStreak = 0; // NEW VARIABLE
+    let highestStreak = 0; 
     let isTransitioning = false;
+    
+    // Mixed Mode Variables
+    let isMixedMode = false;
+    let mixedMaxLimit = 7;
 
     // --- Audio Engine (Web Audio API) ---
     let audioCtx;
@@ -272,17 +327,15 @@
         osc.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         
-        osc.type = 'triangle'; // Gives a nice chime-like tone
+        osc.type = 'triangle'; 
         
-        // Fast magical arpeggio (C5, E5, G5)
         const now = audioCtx.currentTime;
         osc.frequency.setValueAtTime(523.25, now);
         osc.frequency.setValueAtTime(659.25, now + 0.1);
         osc.frequency.setValueAtTime(783.99, now + 0.2);
         
-        // Volume envelope
         gainNode.gain.setValueAtTime(1, now);
-        gainNode.gain.linearRampToValueAtTime(0.15, now + 0.05); // Not too loud
+        gainNode.gain.linearRampToValueAtTime(0.15, now + 0.05); 
         gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
         
         osc.start(now);
@@ -300,7 +353,7 @@
         osc.type = 'sine'; 
         
         const now = audioCtx.currentTime;
-        osc.frequency.setValueAtTime(200, now); // Low, soft boop
+        osc.frequency.setValueAtTime(200, now); 
         osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
         
         gainNode.gain.setValueAtTime(0, now);
@@ -314,7 +367,6 @@
     function startBackgroundMusic() {
         if (!audioCtx || !isMusicPlaying || bgmInterval) return;
         
-        // Plays a random soft note every 450ms
         bgmInterval = setInterval(() => {
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
@@ -322,16 +374,15 @@
             osc.connect(gainNode);
             gainNode.connect(audioCtx.destination);
             
-            osc.type = 'sine'; // Softest waveform
+            osc.type = 'sine'; 
             
-            // Pick a random note from the pentatonic scale
             const randomFreq = pentatonicScale[Math.floor(Math.random() * pentatonicScale.length)];
             osc.frequency.value = randomFreq;
             
             const now = audioCtx.currentTime;
             gainNode.gain.setValueAtTime(0.4, now);
-            gainNode.gain.linearRampToValueAtTime(0.03, now + 0.1); // Extremely quiet
-            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.5); // Long fade out
+            gainNode.gain.linearRampToValueAtTime(0.03, now + 0.1); 
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.5); 
             
             osc.start(now);
             osc.stop(now + 1.5);
@@ -359,6 +410,7 @@
 
     // --- Navigation ---
     function startGame(number) {
+        isMixedMode = false;
         initAudio(); 
         if (isMusicPlaying) startBackgroundMusic();
 
@@ -372,10 +424,32 @@
         generateProblem();
     }
 
+    function startMixedGame() {
+        isMixedMode = true;
+        let maxInput = parseInt(document.getElementById('mixedMax').value);
+        if (isNaN(maxInput) || maxInput < 2) maxInput = 2; // Failsafe
+        mixedMaxLimit = maxInput;
+
+        initAudio(); 
+        if (isMusicPlaying) startBackgroundMusic();
+
+        currentStreak = 0;
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        generateProblem();
+    }
+
     function showMenu() {
         stopBackgroundMusic();
         document.getElementById('gameScreen').style.display = 'none';
         document.getElementById('menuScreen').style.display = 'block';
+        
+        // Reset High Streak on menu return
+        highestStreak = 0;
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
     }
 
     // --- Math Logic ---
@@ -394,7 +468,13 @@
     function generateProblem() {
         isTransitioning = false;
         
-        let multiplicand = getRandomInt(1, 10);
+        // If in Mixed Mode, dynamically pick the base multiplier
+        if (isMixedMode) {
+            currentMultiplier = getRandomInt(2, mixedMaxLimit);
+        }
+
+        // Generate between 2 and 10 to avoid too many 1s
+        let multiplicand = getRandomInt(2, 10);
         let correctAnswer = currentMultiplier * multiplicand;
 
         document.getElementById('problemDisplay').innerText = `${currentMultiplier} × ${multiplicand}`;
@@ -402,11 +482,13 @@
         let options = new Set();
         options.add(correctAnswer);
 
+        // Smart distractors
         options.add(currentMultiplier * (multiplicand + 1));
         if (multiplicand > 1) {
             options.add(currentMultiplier * (multiplicand - 1));
         }
 
+        // Fill remaining options
         while(options.size < 4) {
             let offset = getRandomInt(-4, 4);
             let randomWrong = correctAnswer + offset;
