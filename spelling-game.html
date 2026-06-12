@@ -108,11 +108,11 @@
         .icon-btn:hover { background-color: #e0e6ed; }
 
         .streak-counter {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             color: #d35400;
             background: #fdebd0;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 15px;
             border: 2px solid #f39c12;
         }
@@ -189,6 +189,11 @@
             100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
         }
 
+        @media (max-width: 480px) {
+            .game-header { flex-direction: column; gap: 15px; }
+            .streak-counter { width: 100%; box-sizing: border-box; text-align: center; }
+        }
+
     </style>
 </head>
 <body>
@@ -207,7 +212,8 @@
                 <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
                 <button class="icon-btn" id="muteBtn" onclick="toggleMusic()">🎵 On</button>
             </div>
-            <div class="streak-counter">🔥 Streak: <span id="streakDisplay">0</span></div>
+            <!-- Added the Best Streak Counter here -->
+            <div class="streak-counter">🔥 Streak: <span id="streakDisplay">0</span> | 🏆 Best: <span id="highStreakDisplay">0</span></div>
         </div>
 
         <div class="prompt-text">
@@ -221,9 +227,9 @@
 </div>
 
 <script>
-    // --- 100 Word Database ---
+    // --- Massive 150+ Word Database ---
     const wordBank = [
-        // Original Trick Words (25)
+        // Original Trick Words
         { c: "because", w: ["becuse", "becuase", "beacause"] },
         { c: "friend", w: ["freind", "frend", "friand"] },
         { c: "beautiful", w: ["beutiful", "beautyful", "beatifull"] },
@@ -250,7 +256,63 @@
         { c: "straight", w: ["strate", "straigt", "streight"] },
         { c: "Wednesday", w: ["Wensday", "Wednesdey", "Whensday"] },
         
-        // Days of the week (6 - Wednesday is above)
+        // --- NEW: Tricky Sight Words & Adverbs ---
+        { c: "favorite", w: ["favrit", "faverit", "favorit"] },
+        { c: "definitely", w: ["definately", "definitly", "definitely"] },
+        { c: "probably", w: ["probly", "probabaly", "probaly"] },
+        { c: "especially", w: ["expecially", "especialy", "aspecially"] },
+        { c: "usually", w: ["usualy", "usally", "youzhually"] },
+        { c: "knowledge", w: ["nowledge", "knowlege", "nolege"] },
+        { c: "remember", w: ["rember", "remmember", "remamber"] },
+        { c: "together", w: ["toghther", "toogether", "togather"] },
+        { c: "accident", w: ["acident", "axident", "accidant"] },
+        { c: "decide", w: ["deside", "dicide", "diciede"] },
+        { c: "neighbor", w: ["nieghbor", "naybor", "neigbor"] },
+        { c: "receive", w: ["recieve", "receeve", "reseive"] },
+        { c: "sincerely", w: ["sincerly", "sincerley", "sinsherely"] },
+
+        // --- NEW: Feelings & Adjectives ---
+        { c: "hungry", w: ["hungary", "hungery", "hungrey"] },
+        { c: "excited", w: ["exited", "exsited", "excitted"] },
+        { c: "terrible", w: ["terible", "turrible", "terreble"] },
+        { c: "wonderful", w: ["wonderfull", "wunderful", "wondurful"] },
+        { c: "awesome", w: ["awsome", "awesum", "osum"] },
+        { c: "jealous", w: ["jelous", "gelous", "jealouse"] },
+        { c: "nervous", w: ["nervus", "nerveous", "nurvous"] },
+
+        // --- NEW: Food & Drink ---
+        { c: "chocolate", w: ["choclate", "chocolat", "chocklate"] },
+        { c: "sandwich", w: ["samwich", "sandwitch", "sanwich"] },
+        { c: "spaghetti", w: ["spagheti", "pasghetti", "spagetti"] },
+        { c: "vegetable", w: ["vegtable", "vegatabel", "vegitible"] },
+        { c: "delicious", w: ["delishus", "deliscious", "delitious"] },
+        { c: "breakfast", w: ["brekfast", "breakfest", "brefast"] },
+        { c: "restaurant", w: ["restarant", "resteraunt", "restaurent"] },
+
+        // --- NEW: Animals & Nature ---
+        { c: "dinosaur", w: ["dinosore", "dinosour", "dinasaur"] },
+        { c: "mosquito", w: ["mesquito", "moskeeto", "moskito"] },
+        { c: "squirrel", w: ["squirel", "squirrell", "squrrel"] },
+        { c: "chameleon", w: ["cameleon", "chamelion", "kameleon"] },
+        { c: "leopard", w: ["lepard", "leppard", "leopord"] },
+        { c: "pigeon", w: ["pijon", "pidgin", "pidgeon"] },
+
+        // --- NEW: School & Learning ---
+        { c: "language", w: ["langage", "langwidge", "langauge"] },
+        { c: "question", w: ["qwestion", "queston", "quesion"] },
+        { c: "sentence", w: ["sentance", "sentense", "centence"] },
+        { c: "calendar", w: ["calender", "callendar", "calander"] },
+        { c: "exercise", w: ["exercize", "exersize", "excercise"] },
+        { c: "gymnastics", w: ["gimnastics", "gymnasticks", "gymnastes"] },
+
+        // --- NEW: Space & Fantasy ---
+        { c: "astronaut", w: ["astronot", "astranaut", "astrenaut"] },
+        { c: "castle", w: ["cassle", "castel", "casle"] },
+        { c: "treasure", w: ["tresure", "treashure", "treazure"] },
+        { c: "measure", w: ["mesure", "meashure", "meazure"] },
+        { c: "magic", w: ["majic", "magick", "madgic"] },
+
+        // Days of the week 
         { c: "Monday", w: ["Munday", "Mondy", "Monnday"] },
         { c: "Tuesday", w: ["Teusday", "Tuseday", "Tusday"] },
         { c: "Thursday", w: ["Thirsday", "Thersday", "Thurday"] },
@@ -258,7 +320,7 @@
         { c: "Saturday", w: ["Saterday", "Saturdy", "Satterday"] },
         { c: "Sunday", w: ["Sundy", "Sunnday", "Sondy"] },
 
-        // Months of the year (11)
+        // Months of the year 
         { c: "January", w: ["Janury", "Janurary", "Januery"] },
         { c: "February", w: ["Febuary", "Febrary", "Feburary"] },
         { c: "March", w: ["Martch", "Mrtch", "Marcht"] },
@@ -271,7 +333,7 @@
         { c: "November", w: ["Novembar", "Novamber", "Novembre"] },
         { c: "December", w: ["Decembar", "Desember", "Decembre"] },
 
-        // Numbers (12)
+        // Numbers 
         { c: "eight", w: ["eigt", "aight", "eith"] },
         { c: "eleven", w: ["elevan", "ellven", "alevin"] },
         { c: "twelve", w: ["twelf", "twelv", "twellve"] },
@@ -285,7 +347,7 @@
         { c: "hundred", w: ["hundered", "hundrid", "hunderd"] },
         { c: "thousand", w: ["thousend", "thosand", "thouzand"] },
 
-        // Colors (6)
+        // Colors 
         { c: "purple", w: ["purpel", "purpple", "pirple"] },
         { c: "orange", w: ["orenge", "oringe", "orrange"] },
         { c: "yellow", w: ["yelow", "yellew", "yallow"] },
@@ -293,13 +355,13 @@
         { c: "white", w: ["wite", "whight", "whiet"] },
         { c: "black", w: ["blak", "bllack", "blacke"] },
 
-        // Shapes (4)
+        // Shapes 
         { c: "square", w: ["sqare", "squair", "skware"] },
         { c: "circle", w: ["sircle", "circel", "surcle"] },
         { c: "triangle", w: ["tryangle", "triangel", "triangal"] },
         { c: "rectangle", w: ["rectangel", "recktangle", "rectangal"] },
 
-        // Animals (10)
+        // Animals 
         { c: "monkey", w: ["monky", "munkey", "monkee"] },
         { c: "elephant", w: ["elefant", "eliphant", "ellephant"] },
         { c: "giraffe", w: ["jeraffe", "giraff", "jiraffe"] },
@@ -311,7 +373,7 @@
         { c: "spider", w: ["spidar", "speider", "spyder"] },
         { c: "butterfly", w: ["butterfley", "buterfly", "budderfly"] },
 
-        // Family / People (6)
+        // Family / People 
         { c: "mother", w: ["muther", "mothar", "mothre"] },
         { c: "father", w: ["fathor", "fathar", "fathre"] },
         { c: "brother", w: ["bruther", "brothar", "brothre"] },
@@ -319,7 +381,7 @@
         { c: "family", w: ["famly", "familey", "fammily"] },
         { c: "cousin", w: ["cuzin", "cousing", "cosin"] },
 
-        // Nature / Space (10)
+        // Nature / Weather 
         { c: "weather", w: ["wether", "weathur", "waether"] },
         { c: "summer", w: ["sumer", "sommar", "summur"] },
         { c: "winter", w: ["wintar", "wintre", "wonter"] },
@@ -331,7 +393,7 @@
         { c: "planet", w: ["plannet", "planit", "planat"] },
         { c: "earth", w: ["erth", "urth", "earht"] },
 
-        // School / Home Items (10)
+        // School / Home Items 
         { c: "school", w: ["shool", "skool", "scool"] },
         { c: "teacher", w: ["techer", "teachar", "teechir"] },
         { c: "pencil", w: ["pensil", "pencel", "pensel"] },
@@ -345,6 +407,7 @@
     ];
 
     let currentStreak = 0;
+    let highestStreak = 0; // NEW: High Score Variable
     let isTransitioning = false;
     let currentWordObj = null;
 
@@ -466,6 +529,10 @@
         stopBackgroundMusic();
         document.getElementById('gameScreen').style.display = 'none';
         document.getElementById('menuScreen').style.display = 'block';
+        
+        // NEW: Wipes high score when backing out to the menu
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
     }
 
     function shuffleArray(array) {
@@ -511,6 +578,12 @@
             
             currentStreak++;
             document.getElementById('streakDisplay').innerText = currentStreak;
+
+            // NEW: High Score Logic
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
 
             createSparkle(event.clientX, event.clientY);
 
