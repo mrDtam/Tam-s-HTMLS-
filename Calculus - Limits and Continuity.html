@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus: Limits & Continuity</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; /* Orange */
+            --level2: #f1c40f; /* Yellow-Orange */
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+        }
+
+        .level-1 { border: 2px solid var(--level1); }
+        .level-1 .level-title { background: var(--level1); color: white; display: inline-block; padding: 5px 15px; border-radius: 5px; margin-top: -35px; margin-bottom: 15px; font-weight: bold; }
+        
+        .level-3 { border: 2px solid var(--level2); }
+        .level-3 .level-title { background: var(--level2); color: var(--dark); display: inline-block; padding: 5px 15px; border-radius: 5px; margin-top: -35px; margin-bottom: 15px; font-weight: bold; }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .problem-display {
+            font-size: 40px;
+            margin: 0 0 25px 0;
+            padding: 20px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: #d35400;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+        }
+
+        /* Dynamic Graph Canvas */
+        #graphCanvas {
+            background-color: #fff;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 100%;
+            height: auto;
+            display: none;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 18px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .options-grid { grid-template-columns: 1fr; }
+            .problem-display { font-size: 30px; }
+            .streak-counter { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Limits & Continuity</h1>
+        <p class="subtitle">Select a skill to master.</p>
+        
+        <div class="level-section level-1">
+            <div class="level-title">Level 1 to Level 2</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)">Evaluate limits given a Graph</button>
+                <button class="menu-btn" onclick="startGame(2)">Evaluate by Direct Substitution</button>
+                <button class="menu-btn" onclick="startGame(3)">Indeterminate Forms (Factor, Expand, Conj)</button>
+                <button class="menu-btn" onclick="startGame(4)">Limits Approaching Infinity (±∞)</button>
+            </div>
+        </div>
+
+        <div class="level-section level-3">
+            <div class="level-title">Level 3 to Level 4</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(5)">Limits of Piecewise Functions</button>
+                <button class="menu-btn" onclick="startGame(6)">Apply Conditions for Continuity</button>
+                <button class="menu-btn" onclick="startGame(7)">Absolute Value Limits</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
+            </div>
+            <div class="streak-counter">🔥 Streak: <span id="streakDisplay">0</span> | 🏆 Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-text" id="promptTitle">Evaluate the limit:</div>
+        
+        <!-- Canvas for Graphing Mode -->
+        <canvas id="graphCanvas" width="500" height="300"></canvas>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+
+    // --- Audio System ---
+    let audioCtx;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    
+    function playTone(freq, type, duration, vol) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Utilities ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomNonZero(min, max) { let v; do { v = getRandomInt(min, max); } while (v === 0); return v; }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { let temp = b; b = a % b; a = temp; } return a; }
+    
+    function toFrac(n, d) {
+        if (d < 0) { n = -n; d = -d; }
+        let g = gcd(n, d); n /= g; d /= g;
+        if (d === 1) return n.toString();
+        if (n < 0) return `-\\frac{${Math.abs(n)}}{${d}}`;
+        return `\\frac{${n}}{${d}}`;
+    }
+
+    function signTerm(c, v, isFirst) {
+        if (c === 0) return "";
+        let absC = Math.abs(c);
+        let cStr = (absC === 1 && v !== "") ? "" : absC;
+        let sign = (c < 0) ? (isFirst ? "-" : " - ") : (isFirst ? "" : " + ");
+        return `${sign}${cStr}${v}`;
+    }
+
+    // --- Navigation ---
+    function startGame(mode) {
+        initAudio();
+        currentMode = mode;
+        currentStreak = 0;
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        generateProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Predefined Graph Questions for Canvas ---
+    const graphBank = [
+        {
+            // Graph 0: Jump & Removable Discontinuity
+            draw: (ctx, mapX, mapY) => {
+                ctx.strokeStyle = "#3498db"; ctx.lineWidth = 3;
+                
+                // Left branch: line y = x + 3 ending at x = -2 (hole at -2, 1)
+                ctx.beginPath(); ctx.moveTo(mapX(-10), mapY(-7)); ctx.lineTo(mapX(-2), mapY(1)); ctx.stroke();
+                // Solid dot at (-2, -2)
+                drawDot(ctx, mapX(-2), mapY(-2), true, "#3498db");
+                // Hole at (-2, 1)
+                drawDot(ctx, mapX(-2), mapY(1), false, "#3498db");
+
+                // Middle branch: horizontal y = 2 from x = -2 to x = 2
+                ctx.beginPath(); ctx.moveTo(mapX(-2), mapY(2)); ctx.lineTo(mapX(2), mapY(2)); ctx.stroke();
+                drawDot(ctx, mapX(-2), mapY(2), false, "#3498db"); // hole
+                drawDot(ctx, mapX(2), mapY(2), true, "#3498db");  // solid
+
+                // Right branch: parabola starting open at x=2, y=-1
+                ctx.beginPath();
+                for(let x = 2.1; x <= 8; x+=0.1) { ctx.lineTo(mapX(x), mapY(-1 - Math.pow(x-2, 2)/4)); }
+                ctx.stroke();
+                drawDot(ctx, mapX(2), mapY(-1), false, "#3498db"); // hole
+            },
+            questions: [
+                { tex: "\\lim_{x \\to -2^-} f(x)", ans: "1", dist: ["-2", "DNE", "2"] },
+                { tex: "\\lim_{x \\to -2^+} f(x)", ans: "2", dist: ["1", "-2", "DNE"] },
+                { tex: "\\lim_{x \\to -2} f(x)", ans: "\\text{DNE}", dist: ["1", "2", "-2"] },
+                { tex: "\\lim_{x \\to 2^-} f(x)", ans: "2", dist: ["-1", "DNE", "0"] },
+                { tex: "\\lim_{x \\to 2^+} f(x)", ans: "-1", dist: ["2", "DNE", "1"] },
+                { tex: "\\lim_{x \\to 2} f(x)", ans: "\\text{DNE}", dist: ["2", "-1", "1"] }
+            ]
+        },
+        {
+            // Graph 1: Vertical Asymptote & Removable
+            draw: (ctx, mapX, mapY) => {
+                ctx.strokeStyle = "#e74c3c"; ctx.lineWidth = 3;
+                
+                // Asymptote at x = 1
+                ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.strokeStyle = "#95a5a6";
+                ctx.moveTo(mapX(1), mapY(-10)); ctx.lineTo(mapX(1), mapY(10)); ctx.stroke();
+                ctx.setLineDash([]); ctx.strokeStyle = "#e74c3c";
+
+                // Left branch: y = 1/(x-1) + 2
+                ctx.beginPath();
+                for(let x = -8; x <= 0.9; x+=0.1) { ctx.lineTo(mapX(x), mapY(1/(x-1) + 2)); }
+                ctx.stroke();
+
+                // Right branch: y = 1/(x-1)^2 - 3 (Approaches +inf)
+                ctx.beginPath();
+                for(let x = 1.1; x <= 3.9; x+=0.1) { ctx.lineTo(mapX(x), mapY(1/Math.pow(x-1, 2) - 3)); }
+                ctx.stroke();
+
+                // Hole at x = 4
+                let valAt4 = 1/Math.pow(3, 2) - 3; // roughly -2.88
+                drawDot(ctx, mapX(4), mapY(-2), false, "#e74c3c"); // We will rig the math visually for integer
+                ctx.beginPath(); ctx.moveTo(mapX(1.1), mapY(10));
+                for(let x = 1.1; x <= 3.9; x+=0.1) { ctx.lineTo(mapX(x), mapY(2/(x-1) - 3)); } // visually nicer
+                ctx.stroke();
+                
+                // Overriding right branch for cleaner limits: 
+                // Let's just do manual paths for clean asymptotes
+            }
+        }
+    ];
+    
+    // Simpler clean graphs for asymptote
+    const graph2 = {
+        draw: (ctx, mapX, mapY) => {
+            ctx.strokeStyle = "#9b59b6"; ctx.lineWidth = 3;
+            // Asymptote at x = -1
+            ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.strokeStyle = "#95a5a6";
+            ctx.moveTo(mapX(-1), mapY(-10)); ctx.lineTo(mapX(-1), mapY(10)); ctx.stroke();
+            ctx.setLineDash([]); ctx.strokeStyle = "#9b59b6";
+
+            // Left goes to -infinity
+            ctx.beginPath(); ctx.moveTo(mapX(-10), mapY(0));
+            ctx.quadraticCurveTo(mapX(-2), mapY(0), mapX(-1.1), mapY(-10)); ctx.stroke();
+
+            // Right goes to +infinity
+            ctx.beginPath(); ctx.moveTo(mapX(-0.9), mapY(10));
+            ctx.quadraticCurveTo(mapX(1), mapY(2), mapX(3), mapY(2)); ctx.stroke();
+            
+            // Hole at x=3, y=2
+            drawDot(ctx, mapX(3), mapY(2), false, "#9b59b6");
+            drawDot(ctx, mapX(3), mapY(4), true, "#9b59b6"); // Point above
+            
+            // Continue right
+            ctx.beginPath(); ctx.moveTo(mapX(3.2), mapY(2)); ctx.lineTo(mapX(10), mapY(-1)); ctx.stroke();
+        },
+        questions: [
+            { tex: "\\lim_{x \\to -1^-} g(x)", ans: "-\\infty", dist: ["\\infty", "0", "\\text{DNE}"] },
+            { tex: "\\lim_{x \\to -1^+} g(x)", ans: "\\infty", dist: ["-\\infty", "0", "\\text{DNE}"] },
+            { tex: "\\lim_{x \\to -1} g(x)", ans: "\\text{DNE}", dist: ["\\infty", "-\\infty", "0"] },
+            { tex: "\\lim_{x \\to 3} g(x)", ans: "2", dist: ["4", "0", "\\text{DNE}"] },
+            { tex: "g(3)", ans: "4", dist: ["2", "\\text{DNE}", "0"] }
+        ]
+    };
+    graphBank[1] = graph2; // overwrite messy graph 1
+
+    function drawDot(ctx, x, y, solid, color) {
+        ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2);
+        ctx.fillStyle = solid ? color : "white";
+        ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = color; ctx.stroke();
+    }
+
+    function renderCanvasGraph(graphObj) {
+        const canvas = document.getElementById('graphCanvas');
+        canvas.style.display = 'block';
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const gridSize = 30; 
+        const originX = canvas.width / 2;
+        const originY = canvas.height / 2;
+        const mapX = (x) => originX + x * gridSize;
+        const mapY = (y) => originY - y * gridSize;
+
+        // Draw Grid
+        ctx.lineWidth = 1; ctx.strokeStyle = "#ecf0f1";
+        for(let i = -10; i <= 10; i++) {
+            ctx.beginPath(); ctx.moveTo(mapX(i), 0); ctx.lineTo(mapX(i), canvas.height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, mapY(i)); ctx.lineTo(canvas.width, mapY(i)); ctx.stroke();
+        }
+        
+        // Axes
+        ctx.lineWidth = 2; ctx.strokeStyle = "#7f8c8d";
+        ctx.beginPath(); ctx.moveTo(mapX(0), 0); ctx.lineTo(mapX(0), canvas.height); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, mapY(0)); ctx.lineTo(canvas.width, mapY(0)); ctx.stroke();
+
+        // Ticks
+        ctx.fillStyle = "#34495e"; ctx.font = "12px sans-serif"; ctx.textAlign = "center";
+        for(let i = -8; i <= 8; i+=2) {
+            if(i !== 0) {
+                ctx.fillText(i, mapX(i), mapY(0) + 15);
+                ctx.fillText(i, mapX(0) - 15, mapY(i) + 4);
+            }
+        }
+
+        // Draw specific graph
+        graphObj.draw(ctx, mapX, mapY);
+    }
+
+    // --- Core Engine ---
+    function generateProblem() {
+        isTransitioning = false;
+        document.getElementById('graphCanvas').style.display = 'none';
+        
+        let promptTeX = "";
+        let correctTeX = "";
+        let distractors = new Set();
+        let options = [];
+
+        // MODE 1: Graph Limits
+        if (currentMode === 1) {
+            document.getElementById('promptTitle').innerText = "Evaluate the limit using the graph:";
+            let graphObj = graphBank[Math.floor(Math.random() * graphBank.length)];
+            renderCanvasGraph(graphObj);
+            
+            let q = graphObj.questions[Math.floor(Math.random() * graphObj.questions.length)];
+            promptTeX = q.tex;
+            correctTeX = q.ans;
+            q.dist.forEach(d => distractors.add(d));
+        }
+
+        // MODE 2: Direct Substitution
+        else if (currentMode === 2) {
+            document.getElementById('promptTitle').innerText = "Evaluate by direct substitution:";
+            let a = getRandomInt(-4, 4);
+            let c1 = getRandomNonZero(-3, 3);
+            let c2 = getRandomNonZero(-5, 5);
+            let c3 = getRandomInt(-5, 5);
+            
+            promptTeX = `\\lim_{x \\to ${a}} (${c1}x^2 ${signTerm(c2, 'x', false)} ${signTerm(c3, '', false)})`;
+            let ans = c1*(a*a) + c2*a + c3;
+            correctTeX = ans.toString();
+            
+            distractors.add((c1*(a*a) - c2*a + c3).toString()); // Sign error
+            distractors.add((c1*a + c2*a + c3).toString()); // Forgot to square
+            distractors.add("\\text{DNE}");
+            distractors.add((ans + getRandomNonZero(-3, 3)).toString());
+        }
+
+        // MODE 3: Indeterminate Forms
+        else if (currentMode === 3) {
+            document.getElementById('promptTitle').innerText = "Evaluate the limit:";
+            let subType = getRandomInt(1, 3);
+            
+            if (subType === 1) { // Factoring Difference of Squares
+                let a = getRandomNonZero(1, 5);
+                let isNeg = Math.random() > 0.5 ? -1 : 1;
+                a = a * isNeg;
+                promptTeX = `\\lim_{x \\to ${a}} \\frac{x^2 - ${a*a}}{x - ${a < 0 ? `(${a})` : a}}`;
+                correctTeX = (2*a).toString();
+                distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add((-2*a).toString());
+            } 
+            else if (subType === 2) { // Factoring Trinomial
+                let r1 = getRandomNonZero(-5, 5); // The hole
+                let r2; do { r2 = getRandomNonZero(-5, 5); } while(r1 === r2);
+                let b = -(r1+r2); let c = r1*r2;
+                promptTeX = `\\lim_{x \\to ${r1}} \\frac{x^2 ${signTerm(b, 'x', false)} ${signTerm(c, '', false)}}{x - ${r1 < 0 ? `(${r1})` : r1}}`;
+                correctTeX = (r1 - r2).toString();
+                distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add((r2 - r1).toString()); distractors.add((r1 + r2).toString());
+            }
+            else { // Conjugate
+                let a = getRandomInt(1, 6);
+                let aSq = a*a;
+                promptTeX = `\\lim_{x \\to ${aSq}} \\frac{\\sqrt{x} - ${a}}{x - ${aSq}}`;
+                correctTeX = `\\frac{1}{${2*a}}`;
+                distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add(`\\frac{1}{${a}}`); distractors.add(`${2*a}`);
+            }
+        }
+
+        // MODE 4: Infinity
+        else if (currentMode === 4) {
+            document.getElementById('promptTitle').innerText = "Evaluate the limit at infinity:";
+            let pPower = getRandomInt(1, 3);
+            let qPower = getRandomInt(1, 3);
+            let pCoeff = getRandomNonZero(-5, 5);
+            let qCoeff = getRandomNonZero(-5, 5);
+            let sign = Math.random() > 0.5 ? "\\infty" : "-\\infty";
+            
+            promptTeX = `\\lim_{x \\to ${sign}} \\frac{${pCoeff}x^{${pPower}} + 3x - 1}{${qCoeff}x^{${qPower}} + 2}`;
+            
+            if (pPower === qPower) {
+                correctTeX = toFrac(pCoeff, qCoeff);
+                distractors.add("0"); distractors.add("\\infty"); distractors.add("-\\infty");
+            } else if (pPower < qPower) {
+                correctTeX = "0";
+                distractors.add(toFrac(pCoeff, qCoeff)); distractors.add("\\infty"); distractors.add("-\\infty");
+            } else {
+                // pPower > qPower
+                let isPosInf = (pCoeff/qCoeff > 0);
+                if (sign === "-\\infty" && (pPower - qPower) % 2 !== 0) isPosInf = !isPosInf;
+                
+                correctTeX = isPosInf ? "\\infty" : "-\\infty";
+                distractors.add(isPosInf ? "-\\infty" : "\\infty");
+                distractors.add("0"); distractors.add(toFrac(pCoeff, qCoeff));
+            }
+        }
+
+        // MODE 5: Piecewise Limits
+        else if (currentMode === 5) {
+            document.getElementById('promptTitle').innerText = "Given the piecewise function, evaluate:";
+            let c = getRandomInt(-3, 3);
+            let m1 = getRandomNonZero(-3, 3); let b1 = getRandomInt(-4, 4);
+            let m2 = getRandomNonZero(-2, 2); let b2 = getRandomInt(-4, 4);
+            
+            let valLeft = m1*c + b1;
+            let valRight = m2*(c*c) + b2;
+            
+            let htmlFunc = `f(x) = \\begin{cases} ${m1===1?"":m1}x ${signTerm(b1,'',false)}, & x < ${c} \\\\ ${m2===1?"":m2}x^2 ${signTerm(b2,'',false)}, & x \\ge ${c} \\end{cases}`;
+            
+            let qType = getRandomInt(1, 3);
+            if (qType === 1) {
+                promptTeX = `${htmlFunc} \\\\ \\lim_{x \\to ${c}^-} f(x)`;
+                correctTeX = valLeft.toString();
+            } else if (qType === 2) {
+                promptTeX = `${htmlFunc} \\\\ \\lim_{x \\to ${c}^+} f(x)`;
+                correctTeX = valRight.toString();
+            } else {
+                promptTeX = `${htmlFunc} \\\\ \\lim_{x \\to ${c}} f(x)`;
+                correctTeX = (valLeft === valRight) ? valLeft.toString() : "\\text{DNE}";
+            }
+            
+            distractors.add(valLeft.toString()); distractors.add(valRight.toString()); distractors.add("\\text{DNE}");
+            distractors.add((valLeft+valRight).toString());
+        }
+
+        // MODE 6: Continuity Definitions
+        else if (currentMode === 6) {
+            document.getElementById('promptTitle').innerText = "Find k to make f(x) continuous everywhere:";
+            let c = getRandomNonZero(1, 3);
+            let m = getRandomNonZero(2, 5);
+            let b2 = getRandomInt(1, 5);
+            
+            // Limit left = m*c + k
+            // Limit right = c^2 + b2
+            // m*c + k = c*c + b2  => k = c*c + b2 - m*c
+            
+            let k = (c*c) + b2 - (m*c);
+            
+            promptTeX = `f(x) = \\begin{cases} ${m}x + k, & x < ${c} \\\\ x^2 + ${b2}, & x \\ge ${c} \\end{cases}`;
+            correctTeX = `k = ${k}`;
+            
+            distractors.add(`k = ${k + m}`); distractors.add(`k = ${k - c}`); distractors.add(`k = ${(c*c)+b2}`); distractors.add(`\\text{DNE}`);
+        }
+
+        // MODE 7: Absolute Value Limits
+        else if (currentMode === 7) {
+            document.getElementById('promptTitle').innerText = "Evaluate the absolute value limit:";
+            let a = getRandomNonZero(-4, 4);
+            let side = getRandomInt(1, 3); // 1: left, 2: right, 3: both
+            
+            let texSide = "";
+            if (side === 1) texSide = "-";
+            if (side === 2) texSide = "+";
+            
+            promptTeX = `\\lim_{x \\to ${a}^{${texSide}}} \\frac{|x - ${a < 0 ? `(${a})` : a}|}{x - ${a < 0 ? `(${a})` : a}}`;
+            
+            if (side === 1) correctTeX = "-1";
+            else if (side === 2) correctTeX = "1";
+            else correctTeX = "\\text{DNE}";
+
+            distractors.add("-1"); distractors.add("1"); distractors.add("\\text{DNE}"); distractors.add("0");
+        }
+
+        // Fill options, ensuring uniqueness
+        let finalOptions = new Set();
+        finalOptions.add(correctTeX);
+        let distArray = Array.from(distractors);
+        let i = 0;
+        while(finalOptions.size < 4 && i < distArray.length) {
+            finalOptions.add(distArray[i]); i++;
+        }
+        // Failsafe padding
+        let pad = 1;
+        while(finalOptions.size < 4) { finalOptions.add(pad.toString()); pad++; }
+
+        options = shuffle(Array.from(finalOptions));
+
+        document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`;
+        
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; 
+
+        options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `\\(${opt}\\)`;
+            btn.onclick = (e) => handleGuess(btn, opt === correctTeX, e);
+            grid.appendChild(btn);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: true}, {left: "$", right: "$", display: false}] });
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['🌟', '🔥', '📈', '✨'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
