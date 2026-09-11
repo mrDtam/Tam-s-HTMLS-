@@ -299,6 +299,9 @@
     let currentStreak = 0;
     let highestStreak = 0; 
     let isTransitioning = false;
+    
+    // Memory variable to prevent back-to-back repeats
+    let lastPrompt = "";
 
     // --- Audio System ---
     let audioCtx;
@@ -364,6 +367,7 @@
         initAudio();
         currentMode = mode;
         currentStreak = 0;
+        lastPrompt = ""; // Reset memory on new game
         document.getElementById('streakDisplay').innerText = currentStreak;
         
         document.getElementById('menuScreen').style.display = 'none';
@@ -406,11 +410,11 @@
                 { tex: "\\lim_{x \\to -2^-} f(x)", ans: "1", dist: ["-2", "\\text{DNE}", "2"] },
                 { tex: "\\lim_{x \\to -2^+} f(x)", ans: "2", dist: ["1", "-2", "\\text{DNE}"] },
                 { tex: "\\lim_{x \\to -2} f(x)", ans: "\\text{DNE}", dist: ["1", "2", "-2"] },
-                { tex: "f(-2)", ans: "-2", dist: ["1", "2", "\\text{DNE}"] }, // Added Point
+                { tex: "f(-2)", ans: "-2", dist: ["1", "2", "\\text{DNE}"] }, 
                 { tex: "\\lim_{x \\to 2^-} f(x)", ans: "2", dist: ["-1", "\\text{DNE}", "0"] },
                 { tex: "\\lim_{x \\to 2^+} f(x)", ans: "-1", dist: ["2", "\\text{DNE}", "1"] },
                 { tex: "\\lim_{x \\to 2} f(x)", ans: "\\text{DNE}", dist: ["2", "-1", "1"] },
-                { tex: "f(2)", ans: "2", dist: ["-1", "\\text{DNE}", "0"] }  // Added Point
+                { tex: "f(2)", ans: "2", dist: ["-1", "\\text{DNE}", "0"] }  
             ]
         },
         {
@@ -441,7 +445,7 @@
                 { tex: "\\lim_{x \\to -1^-} g(x)", ans: "-\\infty", dist: ["\\infty", "0", "\\text{DNE}"] },
                 { tex: "\\lim_{x \\to -1^+} g(x)", ans: "\\infty", dist: ["-\\infty", "0", "\\text{DNE}"] },
                 { tex: "\\lim_{x \\to -1} g(x)", ans: "\\text{DNE}", dist: ["\\infty", "-\\infty", "0"] },
-                { tex: "g(-1)", ans: "\\text{DNE}", dist: ["\\infty", "-\\infty", "0"] }, // Added Point
+                { tex: "g(-1)", ans: "\\text{DNE}", dist: ["\\infty", "-\\infty", "0"] }, 
                 { tex: "\\lim_{x \\to 3} g(x)", ans: "2", dist: ["4", "0", "\\text{DNE}"] },
                 { tex: "g(3)", ans: "4", dist: ["2", "\\text{DNE}", "0"] }
             ]
@@ -456,7 +460,7 @@
                 
                 // Displaced hole at x = -2
                 drawDot(ctx, mapX(-2), mapY(3), false, "#27ae60");
-                drawDot(ctx, mapX(-2), mapY(5), true, "#27ae60"); // Point above
+                drawDot(ctx, mapX(-2), mapY(5), true, "#27ae60"); 
 
                 // Missing point entirely at x = 3
                 drawDot(ctx, mapX(3), mapY(-2), false, "#27ae60");
@@ -577,160 +581,176 @@
     // --- Core Engine ---
     function generateProblem() {
         isTransitioning = false;
-        document.getElementById('graphCanvas').style.display = 'none';
         
         let promptTeX = "";
         let correctTeX = "";
         let distractors = new Set();
         let options = [];
+        let selectedGraphObj = null;
 
-        // MODE 1: Graph Limits
-        if (currentMode === 1) {
-            document.getElementById('promptTitle').innerText = "Evaluate using the graph:";
-            let graphObj = graphBank[Math.floor(Math.random() * graphBank.length)];
-            renderCanvasGraph(graphObj);
-            
-            let q = graphObj.questions[Math.floor(Math.random() * graphObj.questions.length)];
-            promptTeX = q.tex;
-            correctTeX = q.ans;
-            q.dist.forEach(d => distractors.add(d));
-        }
+        // The do-while loop guarantees the new question is never exactly the same as the last one
+        do {
+            distractors.clear();
+            selectedGraphObj = null;
 
-        // MODE 2: Direct Substitution
-        else if (currentMode === 2) {
-            document.getElementById('promptTitle').innerText = "Evaluate by direct substitution:";
-            let a = getRandomInt(-4, 4);
-            let c1 = getRandomNonZero(-3, 3);
-            let c2 = getRandomNonZero(-5, 5);
-            let c3 = getRandomInt(-5, 5);
-            
-            promptTeX = `\\lim_{x \\to ${a}} (${formatLeading(c1, 'x^2')} ${signTerm(c2, 'x', false)} ${signTerm(c3, '', false)})`;
-            let ans = c1*(a*a) + c2*a + c3;
-            correctTeX = ans.toString();
-            
-            distractors.add((c1*(a*a) - c2*a + c3).toString()); 
-            distractors.add((c1*a + c2*a + c3).toString()); 
-            distractors.add("\\text{DNE}");
-            distractors.add((ans + getRandomNonZero(-3, 3)).toString());
-        }
-
-        // MODE 3: Indeterminate Forms
-        else if (currentMode === 3) {
-            document.getElementById('promptTitle').innerText = "Evaluate the limit:";
-            let subType = getRandomInt(1, 3);
-            
-            if (subType === 1) { // Factoring Difference of Squares
-                let a = getRandomNonZero(1, 5);
-                let isNeg = Math.random() > 0.5 ? -1 : 1;
-                a = a * isNeg;
-                promptTeX = `\\lim_{x \\to ${a}} \\frac{x^2 - ${a*a}}{${formatXMinusA(a)}}`;
-                correctTeX = (2*a).toString();
-                distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add((-2*a).toString());
-            } 
-            else if (subType === 2) { // Factoring Trinomial
-                let r1 = getRandomNonZero(-5, 5); // The hole
-                let r2; do { r2 = getRandomNonZero(-5, 5); } while(r1 === r2);
-                let b = -(r1+r2); let c = r1*r2;
-                promptTeX = `\\lim_{x \\to ${r1}} \\frac{x^2 ${signTerm(b, 'x', false)} ${signTerm(c, '', false)}}{${formatXMinusA(r1)}}`;
-                correctTeX = (r1 - r2).toString();
-                distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add((r2 - r1).toString()); distractors.add((r1 + r2).toString());
-            }
-            else { // Conjugate
-                let a = getRandomInt(1, 6);
-                let aSq = a*a;
-                promptTeX = `\\lim_{x \\to ${aSq}} \\frac{\\sqrt{x} - ${a}}{x - ${aSq}}`;
-                correctTeX = `\\frac{1}{${2*a}}`;
-                distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add(`\\frac{1}{${a}}`); distractors.add(`${2*a}`);
-            }
-        }
-
-        // MODE 4: Infinity
-        else if (currentMode === 4) {
-            document.getElementById('promptTitle').innerText = "Evaluate the limit at infinity:";
-            let pPower = getRandomInt(2, 4); 
-            let qPower = getRandomInt(2, 4);
-            let pCoeff = getRandomNonZero(-5, 5);
-            let qCoeff = getRandomNonZero(-5, 5);
-            let sign = Math.random() > 0.5 ? "\\infty" : "-\\infty";
-            
-            promptTeX = `\\lim_{x \\to ${sign}} \\frac{${formatTerm(pCoeff, pPower)} + 3x - 1}{${formatTerm(qCoeff, qPower)} + 2}`;
-            
-            if (pPower === qPower) {
-                correctTeX = toFrac(pCoeff, qCoeff);
-                distractors.add("0"); distractors.add("\\infty"); distractors.add("-\\infty");
-            } else if (pPower < qPower) {
-                correctTeX = "0";
-                distractors.add(toFrac(pCoeff, qCoeff)); distractors.add("\\infty"); distractors.add("-\\infty");
-            } else {
-                let isPosInf = (pCoeff/qCoeff > 0);
-                if (sign === "-\\infty" && (pPower - qPower) % 2 !== 0) isPosInf = !isPosInf;
+            // MODE 1: Graph Limits
+            if (currentMode === 1) {
+                document.getElementById('promptTitle').innerText = "Evaluate using the graph:";
+                selectedGraphObj = graphBank[Math.floor(Math.random() * graphBank.length)];
                 
-                correctTeX = isPosInf ? "\\infty" : "-\\infty";
-                distractors.add(isPosInf ? "-\\infty" : "\\infty");
-                distractors.add("0"); distractors.add(toFrac(pCoeff, qCoeff));
+                let q = selectedGraphObj.questions[Math.floor(Math.random() * selectedGraphObj.questions.length)];
+                promptTeX = q.tex;
+                correctTeX = q.ans;
+                q.dist.forEach(d => distractors.add(d));
             }
-        }
 
-        // MODE 5: Piecewise Limits
-        else if (currentMode === 5) {
-            document.getElementById('promptTitle').innerText = "Given the piecewise function, evaluate:";
-            let c = getRandomInt(-3, 3);
-            let m1 = getRandomNonZero(-3, 3); let b1 = getRandomInt(-4, 4);
-            let m2 = getRandomNonZero(-2, 2); let b2 = getRandomInt(-4, 4);
-            
-            let valLeft = m1*c + b1;
-            let valRight = m2*(c*c) + b2;
-            
-            let htmlFunc = `f(x) = \\begin{cases} ${formatLeading(m1, 'x')} ${signTerm(b1,'',false)}, & x < ${c} \\\\ ${formatLeading(m2, 'x^2')} ${signTerm(b2,'',false)}, & x \\ge ${c} \\end{cases}`;
-            
-            let qType = getRandomInt(1, 3);
-            if (qType === 1) {
-                promptTeX = `${htmlFunc} \\\\ \\lim_{x \\to ${c}^-} f(x)`;
-                correctTeX = valLeft.toString();
-            } else if (qType === 2) {
-                promptTeX = `${htmlFunc} \\\\ \\lim_{x \\to ${c}^+} f(x)`;
-                correctTeX = valRight.toString();
-            } else {
-                promptTeX = `${htmlFunc} \\\\ \\lim_{x \\to ${c}} f(x)`;
-                correctTeX = (valLeft === valRight) ? valLeft.toString() : "\\text{DNE}";
+            // MODE 2: Direct Substitution
+            else if (currentMode === 2) {
+                document.getElementById('promptTitle').innerText = "Evaluate by direct substitution:";
+                let a = getRandomInt(-4, 4);
+                let c1 = getRandomNonZero(-3, 3);
+                let c2 = getRandomNonZero(-5, 5);
+                let c3 = getRandomInt(-5, 5);
+                
+                promptTeX = `\\lim_{x \\to ${a}} (${formatLeading(c1, 'x^2')} ${signTerm(c2, 'x', false)} ${signTerm(c3, '', false)})`;
+                let ans = c1*(a*a) + c2*a + c3;
+                correctTeX = ans.toString();
+                
+                distractors.add((c1*(a*a) - c2*a + c3).toString()); 
+                distractors.add((c1*a + c2*a + c3).toString()); 
+                distractors.add("\\text{DNE}");
+                distractors.add((ans + getRandomNonZero(-3, 3)).toString());
             }
-            
-            distractors.add(valLeft.toString()); distractors.add(valRight.toString()); distractors.add("\\text{DNE}");
-            distractors.add((valLeft+valRight).toString());
-        }
 
-        // MODE 6: Continuity Definitions
-        else if (currentMode === 6) {
-            document.getElementById('promptTitle').innerText = "Find k to make f(x) continuous everywhere:";
-            let c = getRandomNonZero(1, 3);
-            let m = getRandomNonZero(2, 5);
-            let b2 = getRandomInt(1, 5);
-            
-            let k = (c*c) + b2 - (m*c);
-            
-            promptTeX = `f(x) = \\begin{cases} ${formatLeading(m, 'x')} ${k < 0 ? `- ${Math.abs(k)}` : `+ ${k}`}, & x < ${c} \\\\ x^2 + ${b2}, & x \\ge ${c} \\end{cases}`;
-            correctTeX = `k = ${k}`;
-            
-            distractors.add(`k = ${k + m}`); distractors.add(`k = ${k - c}`); distractors.add(`k = ${(c*c)+b2}`); distractors.add(`\\text{DNE}`);
-        }
+            // MODE 3: Indeterminate Forms
+            else if (currentMode === 3) {
+                document.getElementById('promptTitle').innerText = "Evaluate the limit:";
+                let subType = getRandomInt(1, 3);
+                
+                if (subType === 1) { // Factoring Difference of Squares
+                    let a = getRandomNonZero(1, 5);
+                    let isNeg = Math.random() > 0.5 ? -1 : 1;
+                    a = a * isNeg;
+                    promptTeX = `\\lim_{x \\to ${a}} \\frac{x^2 - ${a*a}}{${formatXMinusA(a)}}`;
+                    correctTeX = (2*a).toString();
+                    distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add((-2*a).toString());
+                } 
+                else if (subType === 2) { // Factoring Trinomial
+                    let r1 = getRandomNonZero(-5, 5); // The hole
+                    let r2; do { r2 = getRandomNonZero(-5, 5); } while(r1 === r2);
+                    let b = -(r1+r2); let c = r1*r2;
+                    promptTeX = `\\lim_{x \\to ${r1}} \\frac{x^2 ${signTerm(b, 'x', false)} ${signTerm(c, '', false)}}{${formatXMinusA(r1)}}`;
+                    correctTeX = (r1 - r2).toString();
+                    distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add((r2 - r1).toString()); distractors.add((r1 + r2).toString());
+                }
+                else { // Conjugate
+                    let a = getRandomInt(1, 6);
+                    let aSq = a*a;
+                    promptTeX = `\\lim_{x \\to ${aSq}} \\frac{\\sqrt{x} - ${a}}{x - ${aSq}}`;
+                    correctTeX = `\\frac{1}{${2*a}}`;
+                    distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add(`\\frac{1}{${a}}`); distractors.add(`${2*a}`);
+                }
+            }
 
-        // MODE 7: Absolute Value Limits
-        else if (currentMode === 7) {
-            document.getElementById('promptTitle').innerText = "Evaluate the absolute value limit:";
-            let a = getRandomNonZero(-4, 4);
-            let side = getRandomInt(1, 3); 
-            
-            let texSide = "";
-            if (side === 1) texSide = "-";
-            if (side === 2) texSide = "+";
-            
-            promptTeX = `\\lim_{x \\to ${a}^{${texSide}}} \\frac{|${formatXMinusA(a)}|}{${formatXMinusA(a)}}`;
-            
-            if (side === 1) correctTeX = "-1";
-            else if (side === 2) correctTeX = "1";
-            else correctTeX = "\\text{DNE}";
+            // MODE 4: Infinity
+            else if (currentMode === 4) {
+                document.getElementById('promptTitle').innerText = "Evaluate the limit at infinity:";
+                let pPower = getRandomInt(2, 4); 
+                let qPower = getRandomInt(2, 4);
+                let pCoeff = getRandomNonZero(-5, 5);
+                let qCoeff = getRandomNonZero(-5, 5);
+                let sign = Math.random() > 0.5 ? "\\infty" : "-\\infty";
+                
+                promptTeX = `\\lim_{x \\to ${sign}} \\frac{${formatTerm(pCoeff, pPower)} + 3x - 1}{${formatTerm(qCoeff, qPower)} + 2}`;
+                
+                if (pPower === qPower) {
+                    correctTeX = toFrac(pCoeff, qCoeff);
+                    distractors.add("0"); distractors.add("\\infty"); distractors.add("-\\infty");
+                } else if (pPower < qPower) {
+                    correctTeX = "0";
+                    distractors.add(toFrac(pCoeff, qCoeff)); distractors.add("\\infty"); distractors.add("-\\infty");
+                } else {
+                    let isPosInf = (pCoeff/qCoeff > 0);
+                    if (sign === "-\\infty" && (pPower - qPower) % 2 !== 0) isPosInf = !isPosInf;
+                    
+                    correctTeX = isPosInf ? "\\infty" : "-\\infty";
+                    distractors.add(isPosInf ? "-\\infty" : "\\infty");
+                    distractors.add("0"); distractors.add(toFrac(pCoeff, qCoeff));
+                }
+            }
 
-            distractors.add("-1"); distractors.add("1"); distractors.add("\\text{DNE}"); distractors.add("0");
+            // MODE 5: Piecewise Limits
+            else if (currentMode === 5) {
+                document.getElementById('promptTitle').innerText = "Given the piecewise function, evaluate:";
+                let c = getRandomInt(-3, 3);
+                let m1 = getRandomNonZero(-3, 3); let b1 = getRandomInt(-4, 4);
+                let m2 = getRandomNonZero(-2, 2); let b2 = getRandomInt(-4, 4);
+                
+                let valLeft = m1*c + b1;
+                let valRight = m2*(c*c) + b2;
+                
+                let htmlFunc = `f(x) = \\begin{cases} ${formatLeading(m1, 'x')} ${signTerm(b1,'',false)}, & x < ${c} \\\\ ${formatLeading(m2, 'x^2')} ${signTerm(b2,'',false)}, & x \\ge ${c} \\end{cases}`;
+                
+                let qType = getRandomInt(1, 3);
+                if (qType === 1) {
+                    promptTeX = `${htmlFunc} \\\\ \\lim_{x \\to ${c}^-} f(x)`;
+                    correctTeX = valLeft.toString();
+                } else if (qType === 2) {
+                    promptTeX = `${htmlFunc} \\\\ \\lim_{x \\to ${c}^+} f(x)`;
+                    correctTeX = valRight.toString();
+                } else {
+                    promptTeX = `${htmlFunc} \\\\ \\lim_{x \\to ${c}} f(x)`;
+                    correctTeX = (valLeft === valRight) ? valLeft.toString() : "\\text{DNE}";
+                }
+                
+                distractors.add(valLeft.toString()); distractors.add(valRight.toString()); distractors.add("\\text{DNE}");
+                distractors.add((valLeft+valRight).toString());
+            }
+
+            // MODE 6: Continuity Definitions
+            else if (currentMode === 6) {
+                document.getElementById('promptTitle').innerText = "Find k to make f(x) continuous everywhere:";
+                let c = getRandomNonZero(1, 3);
+                let m = getRandomNonZero(2, 5);
+                let b2 = getRandomInt(1, 5);
+                
+                let k = (c*c) + b2 - (m*c);
+                
+                promptTeX = `f(x) = \\begin{cases} ${formatLeading(m, 'x')} ${k < 0 ? `- ${Math.abs(k)}` : `+ ${k}`}, & x < ${c} \\\\ x^2 + ${b2}, & x \\ge ${c} \\end{cases}`;
+                correctTeX = `k = ${k}`;
+                
+                distractors.add(`k = ${k + m}`); distractors.add(`k = ${k - c}`); distractors.add(`k = ${(c*c)+b2}`); distractors.add(`\\text{DNE}`);
+            }
+
+            // MODE 7: Absolute Value Limits
+            else if (currentMode === 7) {
+                document.getElementById('promptTitle').innerText = "Evaluate the absolute value limit:";
+                let a = getRandomNonZero(-4, 4);
+                let side = getRandomInt(1, 3); 
+                
+                let texSide = "";
+                if (side === 1) texSide = "-";
+                if (side === 2) texSide = "+";
+                
+                promptTeX = `\\lim_{x \\to ${a}^{${texSide}}} \\frac{|${formatXMinusA(a)}|}{${formatXMinusA(a)}}`;
+                
+                if (side === 1) correctTeX = "-1";
+                else if (side === 2) correctTeX = "1";
+                else correctTeX = "\\text{DNE}";
+
+                distractors.add("-1"); distractors.add("1"); distractors.add("\\text{DNE}"); distractors.add("0");
+            }
+
+        } while (promptTeX === lastPrompt); // Re-roll immediately if it's identical to the previous question
+
+        // Save the verified unique question to memory
+        lastPrompt = promptTeX;
+
+        // Render Canvas only if Mode 1
+        if (selectedGraphObj) {
+            renderCanvasGraph(selectedGraphObj);
+        } else {
+            document.getElementById('graphCanvas').style.display = 'none';
         }
 
         // Fill options, ensuring uniqueness
