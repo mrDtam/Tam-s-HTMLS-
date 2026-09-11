@@ -716,7 +716,8 @@
                 
                 let k = (c*c) + b2 - (m*c);
                 
-                promptTeX = `f(x) = \\begin{cases} ${formatLeading(m, 'x')} ${k < 0 ? `- ${Math.abs(k)}` : `+ ${k}`}, & x < ${c} \\\\ x^2 + ${b2}, & x \\ge ${c} \\end{cases}`;
+                // FIX: Ensure 'k' is printed as a variable in the prompt
+                promptTeX = `f(x) = \\begin{cases} ${formatLeading(m, 'x')} + k, & x < ${c} \\\\ x^2 + ${b2}, & x \\ge ${c} \\end{cases}`;
                 correctTeX = `k = ${k}`;
                 
                 distractors.add(`k = ${k + m}`); distractors.add(`k = ${k - c}`); distractors.add(`k = ${(c*c)+b2}`); distractors.add(`\\text{DNE}`);
