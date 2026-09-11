@@ -11,8 +11,8 @@
 
     <style>
         :root {
-            --level1: #e67e22; /* Orange */
-            --level2: #f1c40f; /* Yellow-Orange */
+            --level1: #e67e22; 
+            --level2: #f1c40f; 
             --dark: #2c3e50;
             --light: #f8f9fa;
             --secondary: #3498db;
@@ -340,7 +340,6 @@
         return `${sign}${cStr}${v}`;
     }
 
-    // New formatters to prevent 1x^2, -(-N), etc.
     function formatLeading(coeff, v) {
         if (coeff === 1) return v;
         if (coeff === -1) return "-" + v;
@@ -380,10 +379,10 @@
         document.getElementById('highStreakDisplay').innerText = highestStreak;
     }
 
-    // --- Predefined Graph Questions for Canvas ---
+    // --- 5 Predefined Graph Questions for Canvas ---
     const graphBank = [
         {
-            // Graph 0: Jump & Removable Discontinuity
+            // Graph 1: Jump & Removable Discontinuity
             draw: (ctx, mapX, mapY) => {
                 ctx.strokeStyle = "#3498db"; ctx.lineWidth = 3;
                 
@@ -404,16 +403,18 @@
                 drawDot(ctx, mapX(2), mapY(-1), false, "#3498db");
             },
             questions: [
-                { tex: "\\lim_{x \\to -2^-} f(x)", ans: "1", dist: ["-2", "DNE", "2"] },
-                { tex: "\\lim_{x \\to -2^+} f(x)", ans: "2", dist: ["1", "-2", "DNE"] },
+                { tex: "\\lim_{x \\to -2^-} f(x)", ans: "1", dist: ["-2", "\\text{DNE}", "2"] },
+                { tex: "\\lim_{x \\to -2^+} f(x)", ans: "2", dist: ["1", "-2", "\\text{DNE}"] },
                 { tex: "\\lim_{x \\to -2} f(x)", ans: "\\text{DNE}", dist: ["1", "2", "-2"] },
-                { tex: "\\lim_{x \\to 2^-} f(x)", ans: "2", dist: ["-1", "DNE", "0"] },
-                { tex: "\\lim_{x \\to 2^+} f(x)", ans: "-1", dist: ["2", "DNE", "1"] },
-                { tex: "\\lim_{x \\to 2} f(x)", ans: "\\text{DNE}", dist: ["2", "-1", "1"] }
+                { tex: "f(-2)", ans: "-2", dist: ["1", "2", "\\text{DNE}"] }, // Added Point
+                { tex: "\\lim_{x \\to 2^-} f(x)", ans: "2", dist: ["-1", "\\text{DNE}", "0"] },
+                { tex: "\\lim_{x \\to 2^+} f(x)", ans: "-1", dist: ["2", "\\text{DNE}", "1"] },
+                { tex: "\\lim_{x \\to 2} f(x)", ans: "\\text{DNE}", dist: ["2", "-1", "1"] },
+                { tex: "f(2)", ans: "2", dist: ["-1", "\\text{DNE}", "0"] }  // Added Point
             ]
         },
         {
-            // Graph 1: Vertical Asymptote & Removable
+            // Graph 2: Asymptote opposite directions
             draw: (ctx, mapX, mapY) => {
                 ctx.strokeStyle = "#9b59b6"; ctx.lineWidth = 3;
                 // Asymptote
@@ -429,7 +430,7 @@
                 ctx.beginPath(); ctx.moveTo(mapX(-0.9), mapY(10));
                 ctx.quadraticCurveTo(mapX(1), mapY(2), mapX(3), mapY(2)); ctx.stroke();
                 
-                // Hole
+                // Hole and dot
                 drawDot(ctx, mapX(3), mapY(2), false, "#9b59b6");
                 drawDot(ctx, mapX(3), mapY(4), true, "#9b59b6"); 
                 
@@ -440,8 +441,92 @@
                 { tex: "\\lim_{x \\to -1^-} g(x)", ans: "-\\infty", dist: ["\\infty", "0", "\\text{DNE}"] },
                 { tex: "\\lim_{x \\to -1^+} g(x)", ans: "\\infty", dist: ["-\\infty", "0", "\\text{DNE}"] },
                 { tex: "\\lim_{x \\to -1} g(x)", ans: "\\text{DNE}", dist: ["\\infty", "-\\infty", "0"] },
+                { tex: "g(-1)", ans: "\\text{DNE}", dist: ["\\infty", "-\\infty", "0"] }, // Added Point
                 { tex: "\\lim_{x \\to 3} g(x)", ans: "2", dist: ["4", "0", "\\text{DNE}"] },
                 { tex: "g(3)", ans: "4", dist: ["2", "\\text{DNE}", "0"] }
+            ]
+        },
+        {
+            // Graph 3: Continuous with a displaced hole
+            draw: (ctx, mapX, mapY) => {
+                ctx.strokeStyle = "#27ae60"; ctx.lineWidth = 3;
+                
+                // Linear equation y = -x + 1
+                ctx.beginPath(); ctx.moveTo(mapX(-8), mapY(9)); ctx.lineTo(mapX(8), mapY(-7)); ctx.stroke();
+                
+                // Displaced hole at x = -2
+                drawDot(ctx, mapX(-2), mapY(3), false, "#27ae60");
+                drawDot(ctx, mapX(-2), mapY(5), true, "#27ae60"); // Point above
+
+                // Missing point entirely at x = 3
+                drawDot(ctx, mapX(3), mapY(-2), false, "#27ae60");
+            },
+            questions: [
+                { tex: "\\lim_{x \\to -2} h(x)", ans: "3", dist: ["5", "0", "\\text{DNE}"] },
+                { tex: "h(-2)", ans: "5", dist: ["3", "\\text{DNE}", "0"] },
+                { tex: "\\lim_{x \\to 3^-} h(x)", ans: "-2", dist: ["3", "\\text{DNE}", "0"] },
+                { tex: "\\lim_{x \\to 3} h(x)", ans: "-2", dist: ["3", "\\text{DNE}", "0"] },
+                { tex: "h(3)", ans: "\\text{DNE}", dist: ["-2", "0", "3"] }
+            ]
+        },
+        {
+            // Graph 4: Step-jump into Asymptote (+inf both sides)
+            draw: (ctx, mapX, mapY) => {
+                ctx.strokeStyle = "#e67e22"; ctx.lineWidth = 3;
+                
+                // Horizontal line y = 1 ending at x = -2
+                ctx.beginPath(); ctx.moveTo(mapX(-10), mapY(1)); ctx.lineTo(mapX(-2), mapY(1)); ctx.stroke();
+                drawDot(ctx, mapX(-2), mapY(1), false, "#e67e22");
+
+                // Asymptote at x = 3
+                ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.strokeStyle = "#95a5a6";
+                ctx.moveTo(mapX(3), mapY(-10)); ctx.lineTo(mapX(3), mapY(10)); ctx.stroke();
+                ctx.setLineDash([]); ctx.strokeStyle = "#e67e22";
+
+                // Curve up to asymptote from x = -2
+                ctx.beginPath(); ctx.moveTo(mapX(-2), mapY(-3)); 
+                ctx.quadraticCurveTo(mapX(2), mapY(-3), mapX(2.8), mapY(10)); ctx.stroke();
+                drawDot(ctx, mapX(-2), mapY(-3), true, "#e67e22");
+
+                // Curve down from asymptote
+                ctx.beginPath(); ctx.moveTo(mapX(3.2), mapY(10)); 
+                ctx.quadraticCurveTo(mapX(4), mapY(1), mapX(10), mapY(0)); ctx.stroke();
+            },
+            questions: [
+                { tex: "\\lim_{x \\to -2^-} p(x)", ans: "1", dist: ["-3", "\\text{DNE}", "0"] },
+                { tex: "\\lim_{x \\to -2^+} p(x)", ans: "-3", dist: ["1", "\\text{DNE}", "0"] },
+                { tex: "\\lim_{x \\to -2} p(x)", ans: "\\text{DNE}", dist: ["1", "-3", "0"] },
+                { tex: "p(-2)", ans: "-3", dist: ["1", "\\text{DNE}", "0"] },
+                { tex: "\\lim_{x \\to 3^-} p(x)", ans: "\\infty", dist: ["-\\infty", "0", "\\text{DNE}"] },
+                { tex: "\\lim_{x \\to 3^+} p(x)", ans: "\\infty", dist: ["-\\infty", "0", "\\text{DNE}"] },
+                { tex: "\\lim_{x \\to 3} p(x)", ans: "\\infty", dist: ["-\\infty", "0", "\\text{DNE}"] },
+                { tex: "p(3)", ans: "\\text{DNE}", dist: ["\\infty", "-\\infty", "0"] }
+            ]
+        },
+        {
+            // Graph 5: Absolute Value V-Shape with holes
+            draw: (ctx, mapX, mapY) => {
+                ctx.strokeStyle = "#16a085"; ctx.lineWidth = 3;
+                
+                // Left branch down to vertex (2, -2)
+                ctx.beginPath(); ctx.moveTo(mapX(-5), mapY(5)); ctx.lineTo(mapX(2), mapY(-2)); ctx.stroke();
+                // Right branch up from vertex
+                ctx.beginPath(); ctx.moveTo(mapX(2), mapY(-2)); ctx.lineTo(mapX(8), mapY(4)); ctx.stroke();
+                
+                // Displaced Vertex Hole
+                drawDot(ctx, mapX(2), mapY(-2), false, "#16a085");
+                drawDot(ctx, mapX(2), mapY(1), true, "#16a085");
+
+                // Empty Hole on right branch
+                drawDot(ctx, mapX(5), mapY(1), false, "#16a085");
+            },
+            questions: [
+                { tex: "\\lim_{x \\to 2^-} q(x)", ans: "-2", dist: ["1", "\\text{DNE}", "2"] },
+                { tex: "\\lim_{x \\to 2^+} q(x)", ans: "-2", dist: ["1", "\\text{DNE}", "2"] },
+                { tex: "\\lim_{x \\to 2} q(x)", ans: "-2", dist: ["1", "\\text{DNE}", "2"] },
+                { tex: "q(2)", ans: "1", dist: ["-2", "\\text{DNE}", "0"] },
+                { tex: "\\lim_{x \\to 5} q(x)", ans: "1", dist: ["5", "-2", "\\text{DNE}"] },
+                { tex: "q(5)", ans: "\\text{DNE}", dist: ["1", "5", "0"] }
             ]
         }
     ];
@@ -501,7 +586,7 @@
 
         // MODE 1: Graph Limits
         if (currentMode === 1) {
-            document.getElementById('promptTitle').innerText = "Evaluate the limit using the graph:";
+            document.getElementById('promptTitle').innerText = "Evaluate using the graph:";
             let graphObj = graphBank[Math.floor(Math.random() * graphBank.length)];
             renderCanvasGraph(graphObj);
             
@@ -562,7 +647,7 @@
         // MODE 4: Infinity
         else if (currentMode === 4) {
             document.getElementById('promptTitle').innerText = "Evaluate the limit at infinity:";
-            let pPower = getRandomInt(2, 4); // Guarantees x^2 or higher for clean layout
+            let pPower = getRandomInt(2, 4); 
             let qPower = getRandomInt(2, 4);
             let pCoeff = getRandomNonZero(-5, 5);
             let qCoeff = getRandomNonZero(-5, 5);
