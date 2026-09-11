@@ -318,7 +318,7 @@
     function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
     function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
 
-    // --- Math Utilities ---
+    // --- Math Formatting Utilities ---
     function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
     function getRandomNonZero(min, max) { let v; do { v = getRandomInt(min, max); } while (v === 0); return v; }
     function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
@@ -338,6 +338,26 @@
         let cStr = (absC === 1 && v !== "") ? "" : absC;
         let sign = (c < 0) ? (isFirst ? "-" : " - ") : (isFirst ? "" : " + ");
         return `${sign}${cStr}${v}`;
+    }
+
+    // New formatters to prevent 1x^2, -(-N), etc.
+    function formatLeading(coeff, v) {
+        if (coeff === 1) return v;
+        if (coeff === -1) return "-" + v;
+        return coeff + v;
+    }
+
+    function formatTerm(coeff, power) {
+        let v = (power === 1) ? "x" : "x^{" + power + "}";
+        if (coeff === 1) return v;
+        if (coeff === -1) return "-" + v;
+        return coeff + v;
+    }
+
+    function formatXMinusA(a) {
+        if (a < 0) return `x + ${Math.abs(a)}`;
+        if (a > 0) return `x - ${a}`;
+        return `x`;
     }
 
     // --- Navigation ---
@@ -367,23 +387,21 @@
             draw: (ctx, mapX, mapY) => {
                 ctx.strokeStyle = "#3498db"; ctx.lineWidth = 3;
                 
-                // Left branch: line y = x + 3 ending at x = -2 (hole at -2, 1)
+                // Left branch
                 ctx.beginPath(); ctx.moveTo(mapX(-10), mapY(-7)); ctx.lineTo(mapX(-2), mapY(1)); ctx.stroke();
-                // Solid dot at (-2, -2)
                 drawDot(ctx, mapX(-2), mapY(-2), true, "#3498db");
-                // Hole at (-2, 1)
                 drawDot(ctx, mapX(-2), mapY(1), false, "#3498db");
 
-                // Middle branch: horizontal y = 2 from x = -2 to x = 2
+                // Middle branch
                 ctx.beginPath(); ctx.moveTo(mapX(-2), mapY(2)); ctx.lineTo(mapX(2), mapY(2)); ctx.stroke();
-                drawDot(ctx, mapX(-2), mapY(2), false, "#3498db"); // hole
-                drawDot(ctx, mapX(2), mapY(2), true, "#3498db");  // solid
+                drawDot(ctx, mapX(-2), mapY(2), false, "#3498db"); 
+                drawDot(ctx, mapX(2), mapY(2), true, "#3498db");  
 
-                // Right branch: parabola starting open at x=2, y=-1
+                // Right branch
                 ctx.beginPath();
                 for(let x = 2.1; x <= 8; x+=0.1) { ctx.lineTo(mapX(x), mapY(-1 - Math.pow(x-2, 2)/4)); }
                 ctx.stroke();
-                drawDot(ctx, mapX(2), mapY(-1), false, "#3498db"); // hole
+                drawDot(ctx, mapX(2), mapY(-1), false, "#3498db");
             },
             questions: [
                 { tex: "\\lim_{x \\to -2^-} f(x)", ans: "1", dist: ["-2", "DNE", "2"] },
@@ -397,69 +415,36 @@
         {
             // Graph 1: Vertical Asymptote & Removable
             draw: (ctx, mapX, mapY) => {
-                ctx.strokeStyle = "#e74c3c"; ctx.lineWidth = 3;
-                
-                // Asymptote at x = 1
+                ctx.strokeStyle = "#9b59b6"; ctx.lineWidth = 3;
+                // Asymptote
                 ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.strokeStyle = "#95a5a6";
-                ctx.moveTo(mapX(1), mapY(-10)); ctx.lineTo(mapX(1), mapY(10)); ctx.stroke();
-                ctx.setLineDash([]); ctx.strokeStyle = "#e74c3c";
+                ctx.moveTo(mapX(-1), mapY(-10)); ctx.lineTo(mapX(-1), mapY(10)); ctx.stroke();
+                ctx.setLineDash([]); ctx.strokeStyle = "#9b59b6";
 
-                // Left branch: y = 1/(x-1) + 2
-                ctx.beginPath();
-                for(let x = -8; x <= 0.9; x+=0.1) { ctx.lineTo(mapX(x), mapY(1/(x-1) + 2)); }
-                ctx.stroke();
+                // Left goes to -infinity
+                ctx.beginPath(); ctx.moveTo(mapX(-10), mapY(0));
+                ctx.quadraticCurveTo(mapX(-2), mapY(0), mapX(-1.1), mapY(-10)); ctx.stroke();
 
-                // Right branch: y = 1/(x-1)^2 - 3 (Approaches +inf)
-                ctx.beginPath();
-                for(let x = 1.1; x <= 3.9; x+=0.1) { ctx.lineTo(mapX(x), mapY(1/Math.pow(x-1, 2) - 3)); }
-                ctx.stroke();
-
-                // Hole at x = 4
-                let valAt4 = 1/Math.pow(3, 2) - 3; // roughly -2.88
-                drawDot(ctx, mapX(4), mapY(-2), false, "#e74c3c"); // We will rig the math visually for integer
-                ctx.beginPath(); ctx.moveTo(mapX(1.1), mapY(10));
-                for(let x = 1.1; x <= 3.9; x+=0.1) { ctx.lineTo(mapX(x), mapY(2/(x-1) - 3)); } // visually nicer
-                ctx.stroke();
+                // Right goes to +infinity
+                ctx.beginPath(); ctx.moveTo(mapX(-0.9), mapY(10));
+                ctx.quadraticCurveTo(mapX(1), mapY(2), mapX(3), mapY(2)); ctx.stroke();
                 
-                // Overriding right branch for cleaner limits: 
-                // Let's just do manual paths for clean asymptotes
-            }
+                // Hole
+                drawDot(ctx, mapX(3), mapY(2), false, "#9b59b6");
+                drawDot(ctx, mapX(3), mapY(4), true, "#9b59b6"); 
+                
+                // Continue right
+                ctx.beginPath(); ctx.moveTo(mapX(3.2), mapY(2)); ctx.lineTo(mapX(10), mapY(-1)); ctx.stroke();
+            },
+            questions: [
+                { tex: "\\lim_{x \\to -1^-} g(x)", ans: "-\\infty", dist: ["\\infty", "0", "\\text{DNE}"] },
+                { tex: "\\lim_{x \\to -1^+} g(x)", ans: "\\infty", dist: ["-\\infty", "0", "\\text{DNE}"] },
+                { tex: "\\lim_{x \\to -1} g(x)", ans: "\\text{DNE}", dist: ["\\infty", "-\\infty", "0"] },
+                { tex: "\\lim_{x \\to 3} g(x)", ans: "2", dist: ["4", "0", "\\text{DNE}"] },
+                { tex: "g(3)", ans: "4", dist: ["2", "\\text{DNE}", "0"] }
+            ]
         }
     ];
-    
-    // Simpler clean graphs for asymptote
-    const graph2 = {
-        draw: (ctx, mapX, mapY) => {
-            ctx.strokeStyle = "#9b59b6"; ctx.lineWidth = 3;
-            // Asymptote at x = -1
-            ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.strokeStyle = "#95a5a6";
-            ctx.moveTo(mapX(-1), mapY(-10)); ctx.lineTo(mapX(-1), mapY(10)); ctx.stroke();
-            ctx.setLineDash([]); ctx.strokeStyle = "#9b59b6";
-
-            // Left goes to -infinity
-            ctx.beginPath(); ctx.moveTo(mapX(-10), mapY(0));
-            ctx.quadraticCurveTo(mapX(-2), mapY(0), mapX(-1.1), mapY(-10)); ctx.stroke();
-
-            // Right goes to +infinity
-            ctx.beginPath(); ctx.moveTo(mapX(-0.9), mapY(10));
-            ctx.quadraticCurveTo(mapX(1), mapY(2), mapX(3), mapY(2)); ctx.stroke();
-            
-            // Hole at x=3, y=2
-            drawDot(ctx, mapX(3), mapY(2), false, "#9b59b6");
-            drawDot(ctx, mapX(3), mapY(4), true, "#9b59b6"); // Point above
-            
-            // Continue right
-            ctx.beginPath(); ctx.moveTo(mapX(3.2), mapY(2)); ctx.lineTo(mapX(10), mapY(-1)); ctx.stroke();
-        },
-        questions: [
-            { tex: "\\lim_{x \\to -1^-} g(x)", ans: "-\\infty", dist: ["\\infty", "0", "\\text{DNE}"] },
-            { tex: "\\lim_{x \\to -1^+} g(x)", ans: "\\infty", dist: ["-\\infty", "0", "\\text{DNE}"] },
-            { tex: "\\lim_{x \\to -1} g(x)", ans: "\\text{DNE}", dist: ["\\infty", "-\\infty", "0"] },
-            { tex: "\\lim_{x \\to 3} g(x)", ans: "2", dist: ["4", "0", "\\text{DNE}"] },
-            { tex: "g(3)", ans: "4", dist: ["2", "\\text{DNE}", "0"] }
-        ]
-    };
-    graphBank[1] = graph2; // overwrite messy graph 1
 
     function drawDot(ctx, x, y, solid, color) {
         ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2);
@@ -480,7 +465,7 @@
         const mapX = (x) => originX + x * gridSize;
         const mapY = (y) => originY - y * gridSize;
 
-        // Draw Grid
+        // Grid
         ctx.lineWidth = 1; ctx.strokeStyle = "#ecf0f1";
         for(let i = -10; i <= 10; i++) {
             ctx.beginPath(); ctx.moveTo(mapX(i), 0); ctx.lineTo(mapX(i), canvas.height); ctx.stroke();
@@ -501,7 +486,6 @@
             }
         }
 
-        // Draw specific graph
         graphObj.draw(ctx, mapX, mapY);
     }
 
@@ -535,12 +519,12 @@
             let c2 = getRandomNonZero(-5, 5);
             let c3 = getRandomInt(-5, 5);
             
-            promptTeX = `\\lim_{x \\to ${a}} (${c1}x^2 ${signTerm(c2, 'x', false)} ${signTerm(c3, '', false)})`;
+            promptTeX = `\\lim_{x \\to ${a}} (${formatLeading(c1, 'x^2')} ${signTerm(c2, 'x', false)} ${signTerm(c3, '', false)})`;
             let ans = c1*(a*a) + c2*a + c3;
             correctTeX = ans.toString();
             
-            distractors.add((c1*(a*a) - c2*a + c3).toString()); // Sign error
-            distractors.add((c1*a + c2*a + c3).toString()); // Forgot to square
+            distractors.add((c1*(a*a) - c2*a + c3).toString()); 
+            distractors.add((c1*a + c2*a + c3).toString()); 
             distractors.add("\\text{DNE}");
             distractors.add((ans + getRandomNonZero(-3, 3)).toString());
         }
@@ -554,7 +538,7 @@
                 let a = getRandomNonZero(1, 5);
                 let isNeg = Math.random() > 0.5 ? -1 : 1;
                 a = a * isNeg;
-                promptTeX = `\\lim_{x \\to ${a}} \\frac{x^2 - ${a*a}}{x - ${a < 0 ? `(${a})` : a}}`;
+                promptTeX = `\\lim_{x \\to ${a}} \\frac{x^2 - ${a*a}}{${formatXMinusA(a)}}`;
                 correctTeX = (2*a).toString();
                 distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add((-2*a).toString());
             } 
@@ -562,7 +546,7 @@
                 let r1 = getRandomNonZero(-5, 5); // The hole
                 let r2; do { r2 = getRandomNonZero(-5, 5); } while(r1 === r2);
                 let b = -(r1+r2); let c = r1*r2;
-                promptTeX = `\\lim_{x \\to ${r1}} \\frac{x^2 ${signTerm(b, 'x', false)} ${signTerm(c, '', false)}}{x - ${r1 < 0 ? `(${r1})` : r1}}`;
+                promptTeX = `\\lim_{x \\to ${r1}} \\frac{x^2 ${signTerm(b, 'x', false)} ${signTerm(c, '', false)}}{${formatXMinusA(r1)}}`;
                 correctTeX = (r1 - r2).toString();
                 distractors.add("0"); distractors.add("\\text{DNE}"); distractors.add((r2 - r1).toString()); distractors.add((r1 + r2).toString());
             }
@@ -578,13 +562,13 @@
         // MODE 4: Infinity
         else if (currentMode === 4) {
             document.getElementById('promptTitle').innerText = "Evaluate the limit at infinity:";
-            let pPower = getRandomInt(1, 3);
-            let qPower = getRandomInt(1, 3);
+            let pPower = getRandomInt(2, 4); // Guarantees x^2 or higher for clean layout
+            let qPower = getRandomInt(2, 4);
             let pCoeff = getRandomNonZero(-5, 5);
             let qCoeff = getRandomNonZero(-5, 5);
             let sign = Math.random() > 0.5 ? "\\infty" : "-\\infty";
             
-            promptTeX = `\\lim_{x \\to ${sign}} \\frac{${pCoeff}x^{${pPower}} + 3x - 1}{${qCoeff}x^{${qPower}} + 2}`;
+            promptTeX = `\\lim_{x \\to ${sign}} \\frac{${formatTerm(pCoeff, pPower)} + 3x - 1}{${formatTerm(qCoeff, qPower)} + 2}`;
             
             if (pPower === qPower) {
                 correctTeX = toFrac(pCoeff, qCoeff);
@@ -593,7 +577,6 @@
                 correctTeX = "0";
                 distractors.add(toFrac(pCoeff, qCoeff)); distractors.add("\\infty"); distractors.add("-\\infty");
             } else {
-                // pPower > qPower
                 let isPosInf = (pCoeff/qCoeff > 0);
                 if (sign === "-\\infty" && (pPower - qPower) % 2 !== 0) isPosInf = !isPosInf;
                 
@@ -613,7 +596,7 @@
             let valLeft = m1*c + b1;
             let valRight = m2*(c*c) + b2;
             
-            let htmlFunc = `f(x) = \\begin{cases} ${m1===1?"":m1}x ${signTerm(b1,'',false)}, & x < ${c} \\\\ ${m2===1?"":m2}x^2 ${signTerm(b2,'',false)}, & x \\ge ${c} \\end{cases}`;
+            let htmlFunc = `f(x) = \\begin{cases} ${formatLeading(m1, 'x')} ${signTerm(b1,'',false)}, & x < ${c} \\\\ ${formatLeading(m2, 'x^2')} ${signTerm(b2,'',false)}, & x \\ge ${c} \\end{cases}`;
             
             let qType = getRandomInt(1, 3);
             if (qType === 1) {
@@ -638,13 +621,9 @@
             let m = getRandomNonZero(2, 5);
             let b2 = getRandomInt(1, 5);
             
-            // Limit left = m*c + k
-            // Limit right = c^2 + b2
-            // m*c + k = c*c + b2  => k = c*c + b2 - m*c
-            
             let k = (c*c) + b2 - (m*c);
             
-            promptTeX = `f(x) = \\begin{cases} ${m}x + k, & x < ${c} \\\\ x^2 + ${b2}, & x \\ge ${c} \\end{cases}`;
+            promptTeX = `f(x) = \\begin{cases} ${formatLeading(m, 'x')} ${k < 0 ? `- ${Math.abs(k)}` : `+ ${k}`}, & x < ${c} \\\\ x^2 + ${b2}, & x \\ge ${c} \\end{cases}`;
             correctTeX = `k = ${k}`;
             
             distractors.add(`k = ${k + m}`); distractors.add(`k = ${k - c}`); distractors.add(`k = ${(c*c)+b2}`); distractors.add(`\\text{DNE}`);
@@ -654,13 +633,13 @@
         else if (currentMode === 7) {
             document.getElementById('promptTitle').innerText = "Evaluate the absolute value limit:";
             let a = getRandomNonZero(-4, 4);
-            let side = getRandomInt(1, 3); // 1: left, 2: right, 3: both
+            let side = getRandomInt(1, 3); 
             
             let texSide = "";
             if (side === 1) texSide = "-";
             if (side === 2) texSide = "+";
             
-            promptTeX = `\\lim_{x \\to ${a}^{${texSide}}} \\frac{|x - ${a < 0 ? `(${a})` : a}|}{x - ${a < 0 ? `(${a})` : a}}`;
+            promptTeX = `\\lim_{x \\to ${a}^{${texSide}}} \\frac{|${formatXMinusA(a)}|}{${formatXMinusA(a)}}`;
             
             if (side === 1) correctTeX = "-1";
             else if (side === 2) correctTeX = "1";
@@ -677,7 +656,6 @@
         while(finalOptions.size < 4 && i < distArray.length) {
             finalOptions.add(distArray[i]); i++;
         }
-        // Failsafe padding
         let pad = 1;
         while(finalOptions.size < 4) { finalOptions.add(pad.toString()); pad++; }
 
