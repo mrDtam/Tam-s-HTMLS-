@@ -251,7 +251,6 @@
 
 <div class="container">
     
-    <!-- Menu Screen -->
     <div id="menuScreen">
         <h1>Integers & Fractions</h1>
         <p class="subtitle">🚫 NO CALCULATORS ALLOWED 🚫</p>
@@ -262,7 +261,7 @@
                 <button class="menu-btn" onclick="startGame(1)">Mixed ↔ Improper Conversions</button>
                 <button class="menu-btn" onclick="startGame(2)">Simplify Fractions</button>
                 <button class="menu-btn" onclick="startGame(3)">Add & Subtract (Common Denom)</button>
-                <button class="menu-btn" onclick="startGame(4)">Multiply & Divide (Pos/Neg Fractions)</button>
+                <button class="menu-btn" onclick="startGame(4)">Multiply & Divide (No Mixed)</button>
             </div>
         </div>
 
@@ -283,7 +282,6 @@
         </div>
     </div>
 
-    <!-- Game Screen -->
     <div id="gameScreen">
         <div class="game-header">
             <div>
@@ -351,15 +349,16 @@
         return `\\frac{${num}}{${den}}`;
     }
 
-    // Wraps negative fractions in parentheses if not the first term
+    // Wraps negative fractions in parentheses safely if they are the 2nd/3rd term
     function formatTermFrac(n, d, isFirst = false) {
         let tex = formatFracTex(n, d);
-        if (!isFirst && n < 0) return `\\left(${tex}\\right)`;
+        let val = n / d;
+        if (!isFirst && val < 0) return `\\left(${tex}\\right)`;
         return tex;
     }
 
-    // Format n/d as a mixed fraction in LaTeX
-    function toMixedTex(n, d) {
+    // Format improper n/d as a cleanly rendered mixed number
+    function texForMixed(n, d) {
         let [num, den] = simplify(n, d);
         if (den === 1) return num.toString();
         if (num === 0) return "0";
@@ -373,19 +372,12 @@
         return `${sign}${whole}\\frac{${rem}}{${den}}`;
     }
 
-    // Wraps negative mixed numbers in parentheses if not the first term
-    function formatSignedMixed(w, n, d, isFirst = false) {
-        let tex = `${w < 0 ? "-" : ""}${Math.abs(w) > 0 ? Math.abs(w) : ""}\\frac{${n}}{${d}}`;
-        if (Math.abs(w) === 0) tex = formatFracTex(w < 0 ? -n : n, d);
-        if (!isFirst && w < 0) return `\\left(${tex}\\right)`;
+    // Wraps negative mixed numbers in parentheses safely
+    function formatTermMixed(n, d, isFirst = false) {
+        let tex = texForMixed(n, d);
+        let val = n / d;
+        if (!isFirst && val < 0) return `\\left(${tex}\\right)`;
         return tex;
-    }
-
-    // Convert mixed to improper [n, d]
-    function mixedToImproper(w, n, d) {
-        let sign = w < 0 ? -1 : 1;
-        let num = (Math.abs(w) * d) + n;
-        return [sign * num, d];
     }
 
     // --- Navigation ---
@@ -402,7 +394,6 @@
         const gameContainer = document.querySelector('.container');
         document.getElementById('problemDisplay').classList.remove('word-problem');
         
-        // Theme Colors
         if (mode <= 4) {
             gameContainer.style.borderColor = "var(--level1)";
             document.getElementById('problemDisplay').style.borderColor = "var(--level1)";
@@ -437,44 +428,45 @@
         do {
             distractors.clear();
 
-            // MODE 1: Mixed ↔ Improper Conversions (Positive & Negative)
+            // MODE 1: Mixed ↔ Improper Conversions (Forces Negatives)
             if (currentMode === 1) {
                 let type = getRandomInt(1, 2);
-                let w = getRandomInt(1, 5);
                 let d = getRandomInt(3, 9);
-                let n = getRandomInt(1, d - 1);
-                let isNeg = Math.random() > 0.5 ? -1 : 1;
-                let signStr = isNeg < 0 ? "-" : "";
+                let w = getRandomInt(1, 5);
+                let rem = getRandomInt(1, d - 1);
+                
+                // 50% chance the mixed number is negative
+                let sign = Math.random() > 0.5 ? 1 : -1; 
+                let n = sign * ((w * d) + rem); 
                 
                 if (type === 1) { // Mixed to Improper
                     document.getElementById('promptTitle').innerText = "Convert to an improper fraction:";
-                    promptTeX = `${signStr}${w}\\frac{${n}}{${d}}`;
-                    correctTeX = `${signStr}\\frac{${w*d + n}}{${d}}`;
-                    distractors.add(`${signStr}\\frac{${w*n + d}}{${d}}`);
-                    distractors.add(`${signStr}\\frac{${w+n}}{${d}}`);
-                    distractors.add(`${signStr}\\frac{${w*d + n}}{${w}}`);
-                    distractors.add(`${isNeg < 0 ? "" : "-"}\\frac{${w*d + n}}{${d}}`); // Opp sign
+                    promptTeX = texForMixed(n, d);
+                    correctTeX = formatFracTex(n, d);
+                    
+                    distractors.add(formatFracTex(sign * (w * rem + d), d)); // Common error
+                    distractors.add(formatFracTex(sign * (w + rem), d)); // Added instead of mult
+                    distractors.add(formatFracTex(n, w)); // Put over whole number
+                    distractors.add(formatFracTex(-n, d)); // Sign error
                 } else { // Improper to Mixed
                     document.getElementById('promptTitle').innerText = "Convert to a mixed number:";
-                    let num = (w * d) + n;
-                    promptTeX = `${signStr}\\frac{${num}}{${d}}`;
-                    correctTeX = `${signStr}${w}\\frac{${n}}{${d}}`;
-                    distractors.add(`${signStr}${w}\\frac{${d-n}}{${d}}`);
-                    distractors.add(`${signStr}${w+1}\\frac{${n}}{${d}}`);
-                    distractors.add(`${signStr}${n}\\frac{${w}}{${d}}`);
-                    distractors.add(`${isNeg < 0 ? "" : "-"}${w}\\frac{${n}}{${d}}`); // Opp sign
+                    promptTeX = formatFracTex(n, d);
+                    correctTeX = texForMixed(n, d);
+                    
+                    distractors.add(texForMixed(sign * (w * d + (d - rem)), d)); // Remainder error
+                    distractors.add(texForMixed(sign * ((w + 1) * d + rem), d)); // Whole error
+                    distractors.add(texForMixed(sign * (rem * d + w), d)); // Flipped
+                    distractors.add(texForMixed(-n, d)); // Sign error
                 }
             }
 
-            // MODE 2: Simplify Fractions (Positive & Negative)
+            // MODE 2: Simplify Fractions (Forces Negatives)
             else if (currentMode === 2) {
                 document.getElementById('promptTitle').innerText = "Simplify completely:";
                 let d = getRandomInt(3, 12);
-                let n = getRandomInt(1, d - 1);
-                let s1 = Math.random() > 0.5 ? 1 : -1;
-                n *= s1;
+                let n = getRandomInt(1, d - 1) * (Math.random() > 0.5 ? 1 : -1); // 50% Negative
                 
-                let [sN, sD] = simplify(n, d);
+                let [sN, sD] = simplify(n, d); 
                 let multiplier = getRandomInt(2, 6);
                 
                 let bigN = sN * multiplier;
@@ -485,24 +477,27 @@
                 
                 distractors.add(formatFracTex(-sN, sD)); // Sign error
                 distractors.add(formatFracTex(sN, sD + 1));
-                distractors.add(formatFracTex(sN + (s1 > 0 ? 1 : -1), sD));
+                distractors.add(formatFracTex(sN > 0 ? sN + 1 : sN - 1, sD));
                 if (multiplier % 2 === 0 && multiplier > 2) {
                     distractors.add(formatFracTex(bigN/2, bigD/2)); // Partially simplified
+                } else {
+                    distractors.add(formatFracTex(sD, sN)); // Flipped
                 }
             }
 
-            // MODE 3: Add/Sub Common Denom (Includes Negative Fractions)
+            // MODE 3: Add/Sub Common Denom (Forces Negatives)
             else if (currentMode === 3) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let d = getRandomInt(3, 12);
                 let n1 = getRandomInt(1, d - 1) * (Math.random() > 0.5 ? 1 : -1);
                 let n2 = getRandomInt(1, d - 1) * (Math.random() > 0.5 ? 1 : -1);
+                
+                // Force at least one negative to practice integer skills
+                if (n1 > 0 && n2 > 0) { if (Math.random() > 0.5) n1 = -n1; else n2 = -n2; }
+                
                 let op = Math.random() > 0.5 ? "+" : "-";
                 
-                let term1 = formatTermFrac(n1, d, true);
-                let term2 = formatTermFrac(n2, d, false);
-                promptTeX = `${term1} ${op} ${term2}`;
-                
+                promptTeX = `${formatTermFrac(n1, d, true)} ${op} ${formatTermFrac(n2, d, false)}`;
                 let ansN = op === "+" ? n1 + n2 : n1 - n2;
                 
                 correctTeX = formatFracTex(ansN, d);
@@ -514,19 +509,15 @@
             // MODE 4: Mult/Div Pos/Neg Fractions (No Mixed)
             else if (currentMode === 4) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
-                let d1 = getRandomInt(2, 6); let n1 = getRandomInt(1, d1 - 1);
-                let d2 = getRandomInt(2, 6); let n2 = getRandomInt(1, d2 - 1);
+                let d1 = getRandomInt(2, 6); let n1 = getRandomInt(1, d1 - 1) * (Math.random() > 0.5 ? 1 : -1);
+                let d2 = getRandomInt(2, 6); let n2 = getRandomInt(1, d2 - 1) * (Math.random() > 0.5 ? 1 : -1);
                 
-                // Always force at least one negative sign to guarantee negative practice
-                let s1 = Math.random() > 0.5 ? -1 : 1;
-                let s2 = (s1 === 1) ? -1 : (Math.random() > 0.5 ? -1 : 1);
-                n1 *= s1; n2 *= s2;
+                // Force at least one negative
+                if (n1 > 0 && n2 > 0) { if (Math.random() > 0.5) n1 = -n1; else n2 = -n2; }
                 
                 let op = Math.random() > 0.5 ? "\\times" : "\\div";
                 
-                let term1 = formatTermFrac(n1, d1, true);
-                let term2 = formatTermFrac(n2, d2, false);
-                promptTeX = `${term1} ${op} ${term2}`;
+                promptTeX = `${formatTermFrac(n1, d1, true)} ${op} ${formatTermFrac(n2, d2, false)}`;
                 
                 let ansN, ansD;
                 if (op === "\\times") {
@@ -546,97 +537,83 @@
                 distractors.add(formatFracTex(Math.abs(ansD) * (ansN < 0 ? -1 : 1), Math.abs(ansN))); // Reciprocal
             }
 
-            // MODE 5: Add/Sub Different Denoms (Incl. Negatives & Mixed)
+            // MODE 5: Add/Sub Different Denoms (Incl. Mixed & Negatives)
             else if (currentMode === 5) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let denoms = [2, 3, 4, 5, 6];
                 let d1 = denoms[getRandomInt(0, denoms.length-1)];
                 let d2; do { d2 = denoms[getRandomInt(0, denoms.length-1)]; } while(d1 === d2);
                 
-                let w1 = getRandomInt(0, 3) * (Math.random() > 0.5 ? -1 : 1);
-                let n1 = getRandomInt(1, d1 - 1);
-                let w2 = getRandomInt(0, 3) * (Math.random() > 0.5 ? -1 : 1);
-                let n2 = getRandomInt(1, d2 - 1);
+                let w1 = getRandomInt(0, 3); let rem1 = getRandomInt(1, d1 - 1);
+                let n1 = (w1 * d1 + rem1) * (Math.random() > 0.5 ? 1 : -1);
                 
-                // Ensure at least one fraction is negative
-                if (w1 >= 0 && w2 >= 0) w1 = -getRandomInt(1, 2);
+                let w2 = getRandomInt(0, 3); let rem2 = getRandomInt(1, d2 - 1);
+                let n2 = (w2 * d2 + rem2) * (Math.random() > 0.5 ? 1 : -1);
+                
+                // Force at least one negative
+                if (n1 > 0 && n2 > 0) n2 = -n2;
                 
                 let op = Math.random() > 0.5 ? "+" : "-";
                 
-                let term1 = formatSignedMixed(w1, n1, d1, true);
-                let term2 = formatSignedMixed(w2, n2, d2, false);
-                promptTeX = `${term1} ${op} ${term2}`;
+                promptTeX = `${formatTermMixed(n1, d1, true)} ${op} ${formatTermMixed(n2, d2, false)}`;
                 
-                let [impN1, impD1] = mixedToImproper(w1 === 0 && w1.toString().startsWith("-") ? -1 : (w1 === 0 ? 1 : w1), n1, d1);
-                if (w1 === 0) impN1 = Math.sign(w1) === -1 || Object.is(w1, -0) ? -n1 : n1;
+                let ansN = op === "+" ? (n1*d2 + n2*d1) : (n1*d2 - n2*d1);
+                let ansD = d1 * d2;
                 
-                let [impN2, impD2] = mixedToImproper(w2 === 0 && w2.toString().startsWith("-") ? -1 : (w2 === 0 ? 1 : w2), n2, d2);
-                if (w2 === 0) impN2 = Math.sign(w2) === -1 || Object.is(w2, -0) ? -n2 : n2;
-
-                // Explicit calculation
-                let ansN = op === "+" ? (impN1*impD2 + impN2*impD1) : (impN1*impD2 - impN2*impD1);
-                let ansD = impD1 * impD2;
-                
-                correctTeX = toMixedTex(ansN, ansD);
-                distractors.add(toMixedTex(-ansN, ansD)); // Opposite sign
-                distractors.add(toMixedTex(impN1 + impN2, impD1 + impD2)); // Added straight across
-                distractors.add(toMixedTex(op === "+" ? (impN1*impD2 - impN2*impD1) : (impN1*impD2 + impN2*impD1), ansD)); // Wrong op
+                correctTeX = texForMixed(ansN, ansD);
+                distractors.add(texForMixed(-ansN, ansD)); // Opposite sign
+                distractors.add(texForMixed(n1 + n2, d1 + d2)); // Added straight across
+                distractors.add(texForMixed(op === "+" ? (n1*d2 - n2*d1) : (n1*d2 + n2*d1), ansD)); // Wrong op
             }
 
             // MODE 6: Mult/Div Includes Mixed (Positives & Negatives)
             else if (currentMode === 6) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
-                let d1 = getRandomInt(2, 4); let n1 = getRandomInt(1, d1 - 1); 
-                let w1 = getRandomInt(1, 3) * (Math.random() > 0.5 ? -1 : 1);
+                let d1 = getRandomInt(2, 4); let w1 = getRandomInt(1, 3); let rem1 = getRandomInt(1, d1 - 1); 
+                let n1 = (w1 * d1 + rem1) * (Math.random() > 0.5 ? 1 : -1);
                 
-                let d2 = getRandomInt(2, 4); let n2 = getRandomInt(1, d2 - 1); 
-                let w2 = getRandomInt(1, 3) * (Math.random() > 0.5 ? -1 : 1);
+                let d2 = getRandomInt(2, 4); let w2 = getRandomInt(1, 3); let rem2 = getRandomInt(1, d2 - 1); 
+                let n2 = (w2 * d2 + rem2) * (Math.random() > 0.5 ? 1 : -1);
                 
                 // Guarantee negative practice
-                if (w1 > 0 && w2 > 0) w1 = -w1;
+                if (n1 > 0 && n2 > 0) n1 = -n1;
                 
                 let op = Math.random() > 0.5 ? "\\times" : "\\div";
                 
-                let term1 = formatSignedMixed(w1, n1, d1, true);
-                let term2 = formatSignedMixed(w2, n2, d2, false);
-                promptTeX = `${term1} ${op} ${term2}`;
-                
-                let [impN1, impD1] = mixedToImproper(w1, n1, d1);
-                let [impN2, impD2] = mixedToImproper(w2, n2, d2);
+                promptTeX = `${formatTermMixed(n1, d1, true)} ${op} ${formatTermMixed(n2, d2, false)}`;
                 
                 let ansN, ansD;
                 if (op === "\\times") {
-                    ansN = impN1 * impN2; ansD = impD1 * impD2;
+                    ansN = n1 * n2; ansD = d1 * d2;
                 } else {
-                    ansN = impN1 * impD2; ansD = impD1 * impN2;
+                    ansN = n1 * d2; ansD = d1 * n2;
                 }
                 
-                correctTeX = toMixedTex(ansN, ansD);
+                correctTeX = texForMixed(ansN, ansD);
                 
-                distractors.add(toMixedTex(-ansN, ansD)); // Sign error
+                distractors.add(texForMixed(-ansN, ansD)); // Sign error
                 if (op === "\\times") {
-                    distractors.add(toMixedTex(impN1 * impD2, impD1 * impN2)); // Div error
+                    distractors.add(texForMixed(n1 * d2, d1 * n2)); // Div error
                 } else {
-                    distractors.add(toMixedTex(impN1 * impN2, impD1 * impD2)); // Forgot flip
+                    distractors.add(texForMixed(n1 * n2, d1 * d2)); // Forgot flip
                 }
-                distractors.add(toMixedTex(ansN + ansD, ansD));
+                distractors.add(texForMixed(ansD * (ansN < 0 ? -1 : 1), Math.abs(ansN))); // Reciprocal
             }
 
             // MODE 7: Order of Operations (Includes Negative Rational Terms)
             else if (currentMode === 7) {
                 document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
-                let d1 = getRandomInt(2, 4); let n1 = getRandomInt(1, d1-1) * (Math.random() > 0.5 ? -1 : 1);
-                let d2 = getRandomInt(2, 4); let n2 = getRandomInt(1, d2-1) * (Math.random() > 0.5 ? -1 : 1);
-                let d3 = getRandomInt(2, 4); let n3 = getRandomInt(1, d3-1) * (Math.random() > 0.5 ? -1 : 1);
+                let d1 = getRandomInt(2, 4); let n1 = getRandomInt(1, d1-1) * (Math.random() > 0.5 ? 1 : -1);
+                let d2 = getRandomInt(2, 4); let n2 = getRandomInt(1, d2-1) * (Math.random() > 0.5 ? 1 : -1);
+                let d3 = getRandomInt(2, 4); let n3 = getRandomInt(1, d3-1) * (Math.random() > 0.5 ? 1 : -1);
+                
+                // Force at least one negative
+                if (n1 > 0 && n2 > 0 && n3 > 0) n2 = -n2;
                 
                 let type = getRandomInt(1, 2); // 1: A + B * C,  2: A * B - C
                 
-                let t1 = formatTermFrac(n1, d1, true);
-                let t2 = formatTermFrac(n2, d2, false);
-                let t3 = formatTermFrac(n3, d3, false);
-                
                 if (type === 1) {
-                    promptTeX = `${t1} + ${t2} \\times ${t3}`;
+                    promptTeX = `${formatTermFrac(n1, d1, true)} + ${formatTermFrac(n2, d2, false)} \\times ${formatTermFrac(n3, d3, false)}`;
                     let multN = n2 * n3; let multD = d2 * d3;
                     let ansN = (n1 * multD) + (multN * d1);
                     let ansD = d1 * multD;
@@ -648,7 +625,7 @@
                     distractors.add(formatFracTex(lrN, lrD));
                     distractors.add(formatFracTex(-ansN, ansD)); // Sign error
                 } else {
-                    promptTeX = `${t1} \\times ${t2} - ${t3}`;
+                    promptTeX = `${formatTermFrac(n1, d1, true)} \\times ${formatTermFrac(n2, d2, false)} - ${formatTermFrac(n3, d3, false)}`;
                     let multN = n1 * n2; let multD = d1 * d2;
                     let ansN = (multN * d3) - (n3 * multD);
                     let ansD = multD * d3;
@@ -664,7 +641,7 @@
                 distractors.add(formatFracTex(1, d1*d2*d3));
             }
 
-            // MODE 8: Word Problems
+            // MODE 8: Word Problems (Kept Positive for real-world context)
             else if (currentMode === 8) {
                 document.getElementById('promptTitle').innerText = "Solve:";
                 let type = getRandomInt(1, 4); // +, -, *, /
@@ -672,21 +649,21 @@
                 if (type === 1) { // Addition
                     let d = getRandomInt(3, 8); let n1 = getRandomInt(1, d-1); let n2 = getRandomInt(1, d-1);
                     promptTeX = `\\text{Alice ate } \\frac{${n1}}{${d}} \\text{ of a pizza. Bob ate } \\frac{${n2}}{${d}}. \\text{ How much did they eat in total?}`;
-                    correctTeX = toMixedTex(n1+n2, d);
-                    distractors.add(toMixedTex(n1+n2, d+d));
-                    distractors.add(toMixedTex(Math.abs(n1-n2), d));
+                    correctTeX = texForMixed(n1+n2, d);
+                    distractors.add(texForMixed(n1+n2, d+d));
+                    distractors.add(texForMixed(Math.abs(n1-n2), d));
                 } else if (type === 2) { // Subtraction
                     let d = getRandomInt(3, 8); let n1 = getRandomInt(d-2, d-1); let n2 = getRandomInt(1, n1-1);
                     promptTeX = `\\text{A recipe needs } \\frac{${n1}}{${d}} \\text{ cups of flour. You used } \\frac{${n2}}{${d}}. \\text{ How much is left?}`;
-                    correctTeX = toMixedTex(n1-n2, d);
-                    distractors.add(toMixedTex(n1+n2, d));
-                    distractors.add(toMixedTex(n1-n2, d+d));
+                    correctTeX = texForMixed(n1-n2, d);
+                    distractors.add(texForMixed(n1+n2, d));
+                    distractors.add(texForMixed(n1-n2, d+d));
                 } else if (type === 3) { // Multiplication
                     let w = getRandomInt(2, 4); let d = getRandomInt(3, 5); let n = getRandomInt(1, d-1);
                     promptTeX = `\\text{A recipe requires } \\frac{${n}}{${d}} \\text{ cup of sugar. You want to make } ${w} \\text{ batches. How much sugar do you need?}`;
-                    correctTeX = toMixedTex(w*n, d);
-                    distractors.add(toMixedTex(w*n, w*d));
-                    distractors.add(toMixedTex(w+n, d));
+                    correctTeX = texForMixed(w*n, d);
+                    distractors.add(texForMixed(w*n, w*d));
+                    distractors.add(texForMixed(w+n, d));
                 } else { // Division
                     let d = getRandomInt(2, 5); let n = 1; let p = getRandomInt(2, 4);
                     promptTeX = `\\text{You have } \\frac{${n}}{${d}} \\text{ of a pie. You share it equally among } ${p} \\text{ people. How much does each person get?}`;
@@ -694,7 +671,6 @@
                     distractors.add(formatFracTex(n*p, d));
                     distractors.add(formatFracTex(p, d));
                 }
-                
                 distractors.add("1"); 
             }
 
@@ -718,7 +694,8 @@
         if (currentMode === 8) {
             document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`;
         } else {
-            document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`;
+            document.getElementById('problemDisplay').innerHTML = `\\displaystyle ${promptTeX}`;
+            document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`; 
         }
         
         const grid = document.getElementById('optionsGrid');
