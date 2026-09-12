@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math 9 : Rational Numbers</title>
+    <title>Math 8 Acc: Rational Numbers</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
@@ -169,7 +169,7 @@
         }
 
         .option-btn {
-            flex: 1 1 calc(50% - 15px); /* Default 2 columns */
+            flex: 1 1 calc(50% - 15px); 
             background-color: white;
             color: var(--dark);
             border: 2px solid #bdc3c7;
@@ -188,7 +188,7 @@
         
         .option-btn.three-col {
             flex: 1 1 calc(33% - 15px); /* 3 columns for comparisons */
-            font-size: 32px; /* Make the < > = larger */
+            font-size: 32px; 
         }
 
         .option-btn:hover {
@@ -245,7 +245,22 @@
             cursor: grab;
             touch-action: none;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.1s, border-color 0.2s, background-color 0.2s;
         }
+        
+        /* Correct/Incorrect styles specifically for Drag & Drop pills */
+        .num-pill.correct {
+            border-color: #27ae60 !important;
+            background-color: #e8f8f5 !important;
+            color: #27ae60 !important;
+        }
+        .num-pill.incorrect {
+            border-color: #e74c3c !important;
+            background-color: #fadbd8 !important;
+            color: #c0392b !important;
+            animation: shake 0.4s;
+        }
+
         .diagram-container { display: flex; gap: 15px; justify-content: center; align-items: stretch; }
         .set-box {
             border-radius: 12px;
@@ -256,6 +271,7 @@
             flex-wrap: wrap;
             align-content: flex-start;
             gap: 8px;
+            transition: background-color 0.2s;
         }
         .set-label { position: absolute; top: 8px; left: 12px; font-weight: bold; font-size: 12px; text-transform: uppercase; pointer-events: none; }
         .rational { border: 3px solid #f39c12; background-color: rgba(243, 156, 18, 0.05); flex: 3; }
@@ -370,7 +386,8 @@
                 </div>
             </div>
             <div class="drag-controls">
-                <button class="icon-btn" style="background:#3498db; color:white;" onclick="checkDragSorting()">Check Classification</button>
+                <button class="icon-btn" style="background:#3498db; color:white; font-size:18px;" onclick="checkDragSorting()">Check Classification</button>
+                <div id="dragFeedbackMsg" style="margin-top: 15px; font-weight: bold; font-size: 18px; min-height: 27px;"></div>
             </div>
         </div>
     </div>
@@ -443,25 +460,13 @@
         return `${sign}${whole}\\frac{${rem}}{${den}}`;
     }
 
-    function formatSignedMixed(w, n, d, isFirst = false) {
-        let tex = toMixedTex(w < 0 ? -((Math.abs(w) * d) + n) : (w * d) + n, d);
-        if (!isFirst && w < 0) return `\\left(${tex}\\right)`;
-        return tex;
-    }
-
-    function mixedToImproper(w, n, d) {
-        let sign = w < 0 ? -1 : 1;
-        let num = (Math.abs(w) * d) + n;
-        return [sign * num, d];
-    }
-
     // Fraction arithmetic engine for OOO
     const fAdd = (n1, d1, n2, d2) => [n1*d2 + n2*d1, d1*d2];
     const fSub = (n1, d1, n2, d2) => [n1*d2 - n2*d1, d1*d2];
     const fMul = (n1, d1, n2, d2) => [n1*n2, d1*d2];
     const fDiv = (n1, d1, n2, d2) => [n1*d2, d1*n2];
 
-    // Format term object
+    // Format term object for OOO
     function fmtOOO(t, isFirst) {
         if (t.isDec) {
             let val = t.n / t.d;
@@ -548,14 +553,14 @@
                 }
             }
 
-            // MODE 2: Decimals to Fractions
+            // MODE 2: Decimals to Fractions (No Repeating Decimals)
             else if (currentMode === 2) {
                 document.getElementById('promptTitle').innerText = "Convert the decimal to a simplified fraction:";
                 let isNeg = Math.random() > 0.5 ? -1 : 1;
                 let signStr = isNeg < 0 ? "-" : "";
-                let decType = getRandomInt(1, 2);
+                let decType = getRandomInt(1, 2); 
                 
-                if (decType === 1) { // Tenths
+                if (decType === 1) { 
                     let n = getRandomEl([2, 4, 5, 6, 8]);
                     let val = (n / 10) * isNeg;
                     promptTeX = val.toString();
@@ -564,7 +569,7 @@
                     distractors.add(formatFracTex(-n * isNeg, 10)); 
                     distractors.add(formatFracTex(n * isNeg, 100)); 
                     distractors.add(`${signStr}\\frac{${n}}{10}`); 
-                } else { // Hundredths
+                } else { 
                     let n = getRandomEl([4, 5, 8, 12, 15, 16, 24, 25, 32, 35, 45, 48, 55, 64, 75, 85, 95]);
                     promptTeX = signStr + "0." + n.toString().padStart(2, '0');
                     correctTeX = formatFracTex(n * isNeg, 100);
@@ -607,6 +612,7 @@
                 document.getElementById('optionsGrid').style.display = 'none';
                 document.getElementById('dragContainer').style.display = 'block';
                 
+                document.getElementById('dragFeedbackMsg').innerText = "";
                 setupDragGame();
                 return; // Exit normal MC flow
             }
@@ -661,11 +667,10 @@
                 distractors.add(">"); distractors.add("<"); distractors.add("=");
             }
 
-            // MODE 6: Order of Operations with Rationals (Mixed Random Structures)
+            // MODE 6: Order of Operations with Rationals
             else if (currentMode === 6) {
                 document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
                 
-                // Build 3 randomized terms (2 fractions, 1 decimal)
                 let termF1 = { n: getRandomInt(1, 3) * (Math.random()>0.5?-1:1), d: getRandomInt(2, 4), isDec: false };
                 let termF2 = { n: getRandomInt(1, 3) * (Math.random()>0.5?-1:1), d: getRandomInt(2, 4), isDec: false };
                 
@@ -673,72 +678,57 @@
                 let [sN, sD] = simplify(Math.round(decVal * 100), 100);
                 let termD = { n: sN, d: sD, isDec: true };
                 
-                // Force at least one negative across the three terms
                 if (termF1.n > 0 && termF2.n > 0 && termD.n > 0) termF2.n = -termF2.n;
                 
-                // Shuffle so the decimal isn't always in the same position
                 let termsArr = shuffle([termF1, termF2, termD]);
                 let A = termsArr[0], B = termsArr[1], C = termsArr[2];
                 
                 let type = getRandomInt(1, 4);
                 let ansN, ansD, d1N, d1D;
 
-                if (type === 1) { 
-                    // Type 1: A x (B +/- C)
+                if (type === 1) { // A x (B +/- C)
                     let op2 = Math.random() > 0.5 ? "+" : "-";
                     promptTeX = `${fmtOOO(A, true)} \\times \\left(${fmtOOO(B, true)} ${op2} ${fmtOOO(C, false)}\\right)`;
-                    
                     let [bcN, bcD] = op2 === "+" ? fAdd(B.n, B.d, C.n, C.d) : fSub(B.n, B.d, C.n, C.d);
                     [ansN, ansD] = fMul(A.n, A.d, bcN, bcD);
-                    
                     let [abN, abD] = fMul(A.n, A.d, B.n, B.d);
-                    [d1N, d1D] = op2 === "+" ? fAdd(abN, abD, C.n, C.d) : fSub(abN, abD, C.n, C.d); // Ignored brackets error
+                    [d1N, d1D] = op2 === "+" ? fAdd(abN, abD, C.n, C.d) : fSub(abN, abD, C.n, C.d); 
                 } 
-                else if (type === 2) { 
-                    // Type 2: (A +/- B) / C
+                else if (type === 2) { // (A +/- B) / C
                     let op1 = Math.random() > 0.5 ? "+" : "-";
                     promptTeX = `\\left(${fmtOOO(A, true)} ${op1} ${fmtOOO(B, false)}\\right) \\div ${fmtOOO(C, false)}`;
-                    
                     let [abN, abD] = op1 === "+" ? fAdd(A.n, A.d, B.n, B.d) : fSub(A.n, A.d, B.n, B.d);
                     [ansN, ansD] = fDiv(abN, abD, C.n, C.d);
-                    
                     let [bcN, bcD] = fDiv(B.n, B.d, C.n, C.d);
-                    [d1N, d1D] = op1 === "+" ? fAdd(A.n, A.d, bcN, bcD) : fSub(A.n, A.d, bcN, bcD); // Ignored brackets error
+                    [d1N, d1D] = op1 === "+" ? fAdd(A.n, A.d, bcN, bcD) : fSub(A.n, A.d, bcN, bcD); 
                 }
-                else if (type === 3) { 
-                    // Type 3: A +/- B x C
+                else if (type === 3) { // A +/- B x C
                     let op1 = Math.random() > 0.5 ? "+" : "-";
                     promptTeX = `${fmtOOO(A, true)} ${op1} ${fmtOOO(B, false)} \\times ${fmtOOO(C, false)}`;
-                    
                     let [bcN, bcD] = fMul(B.n, B.d, C.n, C.d);
                     [ansN, ansD] = op1 === "+" ? fAdd(A.n, A.d, bcN, bcD) : fSub(A.n, A.d, bcN, bcD);
-                    
                     let [abN, abD] = op1 === "+" ? fAdd(A.n, A.d, B.n, B.d) : fSub(A.n, A.d, B.n, B.d);
-                    [d1N, d1D] = fMul(abN, abD, C.n, C.d); // Left to right error
+                    [d1N, d1D] = fMul(abN, abD, C.n, C.d); 
                 }
-                else { 
-                    // Type 4: A / B +/- C
+                else { // A / B +/- C
                     let op2 = Math.random() > 0.5 ? "+" : "-";
                     promptTeX = `${fmtOOO(A, true)} \\div ${fmtOOO(B, false)} ${op2} ${fmtOOO(C, false)}`;
-                    
                     let [abN, abD] = fDiv(A.n, A.d, B.n, B.d);
                     [ansN, ansD] = op2 === "+" ? fAdd(abN, abD, C.n, C.d) : fSub(abN, abD, C.n, C.d);
-                    
                     let [bcN, bcD] = op2 === "+" ? fAdd(B.n, B.d, C.n, C.d) : fSub(B.n, B.d, C.n, C.d);
-                    [d1N, d1D] = fDiv(A.n, A.d, bcN, bcD); // Right to left error
+                    [d1N, d1D] = fDiv(A.n, A.d, bcN, bcD); 
                 }
 
                 correctTeX = formatFracTex(ansN, ansD);
-                distractors.add(formatFracTex(-ansN, ansD)); // Sign error
-                distractors.add(formatFracTex(d1N, d1D));    // Order of ops error
-                distractors.add(formatFracTex(-d1N, d1D));   // OOO error + sign error
+                distractors.add(formatFracTex(-ansN, ansD)); 
+                distractors.add(formatFracTex(d1N, d1D));    
+                distractors.add(formatFracTex(-d1N, d1D));   
             }
 
         } while (promptTeX === lastPrompt); 
         
         lastPrompt = promptTeX;
 
-        // Fill options, ensuring uniqueness
         let finalOptions = new Set();
         finalOptions.add(correctTeX);
         let distArray = Array.from(distractors);
@@ -751,7 +741,6 @@
         while(finalOptions.size < targetOptionsSize) { finalOptions.add(pad.toString()); pad++; }
 
         if (currentMode === 5) {
-            // Keep specific order for Mode 5 to reduce extraneous cognitive load
             options = ["<", ">", "="]; 
         } else {
             options = shuffle(Array.from(finalOptions));
@@ -765,7 +754,7 @@
         options.forEach(opt => {
             let btn = document.createElement('button');
             btn.className = 'option-btn';
-            if (currentMode === 5) btn.classList.add('three-col'); // makes < > = buttons larger
+            if (currentMode === 5) btn.classList.add('three-col'); 
             btn.innerHTML = `\\(${opt}\\)`;
             btn.onclick = (e) => handleGuess(btn, opt === correctTeX, e);
             grid.appendChild(btn);
@@ -804,40 +793,85 @@
 
     // --- DRAG AND DROP INTEGRATION FOR CLASSIFICATION ---
     
-    // Dynamic generator from the standalone app to yield ~14 items
     function generateNumbers() {
         let nums = [];
         let idCounter = 1;
         const addNum = (tex, target) => { nums.push({ id: "n" + idCounter++, tex, target }); };
 
-        // 1. Natural
-        let natRoot = getRandomInt(2, 10);
-        addNum(`\\sqrt{${natRoot * natRoot}}`, "natural"); 
-        let natNum = getRandomInt(2, 12); let natDen = getRandomInt(2, 5);
-        addNum(`\\frac{${natNum * natDen}}{${natDen}}`, "natural"); 
+        const getNat = () => {
+            const types = [
+                () => `\\sqrt{${getRandomInt(2,10)**2}}`,
+                () => { let d = getRandomInt(2,5); return `\\frac{${getRandomInt(2,9)*d}}{${d}}`; },
+                () => `${getRandomInt(1, 20)}`
+            ];
+            return getRandomEl(types)();
+        };
 
-        // 2. Whole
-        addNum(getRandomEl(["0", "0.0"]), "whole");
-        addNum(getRandomEl([`\\sqrt{0}`, `\\frac{0}{${getRandomInt(2, 9)}}`]), "whole");
+        const getWho = () => {
+            const types = [
+                () => getRandomEl(["0", "0.0"]),
+                () => `\\sqrt{0}`,
+                () => `\\frac{0}{${getRandomInt(2,9)}}`
+            ];
+            return getRandomEl(types)();
+        };
 
-        // 3. Integer
-        addNum(`-${getRandomInt(1, 15)}`, "integer");
-        addNum(`-\\,\\sqrt{${getRandomInt(2, 9)**2}}`, "integer"); 
-        addNum(`\\frac{-${getRandomInt(2, 10) * getRandomInt(2, 5)}}{${getRandomInt(2, 5)}}`, "integer"); 
+        // FIXED Integer generation: Ensure multiplication and division use the exact same denominator variable!
+        const getInt = () => {
+            const types = [
+                () => `-${getRandomInt(1,15)}`,
+                () => `-\\,\\sqrt{${getRandomInt(2,9)**2}}`,
+                () => { 
+                    let d = getRandomInt(2,5); 
+                    return `\\frac{-${getRandomInt(2,9)*d}}{${d}}`; 
+                }
+            ];
+            return getRandomEl(types)();
+        };
 
-        // 4. Rational
-        addNum(getRandomEl(["0.25", "0.5", "-1.5", "-4.25", "2.75", "-0.1"]), "rational");
-        addNum(`0.\\overline{${getRandomEl([1, 3, 6, 7])}}`, "rational");
-        addNum(`\\sqrt{${getRandomEl(["0.01", "0.04", "0.09", "0.16", "0.25", "0.36", "0.81", "1.44"])}}`, "rational");
-        addNum(getRandomEl(["\\frac{1}{2}", "\\frac{3}{4}", "-\\frac{2}{3}", "\\frac{5}{8}", "\\frac{7}{10}"]), "rational");
+        const getRat = () => {
+            const types = [
+                () => getRandomEl(["0.25", "0.5", "-1.5", "-4.25", "2.75", "-0.1", "0.8"]),
+                () => `${Math.random()>0.5?"-":""}0.\\overline{${getRandomEl([1,3,6,7])}}`,
+                () => `\\sqrt{${getRandomEl(["0.01", "0.04", "0.09", "0.16", "0.25", "0.36", "0.81", "1.44"])}}`,
+                () => getRandomEl(["\\frac{1}{2}", "-\\frac{3}{4}", "\\frac{5}{8}", "-\\frac{2}{3}", "\\frac{7}{10}"])
+            ];
+            return getRandomEl(types)();
+        };
 
-        // 5. Irrational
-        addNum(getRandomEl(["\\pi", "2\\pi", "-3\\pi", "\\frac{\\pi}{2}", "\\frac{\\pi}{4}"]), "irrational");
-        let nonSquares = [2, 3, 5, 6, 7, 8, 10, 11, 12, 14, 15, 20];
-        let ir1 = getRandomEl(nonSquares);
-        addNum(`\\sqrt{${ir1}}`, "irrational");
-        let ir2; do { ir2 = getRandomEl(nonSquares); } while (ir1 === ir2);
-        addNum(`-\\sqrt{${ir2}}`, "irrational");
+        const getIrr = () => {
+            const nonSq = [2,3,5,6,7,8,10,11,12,14,15,20];
+            const types = [
+                () => getRandomEl(["\\pi", "2\\pi", "-3\\pi", "\\frac{\\pi}{2}", "-\\frac{\\pi}{4}"]),
+                () => `${Math.random()>0.5?"-":""}\\sqrt{${getRandomEl(nonSq)}}`
+            ];
+            return getRandomEl(types)();
+        };
+
+        // Dynamic Count: Build array of exactly 10 targets
+        let targets = ['natural', 'whole', 'integer', 'rational', 'irrational'];
+        for(let i=0; i<5; i++) {
+            targets.push(getRandomEl(['natural', 'whole', 'integer', 'rational', 'irrational']));
+        }
+        targets = shuffle(targets);
+
+        let generatedTex = new Set();
+
+        targets.forEach(t => {
+            let tex = "";
+            let attempts = 0;
+            do {
+                if (t === 'natural') tex = getNat();
+                else if (t === 'whole') tex = getWho();
+                else if (t === 'integer') tex = getInt();
+                else if (t === 'rational') tex = getRat();
+                else tex = getIrr();
+                attempts++;
+            } while(generatedTex.has(tex) && attempts < 10);
+            
+            generatedTex.add(tex);
+            addNum(tex, t);
+        });
 
         return nums;
     }
@@ -862,8 +896,17 @@
             pill.draggable = true;
             pill.dataset.target = num.target;
             pill.innerHTML = `\\(${num.tex}\\)`;
-            pill.ondragstart = dragStart;
-            pill.addEventListener('touchstart', handleTouchStart, {passive: false});
+            
+            // Allow clearing error styles on grab
+            const resetStyles = function() {
+                this.style.borderColor = '';
+                this.style.backgroundColor = '';
+                this.style.color = '';
+                this.classList.remove('correct', 'incorrect');
+            };
+            
+            pill.ondragstart = (e) => { resetStyles.call(pill); dragStart(e); };
+            pill.addEventListener('touchstart', (e) => { resetStyles.call(pill); handleTouchStart(e); }, {passive: false});
             pill.addEventListener('touchmove', handleTouchMove, {passive: false});
             pill.addEventListener('touchend', handleTouchEnd);
             pool.appendChild(pill);
@@ -880,18 +923,32 @@
         let anyUnplaced = false;
 
         pills.forEach(pill => {
-            pill.style.borderColor = ''; pill.style.backgroundColor = '';
+            pill.style.borderColor = ''; 
+            pill.style.backgroundColor = '';
+            pill.style.color = '';
+            pill.classList.remove('correct', 'incorrect');
+            
             const parent = pill.parentNode;
             if (parent.id === 'numberPool') { anyUnplaced = true; return; }
-            if (pill.dataset.target !== parent.id) allCorrect = false;
+            if (pill.dataset.target === parent.id) {
+                pill.classList.add('correct');
+            } else {
+                pill.classList.add('incorrect');
+                allCorrect = false;
+            }
         });
 
+        const msgBox = document.getElementById('dragFeedbackMsg');
+
         if (anyUnplaced) {
-            alert("Please drag all numbers into a set before checking!");
+            msgBox.style.color = "#d35400";
+            msgBox.innerText = "Please drag all numbers into a set before checking!";
             return;
         }
 
         if (allCorrect) {
+            msgBox.style.color = "#27ae60";
+            msgBox.innerText = "Excellent! All numbers are correctly classified.";
             playSuccess();
             currentStreak++;
             document.getElementById('streakDisplay').innerText = currentStreak;
@@ -899,13 +956,28 @@
                 highestStreak = currentStreak;
                 document.getElementById('highStreakDisplay').innerText = highestStreak;
             }
-            alert("Excellent! All rational and irrational numbers are correctly classified.");
-            setupDragGame(); // Reset with new numbers for infinite practice
+            setTimeout(() => {
+                setupDragGame(); 
+                msgBox.innerText = "";
+            }, 2000);
         } else {
+            msgBox.style.color = "#c0392b";
+            msgBox.innerText = "Some numbers are placed incorrectly! Check the red ones and try again.";
             playWrong();
             currentStreak = 0;
             document.getElementById('streakDisplay').innerText = currentStreak;
-            alert("Some numbers are placed incorrectly! Remember to simplify square roots first.");
+            
+            // Remove animation class so it can replay next check, but keep the red inline styles
+            setTimeout(() => {
+                pills.forEach(p => {
+                    p.classList.remove('incorrect');
+                    if (p.dataset.target !== p.parentNode.id) {
+                        p.style.borderColor = '#e74c3c';
+                        p.style.backgroundColor = '#fadbd8';
+                        p.style.color = '#c0392b';
+                    }
+                });
+            }, 400);
         }
     }
 
