@@ -11,9 +11,9 @@
 
     <style>
         :root {
-            --level1: #e67e22; /* Orange */
-            --level2: #f39c12; /* Yellow-Orange */
-            --level3: #27ae60; /* Green */
+            --level1: #e67e22; 
+            --level2: #f39c12; 
+            --level3: #27ae60; 
             --dark: #2c3e50;
             --light: #f8f9fa;
             --secondary: #3498db;
@@ -340,6 +340,12 @@
         return [n / g, d / g];
     }
 
+    // Fraction arithmetic engine for OOO
+    const fAdd = (n1, d1, n2, d2) => [n1*d2 + n2*d1, d1*d2];
+    const fSub = (n1, d1, n2, d2) => [n1*d2 - n2*d1, d1*d2];
+    const fMul = (n1, d1, n2, d2) => [n1*n2, d1*d2];
+    const fDiv = (n1, d1, n2, d2) => [n1*d2, d1*n2];
+
     // Format n/d as a standard proper/improper fraction in LaTeX
     function formatFracTex(n, d) {
         let [num, den] = simplify(n, d);
@@ -378,6 +384,13 @@
         let val = n / d;
         if (!isFirst && val < 0) return `\\left(${tex}\\right)`;
         return tex;
+    }
+
+    // Convert mixed to improper [n, d]
+    function mixedToImproper(w, n, d) {
+        let sign = w < 0 ? -1 : 1;
+        let num = (Math.abs(w) * d) + n;
+        return [sign * num, d];
     }
 
     // --- Navigation ---
@@ -531,7 +544,7 @@
                 distractors.add(formatFracTex(Math.abs(ansD) * (ansN < 0 ? -1 : 1), Math.abs(ansN))); // Reciprocal
             }
 
-            // MODE 5: Add/Sub Different Denoms (Pure Random Negatives)
+            // MODE 5: Add/Sub Different Denoms (Incl. Mixed & Negatives)
             else if (currentMode === 5) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let denoms = [2, 3, 4, 5, 6];
@@ -557,7 +570,7 @@
                 distractors.add(texForMixed(op === "+" ? (n1*d2 - n2*d1) : (n1*d2 + n2*d1), ansD)); // Wrong op
             }
 
-            // MODE 6: Mult/Div Includes Mixed (Pure Random Negatives)
+            // MODE 6: Mult/Div Includes Mixed (Positives & Negatives)
             else if (currentMode === 6) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let d1 = getRandomInt(2, 4); let w1 = getRandomInt(1, 3); let rem1 = getRandomInt(1, d1 - 1); 
@@ -588,42 +601,67 @@
                 distractors.add(texForMixed(ansD * (ansN < 0 ? -1 : 1), Math.abs(ansN))); // Reciprocal
             }
 
-            // MODE 7: Order of Operations (Pure Random Negatives)
+            // MODE 7: Order of Operations (3 Fractions, Mixed Random Structures)
             else if (currentMode === 7) {
                 document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
-                let d1 = getRandomInt(2, 4); let n1 = getRandomInt(1, d1-1) * (Math.random() > 0.5 ? 1 : -1);
-                let d2 = getRandomInt(2, 4); let n2 = getRandomInt(1, d2-1) * (Math.random() > 0.5 ? 1 : -1);
-                let d3 = getRandomInt(2, 4); let n3 = getRandomInt(1, d3-1) * (Math.random() > 0.5 ? 1 : -1);
                 
-                let type = getRandomInt(1, 2); // 1: A + B * C,  2: A * B - C
+                // Pure random chance for all 3 terms to be negative
+                let A = { n: getRandomInt(1, 3) * (Math.random() > 0.5 ? -1 : 1), d: getRandomInt(2, 4) };
+                let B = { n: getRandomInt(1, 3) * (Math.random() > 0.5 ? -1 : 1), d: getRandomInt(2, 4) };
+                let C = { n: getRandomInt(1, 3) * (Math.random() > 0.5 ? -1 : 1), d: getRandomInt(2, 4) };
                 
-                if (type === 1) {
-                    promptTeX = `${formatTermFrac(n1, d1, true)} + ${formatTermFrac(n2, d2, false)} \\times ${formatTermFrac(n3, d3, false)}`;
-                    let multN = n2 * n3; let multD = d2 * d3;
-                    let ansN = (n1 * multD) + (multN * d1);
-                    let ansD = d1 * multD;
-                    correctTeX = formatFracTex(ansN, ansD);
+                let type = getRandomInt(1, 4);
+                let ansN, ansD, d1N, d1D;
+
+                let op1 = Math.random() > 0.5 ? "+" : "-"; // For types 2 & 3
+                let op2 = Math.random() > 0.5 ? "+" : "-"; // For types 1 & 4
+
+                if (type === 1) { 
+                    // Type 1: A x (B +/- C)
+                    promptTeX = `${formatTermFrac(A.n, A.d, true)} \\times \\left(${formatTermFrac(B.n, B.d, true)} ${op2} ${formatTermFrac(C.n, C.d, false)}\\right)`;
                     
-                    // Distractor: Left to Right
-                    let lrN = (n1*d2 + n2*d1) * n3;
-                    let lrD = (d1*d2) * d3;
-                    distractors.add(formatFracTex(lrN, lrD));
-                    distractors.add(formatFracTex(-ansN, ansD)); // Sign error
-                } else {
-                    promptTeX = `${formatTermFrac(n1, d1, true)} \\times ${formatTermFrac(n2, d2, false)} - ${formatTermFrac(n3, d3, false)}`;
-                    let multN = n1 * n2; let multD = d1 * d2;
-                    let ansN = (multN * d3) - (n3 * multD);
-                    let ansD = multD * d3;
-                    correctTeX = formatFracTex(ansN, ansD);
+                    let [bcN, bcD] = op2 === "+" ? fAdd(B.n, B.d, C.n, C.d) : fSub(B.n, B.d, C.n, C.d);
+                    [ansN, ansD] = fMul(A.n, A.d, bcN, bcD);
                     
-                    // Distractor: Right to Left
-                    let rlN = (n2*d3 - n3*d2) * n1;
-                    let rlD = (d2*d3) * d1;
-                    distractors.add(formatFracTex(rlN, rlD));
-                    distractors.add(formatFracTex(-ansN, ansD)); // Sign error
+                    let [abN, abD] = fMul(A.n, A.d, B.n, B.d);
+                    [d1N, d1D] = op2 === "+" ? fAdd(abN, abD, C.n, C.d) : fSub(abN, abD, C.n, C.d); // Ignored brackets error
+                } 
+                else if (type === 2) { 
+                    // Type 2: (A +/- B) / C
+                    promptTeX = `\\left(${formatTermFrac(A.n, A.d, true)} ${op1} ${formatTermFrac(B.n, B.d, false)}\\right) \\div ${formatTermFrac(C.n, C.d, false)}`;
+                    
+                    let [abN, abD] = op1 === "+" ? fAdd(A.n, A.d, B.n, B.d) : fSub(A.n, A.d, B.n, B.d);
+                    [ansN, ansD] = fDiv(abN, abD, C.n, C.d);
+                    
+                    let [bcN, bcD] = fDiv(B.n, B.d, C.n, C.d);
+                    [d1N, d1D] = op1 === "+" ? fAdd(A.n, A.d, bcN, bcD) : fSub(A.n, A.d, bcN, bcD); // Ignored brackets error
                 }
-                
-                distractors.add(formatFracTex(1, d1*d2*d3));
+                else if (type === 3) { 
+                    // Type 3: A +/- B x C
+                    promptTeX = `${formatTermFrac(A.n, A.d, true)} ${op1} ${formatTermFrac(B.n, B.d, false)} \\times ${formatTermFrac(C.n, C.d, false)}`;
+                    
+                    let [bcN, bcD] = fMul(B.n, B.d, C.n, C.d);
+                    [ansN, ansD] = op1 === "+" ? fAdd(A.n, A.d, bcN, bcD) : fSub(A.n, A.d, bcN, bcD);
+                    
+                    let [abN, abD] = op1 === "+" ? fAdd(A.n, A.d, B.n, B.d) : fSub(A.n, A.d, B.n, B.d);
+                    [d1N, d1D] = fMul(abN, abD, C.n, C.d); // Left to right error
+                }
+                else { 
+                    // Type 4: A / B +/- C
+                    promptTeX = `${formatTermFrac(A.n, A.d, true)} \\div ${formatTermFrac(B.n, B.d, false)} ${op2} ${formatTermFrac(C.n, C.d, false)}`;
+                    
+                    let [abN, abD] = fDiv(A.n, A.d, B.n, B.d);
+                    [ansN, ansD] = op2 === "+" ? fAdd(abN, abD, C.n, C.d) : fSub(abN, abD, C.n, C.d);
+                    
+                    let [bcN, bcD] = op2 === "+" ? fAdd(B.n, B.d, C.n, C.d) : fSub(B.n, B.d, C.n, C.d);
+                    [d1N, d1D] = fDiv(A.n, A.d, bcN, bcD); // Right to left error
+                }
+
+                correctTeX = formatFracTex(ansN, ansD);
+                distractors.add(formatFracTex(-ansN, ansD)); // Sign error
+                distractors.add(formatFracTex(d1N, d1D));    // Order of ops error
+                distractors.add(formatFracTex(-d1N, d1D));   // OOO error + sign error
+                distractors.add(formatFracTex(1, 12));
             }
 
             // MODE 8: Word Problems (Kept Positive for real-world context)
