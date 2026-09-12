@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 10: Trigonometry</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 14px;
+        }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .menu-btn:hover span {
+            background-color: white;
+            color: var(--secondary);
+        }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 22px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        /* Triangle Canvas */
+        #trigCanvas {
+            background-color: #ffffff;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .option-btn {
+            flex: 1 1 calc(50% - 15px); 
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 18px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .option-btn { flex: 1 1 100%; } 
+            .prompt-text { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Trigonometry</h1>
+        <p class="subtitle">CALCULATORS REQUIRED 📱</p>
+        
+        <div class="level-section">
+            <div class="level-title">Targeted Practice Skills</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Identify Sides (Opp, Adj, Hyp)</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Naming Angles</button>
+                <button class="menu-btn" onclick="startGame(3)"><span>3</span> Identify Trig Ratios</button>
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Solve for Missing Side (Any Orientation)</button>
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Solve for Missing Angle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
+            </div>
+            <div class="streak-counter">🔥 Streak: <span id="streakDisplay">0</span> | 🏆 Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-text" id="promptTitle">Solve:</div>
+        
+        <canvas id="trigCanvas" width="400" height="300"></canvas>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // Math conversions
+    const d2r = (deg) => deg * (Math.PI / 180);
+    const r2d = (rad) => rad * (180 / Math.PI);
+    function round1(num) { return Math.round(num * 10) / 10; }
+
+    // --- Audio System ---
+    let audioCtx;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    function playTone(freq, type, duration, vol) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+    // --- Dynamic Canvas Drawing Engine ---
+    function drawRightTriangle(labels) {
+        const canvas = document.getElementById('trigCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+        
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        const pad = 40;
+        const w = rect.width - 2*pad;
+        const h = rect.height - 2*pad;
+
+        // Dynamic Orientation: Randomly place the right angle (C)
+        let orientation = getRandomInt(0, 3);
+        let ptC, ptA, ptB;
+
+        let ratioW = getRandomInt(60, 100) / 100; 
+        let ratioH = getRandomInt(50, 100) / 100;
+        let actW = w * ratioW;
+        let actH = h * ratioH;
+        let offX = pad + (w - actW)/2;
+        let offY = pad + (h - actH)/2;
+
+        if (orientation === 0) { // C at BR
+            ptC = {x: offX + actW, y: offY + actH};
+            ptA = {x: offX, y: offY + actH};
+            ptB = {x: offX + actW, y: offY};
+        } else if (orientation === 1) { // C at BL
+            ptC = {x: offX, y: offY + actH};
+            ptA = {x: offX + actW, y: offY + actH};
+            ptB = {x: offX, y: offY};
+        } else if (orientation === 2) { // C at TL
+            ptC = {x: offX, y: offY};
+            ptA = {x: offX + actW, y: offY};
+            ptB = {x: offX, y: offY + actH};
+        } else { // C at TR
+            ptC = {x: offX + actW, y: offY};
+            ptA = {x: offX, y: offY};
+            ptB = {x: offX + actW, y: offY + actH};
+        }
+
+        // Draw Triangle
+        ctx.beginPath();
+        ctx.moveTo(ptA.x, ptA.y);
+        ctx.lineTo(ptB.x, ptB.y);
+        ctx.lineTo(ptC.x, ptC.y);
+        ctx.closePath();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#2c3e50';
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(52, 152, 219, 0.05)';
+        ctx.fill();
+
+        // Draw Right Angle Square
+        const sqSize = 15;
+        let sqSignX = (ptC.x > ptA.x || ptC.x > ptB.x) ? -1 : 1;
+        let sqSignY = (ptC.y > ptA.y || ptC.y > ptB.y) ? -1 : 1;
+        ctx.beginPath();
+        ctx.moveTo(ptC.x + sqSignX*sqSize, ptC.y);
+        ctx.lineTo(ptC.x + sqSignX*sqSize, ptC.y + sqSignY*sqSize);
+        ctx.lineTo(ptC.x, ptC.y + sqSignY*sqSize);
+        ctx.strokeStyle = '#e74c3c';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Text settings
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = 'bold 18px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Draw Vertices Labels (A, B, C)
+        const vOff = 20;
+        ctx.fillText("A", ptA.x + (ptA.x<ptC.x?-vOff:vOff), ptA.y + (ptA.y<ptB.y?-vOff:vOff));
+        ctx.fillText("B", ptB.x + (ptB.x<ptA.x?-vOff:vOff), ptB.y + (ptB.y<ptC.y?-vOff:vOff));
+        ctx.fillText("C", ptC.x + (ptC.x<ptA.x?-vOff:vOff), ptC.y + (ptC.y<ptB.y?-vOff:vOff));
+
+        // Draw Side Labels
+        ctx.font = 'bold 20px -apple-system, sans-serif';
+        ctx.fillStyle = '#3498db'; 
+        let midA = {x: (ptB.x+ptC.x)/2, y: (ptB.y+ptC.y)/2}; // Side a (Opp A)
+        let midB = {x: (ptA.x+ptC.x)/2, y: (ptA.y+ptC.y)/2}; // Side b (Opp B)
+        let midC = {x: (ptA.x+ptB.x)/2, y: (ptA.y+ptB.y)/2}; // Side c (Hyp)
+        
+        const sOff = 15;
+        if(labels.a) ctx.fillText(labels.a, midA.x + (midA.x>ptA.x?sOff:-sOff), midA.y);
+        if(labels.b) ctx.fillText(labels.b, midB.x, midB.y + (midB.y>ptB.y?sOff:-sOff));
+        
+        let dx = ptA.x - ptB.x; let dy = ptA.y - ptB.y;
+        let len = Math.hypot(dx, dy);
+        let nx = -dy/len * 20; let ny = dx/len * 20;
+        if (orientation === 0 || orientation === 2) { nx = -nx; ny = -ny; } 
+        if(labels.c) ctx.fillText(labels.c, midC.x + nx, midC.y + ny);
+
+        // Draw Angles
+        ctx.fillStyle = '#e67e22'; 
+        ctx.font = 'bold 18px -apple-system, sans-serif';
+        
+        if (labels.angleA) {
+            ctx.beginPath();
+            let startAngle = Math.atan2(ptC.y - ptA.y, ptC.x - ptA.x);
+            let endAngle = Math.atan2(ptB.y - ptA.y, ptB.x - ptA.x);
+            ctx.arc(ptA.x, ptA.y, 25, Math.min(startAngle, endAngle), Math.max(startAngle, endAngle));
+            ctx.strokeStyle = '#e67e22'; ctx.stroke();
+            
+            let midAng = (startAngle + endAngle) / 2;
+            if (Math.abs(startAngle - endAngle) > Math.PI) midAng += Math.PI;
+            ctx.fillText(labels.angleA, ptA.x + Math.cos(midAng)*40, ptA.y + Math.sin(midAng)*40);
+        }
+        
+        if (labels.angleB) {
+            ctx.beginPath();
+            let startAngle = Math.atan2(ptC.y - ptB.y, ptC.x - ptB.x);
+            let endAngle = Math.atan2(ptA.y - ptB.y, ptA.x - ptB.x);
+            ctx.arc(ptB.x, ptB.y, 25, Math.min(startAngle, endAngle), Math.max(startAngle, endAngle));
+            ctx.strokeStyle = '#e67e22'; ctx.stroke();
+            
+            let midAng = (startAngle + endAngle) / 2;
+            if (Math.abs(startAngle - endAngle) > Math.PI) midAng += Math.PI;
+            ctx.fillText(labels.angleB, ptB.x + Math.cos(midAng)*40, ptB.y + Math.sin(midAng)*40);
+        }
+    }
+
+    // --- Navigation ---
+    function startGame(mode) {
+        initAudio();
+        currentMode = mode;
+        currentStreak = 0;
+        lastPrompt = ""; 
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        generateProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Problem Generation Engine ---
+    function generateProblem() {
+        isTransitioning = false;
+        
+        let promptText = "";
+        let correctTeX = "";
+        let distractors = new Set();
+        let options = [];
+        let labels = { a: '', b: '', c: '', angleA: '', angleB: '' };
+
+        let loopCount = 0;
+        do {
+            distractors.clear();
+
+            // MODE 1: Identify Sides (Opp, Adj, Hyp)
+            if (currentMode === 1) {
+                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
+                let targetSide = getRandomEl(['Opposite', 'Adjacent', 'Hypotenuse']);
+                
+                document.getElementById('promptTitle').innerText = `Identify the side:`;
+                promptText = `Which side is the \\textbf{${targetSide}} to \\angle ${targetAngle}?`;
+                
+                labels[`angle${targetAngle}`] = 'θ';
+                labels.a = "a"; labels.b = "b"; labels.c = "c"; 
+
+                if (targetSide === 'Hypotenuse') correctTeX = "c";
+                else if (targetSide === 'Opposite') correctTeX = targetAngle === 'A' ? "a" : "b";
+                else correctTeX = targetAngle === 'A' ? "b" : "a"; // Adjacent
+
+                distractors.add("a"); distractors.add("b"); distractors.add("c");
+            }
+
+            // MODE 2: Naming Angles
+            else if (currentMode === 2) {
+                document.getElementById('promptTitle').innerText = `Identify the angle:`;
+                
+                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
+                labels[`angle${targetAngle}`] = 'θ';
+                
+                promptText = `What is the proper name for the angle marked \\theta?`;
+                
+                if (targetAngle === 'A') {
+                    correctTeX = "\\angle BAC";
+                    distractors.add("\\angle ABC");
+                    distractors.add("\\angle BCA");
+                    distractors.add("\\angle ACB");
+                } else {
+                    correctTeX = "\\angle ABC";
+                    distractors.add("\\angle BAC");
+                    distractors.add("\\angle CAB");
+                    distractors.add("\\angle BCA");
+                }
+            }
+
+            // MODE 3: Identify Primary Trig Ratios
+            else if (currentMode === 3) {
+                document.getElementById('promptTitle').innerText = `Identify the ratio:`;
+                
+                let trips = [ [3,4,5], [5,12,13], [8,15,17], [7,24,25], [6,8,10] ];
+                let trip = getRandomEl(trips);
+                labels.a = trip[0].toString();
+                labels.b = trip[1].toString();
+                labels.c = trip[2].toString();
+                
+                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
+                labels[`angle${targetAngle}`] = 'θ';
+                
+                let trigFunc = getRandomEl(['\\sin', '\\cos', '\\tan']);
+                promptText = `What is ${trigFunc}(\\theta)?`;
+                
+                let opp = targetAngle === 'A' ? trip[0] : trip[1];
+                let adj = targetAngle === 'A' ? trip[1] : trip[0];
+                let hyp = trip[2];
+
+                if (trigFunc === '\\sin') correctTeX = `\\frac{${opp}}{${hyp}}`;
+                else if (trigFunc === '\\cos') correctTeX = `\\frac{${adj}}{${hyp}}`;
+                else correctTeX = `\\frac{${opp}}{${adj}}`;
+
+                distractors.add(`\\frac{${opp}}{${hyp}}`);
+                distractors.add(`\\frac{${adj}}{${hyp}}`);
+                distractors.add(`\\frac{${opp}}{${adj}}`);
+                distractors.add(`\\frac{${adj}}{${opp}}`);
+            }
+
+            // MODE 4: Solve for Missing Side (Any Orientation / Operation)
+            else if (currentMode === 4) {
+                document.getElementById('promptTitle').innerText = `Solve for x (1 decimal place):`;
+                
+                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
+                let deg = getRandomInt(20, 70);
+                labels[`angle${targetAngle}`] = `${deg}°`;
+                
+                let trigFunc = getRandomEl(['sin', 'cos', 'tan']);
+                let givenLen = getRandomInt(8, 25);
+                let isMultiply = Math.random() > 0.5; // Dictates if x is numerator or denominator
+                
+                let ans;
+                if (trigFunc === 'sin') {
+                    if (isMultiply) { // find opp, given hyp
+                        labels.c = givenLen.toString();
+                        if (targetAngle === 'A') labels.a = "x"; else labels.b = "x";
+                        ans = givenLen * Math.sin(d2r(deg));
+                    } else { // find hyp, given opp
+                        labels.c = "x";
+                        if (targetAngle === 'A') labels.a = givenLen.toString(); else labels.b = givenLen.toString();
+                        ans = givenLen / Math.sin(d2r(deg));
+                    }
+                } else if (trigFunc === 'cos') {
+                    if (isMultiply) { // find adj, given hyp
+                        labels.c = givenLen.toString();
+                        if (targetAngle === 'A') labels.b = "x"; else labels.a = "x";
+                        ans = givenLen * Math.cos(d2r(deg));
+                    } else { // find hyp, given adj
+                        labels.c = "x";
+                        if (targetAngle === 'A') labels.b = givenLen.toString(); else labels.a = givenLen.toString();
+                        ans = givenLen / Math.cos(d2r(deg));
+                    }
+                } else { // tan
+                    if (isMultiply) { // find opp, given adj
+                        if (targetAngle === 'A') { labels.b = givenLen.toString(); labels.a = "x"; }
+                        else { labels.a = givenLen.toString(); labels.b = "x"; }
+                        ans = givenLen * Math.tan(d2r(deg));
+                    } else { // find adj, given opp
+                        if (targetAngle === 'A') { labels.a = givenLen.toString(); labels.b = "x"; }
+                        else { labels.b = givenLen.toString(); labels.a = "x"; }
+                        ans = givenLen / Math.tan(d2r(deg));
+                    }
+                }
+                
+                promptText = `Find the length of side x.`;
+                correctTeX = round1(ans).toString();
+                
+                // Smart distractors based on flipping the operation
+                if (trigFunc === 'sin') {
+                    distractors.add(round1(isMultiply ? givenLen / Math.sin(d2r(deg)) : givenLen * Math.sin(d2r(deg))).toString());
+                    distractors.add(round1(givenLen * Math.cos(d2r(deg))).toString());
+                } else if (trigFunc === 'cos') {
+                    distractors.add(round1(isMultiply ? givenLen / Math.cos(d2r(deg)) : givenLen * Math.cos(d2r(deg))).toString());
+                    distractors.add(round1(givenLen * Math.sin(d2r(deg))).toString());
+                } else {
+                    distractors.add(round1(isMultiply ? givenLen / Math.tan(d2r(deg)) : givenLen * Math.tan(d2r(deg))).toString());
+                    distractors.add(round1(givenLen * Math.cos(d2r(deg))).toString());
+                }
+            }
+
+            // MODE 5: Solve for Missing Angle (Inverse Trig)
+            else if (currentMode === 5) {
+                document.getElementById('promptTitle').innerText = `Find the angle to 1 decimal place:`;
+                
+                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
+                labels[`angle${targetAngle}`] = `θ`;
+                
+                let trigFunc = getRandomEl(['sin', 'cos', 'tan']);
+                let s1 = getRandomInt(5, 15);
+                let s2 = getRandomInt(16, 25); 
+                
+                let ans;
+                if (trigFunc === 'sin') {
+                    labels.c = s2.toString();
+                    if (targetAngle === 'A') labels.a = s1.toString(); else labels.b = s1.toString();
+                    ans = r2d(Math.asin(s1/s2));
+                    distractors.add(round1(r2d(Math.acos(s1/s2))).toString() + "^\\circ"); // Wrong ratio logic
+                } else if (trigFunc === 'cos') {
+                    labels.c = s2.toString();
+                    if (targetAngle === 'A') labels.b = s1.toString(); else labels.a = s1.toString();
+                    ans = r2d(Math.acos(s1/s2));
+                    distractors.add(round1(r2d(Math.asin(s1/s2))).toString() + "^\\circ"); 
+                } else { // tan
+                    if (targetAngle === 'A') { labels.a = s1.toString(); labels.b = s2.toString(); }
+                    else { labels.b = s1.toString(); labels.a = s2.toString(); }
+                    ans = r2d(Math.atan(s1/s2));
+                    distractors.add(round1(r2d(Math.atan(s2/s1))).toString() + "^\\circ"); // Flipped tan
+                }
+                
+                promptText = `Find the measure of \\theta.`;
+                correctTeX = round1(ans).toString() + "^\\circ";
+                distractors.add(round1(ans + getRandomInt(5, 10)).toString() + "^\\circ"); // Pad
+            }
+
+            loopCount++;
+        } while (promptText === lastPrompt && loopCount < 10); 
+        
+        lastPrompt = promptText;
+
+        drawRightTriangle(labels);
+
+        // Fill options, ensuring uniqueness
+        let finalOptions = new Set();
+        finalOptions.add(correctTeX);
+        let distArray = Array.from(distractors);
+        let i = 0;
+        
+        while(finalOptions.size < 4 && i < distArray.length) {
+            finalOptions.add(distArray[i]); i++;
+        }
+        
+        // Pad safely based on mode
+        let pad = 1;
+        while(finalOptions.size < 4) { 
+            if (currentMode === 5) finalOptions.add(`${pad++}^\\circ`);
+            else finalOptions.add(pad++.toString()); 
+        }
+
+        options = shuffle(Array.from(finalOptions));
+
+        document.getElementById('problemDisplay').innerHTML = `\\(${promptText}\\)`;
+        
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; 
+
+        options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `\\(${opt}\\)`;
+            btn.onclick = (e) => handleGuess(btn, opt === correctTeX, e);
+            grid.appendChild(btn);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: true}] });
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1200);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['🌟', '📐', '🚀', '✨', '🏆'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
