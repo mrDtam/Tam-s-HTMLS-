@@ -12,6 +12,7 @@
     <style>
         :root {
             --level1: #e67e22; 
+            --level2: #3498db;
             --dark: #2c3e50;
             --light: #f8f9fa;
             --secondary: #3498db;
@@ -35,7 +36,7 @@
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            max-width: 850px;
+            max-width: 800px;
             width: 100%;
             text-align: center;
         }
@@ -65,11 +66,11 @@
             border-radius: 10px;
             text-align: left;
             background: white;
-            border: 2px solid var(--level1);
+            border: 2px solid var(--level2);
         }
 
         .level-title { 
-            background: var(--level1); 
+            background: var(--level2); 
             color: white; 
             display: inline-block; 
             padding: 5px 15px; 
@@ -82,15 +83,15 @@
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 12px;
+            gap: 15px;
         }
 
         .menu-btn {
             background-color: var(--light);
             color: var(--dark);
             border: 2px solid #bdc3c7;
-            padding: 15px 20px;
-            font-size: 16px;
+            padding: 18px 20px;
+            font-size: 18px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
@@ -104,13 +105,13 @@
             background-color: var(--secondary);
             color: white;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             display: inline-flex;
             justify-content: center;
             align-items: center;
             margin-right: 15px;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .menu-btn:hover {
@@ -127,13 +128,18 @@
         }
 
         /* --- Game Screen --- */
-        #gameScreen { display: none; }
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         .game-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .icon-btn {
@@ -163,39 +169,44 @@
             font-size: 22px;
             color: var(--dark);
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        /* Restored Problem Display Box */
-        .problem-display {
-            font-size: 24px;
-            margin: 0 0 15px 0;
-            padding: 15px 20px;
-            background-color: #fdfbf7;
-            border-radius: 12px;
-            border: 2px solid var(--level1);
-            color: var(--dark);
-            min-height: 50px;
+        /* Question Layout container */
+        .question-layout {
             display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        .info-box {
+            background-color: #fdfbf7;
+            border: 2px dashed var(--level2);
+            border-radius: 12px;
+            padding: 15px 25px;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: all 0.3s;
-            overflow-x: auto;
+            gap: 8px;
+            font-size: 22px;
+            color: var(--dark);
         }
 
-        /* Triangle Canvas */
+        /* Fixed Canvas Container */
         #trigCanvas {
             background-color: #ffffff;
             border: 2px solid #ecf0f1;
             border-radius: 12px;
-            margin-bottom: 20px;
             width: 100%;
-            max-width: 400px;
+            max-width: 320px;
             height: auto;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
             display: block;
-            margin-left: auto;
-            margin-right: auto;
         }
 
         .options-grid {
@@ -207,11 +218,12 @@
 
         .option-btn {
             flex: 1 1 calc(50% - 15px); 
+            max-width: 300px;
             background-color: white;
             color: var(--dark);
             border: 2px solid #bdc3c7;
             padding: 18px 10px;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
             border-radius: 10px;
             cursor: pointer;
@@ -271,10 +283,22 @@
             100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
         }
 
+        @media (min-width: 700px) {
+            .question-layout {
+                flex-direction: row;
+                justify-content: center;
+                align-items: stretch;
+            }
+            .info-box {
+                flex: 1;
+                margin-bottom: 0;
+            }
+        }
+
         @media (max-width: 600px) {
-            .option-btn { flex: 1 1 100%; } 
+            .option-btn { flex: 1 1 100%; max-width: 100%; } 
             .prompt-text { font-size: 18px; }
-            .problem-display { font-size: 20px; }
+            .info-box { font-size: 18px; padding: 15px; }
         }
     </style>
 </head>
@@ -285,15 +309,15 @@
     <!-- Menu Screen -->
     <div id="menuScreen">
         <h1>Trigonometry</h1>
-        <p class="subtitle">CALCULATORS REQUIRED 📱</p>
+        <p class="subtitle">CALCULATORS REQUIRED &#128241;</p>
         
         <div class="level-section">
-            <div class="level-title">Targeted Practice Skills</div>
+            <div class="level-title">Targeted Skills</div>
             <div class="menu-grid">
                 <button class="menu-btn" onclick="startGame(1)"><span>1</span> Identify Sides (Opp, Adj, Hyp)</button>
                 <button class="menu-btn" onclick="startGame(2)"><span>2</span> Naming Angles</button>
                 <button class="menu-btn" onclick="startGame(3)"><span>3</span> Identify Trig Ratios</button>
-                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Solve for Missing Side (Any Orientation)</button>
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Solve for Missing Side</button>
                 <button class="menu-btn" onclick="startGame(5)"><span>5</span> Solve for Missing Angle</button>
             </div>
         </div>
@@ -303,17 +327,17 @@
     <div id="gameScreen">
         <div class="game-header">
             <div>
-                <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
             </div>
-            <div class="streak-counter">🔥 Streak: <span id="streakDisplay">0</span> | 🏆 Best: <span id="highStreakDisplay">0</span></div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
         </div>
 
-        <div class="prompt-text" id="promptTitle">Solve:</div>
+        <div class="prompt-text" id="promptTitle">Question:</div>
         
-        <!-- Restored Text Display for Math Expressions -->
-        <div class="problem-display" id="problemDisplay"></div>
-
-        <canvas id="trigCanvas" width="400" height="300"></canvas>
+        <div class="question-layout">
+            <div class="info-box" id="infoBox"></div>
+            <canvas id="trigCanvas" width="400" height="300"></canvas>
+        </div>
 
         <div class="options-grid" id="optionsGrid"></div>
     </div>
@@ -325,26 +349,38 @@
     let currentStreak = 0;
     let highestStreak = 0; 
     let isTransitioning = false;
-    let lastPrompt = "";
 
     // Math conversions
     const d2r = (deg) => deg * (Math.PI / 180);
     const r2d = (rad) => rad * (180 / Math.PI);
     function round1(num) { return Math.round(num * 10) / 10; }
 
-    // --- Audio System ---
+    // --- Audio System (Safely Decoupled) ---
     let audioCtx;
-    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    
     function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
         if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.start(); osc.stop(audioCtx.currentTime + duration);
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
     }
     function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
     function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
@@ -353,30 +389,31 @@
     function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
     function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
     function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function sortSide(s) { return s.split('').sort().join(''); }
 
-    // --- Dynamic Canvas Drawing Engine ---
-    function drawRightTriangle(labels) {
+    // --- Triangle Canvas Engine (Vector-Based Positioning) ---
+    function drawTriangle(labels) {
         const canvas = document.getElementById('trigCanvas');
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
+        if (!ctx) return;
         
-        const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        ctx.scale(dpr, dpr);
+        const internalW = 400;
+        const internalH = 300;
+        canvas.width = internalW;
+        canvas.height = internalH;
         
-        ctx.clearRect(0, 0, rect.width, rect.height);
+        ctx.clearRect(0, 0, internalW, internalH);
 
-        const pad = 40;
-        const w = rect.width - 2*pad;
-        const h = rect.height - 2*pad;
+        const pad = 45;
+        const w = internalW - 2*pad;
+        const h = internalH - 2*pad;
 
-        // Dynamic Orientation: Randomly place the right angle (C)
         let orientation = getRandomInt(0, 3);
         let ptC, ptA, ptB;
 
-        let ratioW = getRandomInt(60, 100) / 100; 
-        let ratioH = getRandomInt(50, 100) / 100;
+        let ratioW = getRandomInt(70, 100) / 100; 
+        let ratioH = getRandomInt(60, 100) / 100;
         let actW = w * ratioW;
         let actH = h * ratioH;
         let offX = pad + (w - actW)/2;
@@ -400,7 +437,7 @@
             ptB = {x: offX + actW, y: offY + actH};
         }
 
-        // Draw Triangle
+        // Triangle Path
         ctx.beginPath();
         ctx.moveTo(ptA.x, ptA.y);
         ctx.lineTo(ptB.x, ptB.y);
@@ -412,7 +449,7 @@
         ctx.fillStyle = 'rgba(52, 152, 219, 0.05)';
         ctx.fill();
 
-        // Draw Right Angle Square
+        // Right Angle Marker
         const sqSize = 15;
         let sqSignX = (ptC.x > ptA.x || ptC.x > ptB.x) ? -1 : 1;
         let sqSignY = (ptC.y > ptA.y || ptC.y > ptB.y) ? -1 : 1;
@@ -424,76 +461,81 @@
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Text settings
-        ctx.fillStyle = '#2c3e50';
-        ctx.font = 'bold 18px -apple-system, sans-serif';
+        // Vector Utility for Positioning
+        const getNorm = (p1, p2) => {
+            let dx = p2.x - p1.x; let dy = p2.y - p1.y;
+            let len = Math.sqrt(dx*dx + dy*dy) || 1;
+            return {x: dx/len, y: dy/len};
+        };
+
+        // Midpoints
+        let midA = {x: (ptB.x+ptC.x)/2, y: (ptB.y+ptC.y)/2}; // Side opposite A
+        let midB = {x: (ptA.x+ptC.x)/2, y: (ptA.y+ptC.y)/2}; // Side opposite B
+        let midC = {x: (ptA.x+ptB.x)/2, y: (ptA.y+ptB.y)/2}; // Hypotenuse
+
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Draw Vertices Labels (A, B, C)
-        const vOff = 20;
-        ctx.fillText("A", ptA.x + (ptA.x<ptC.x?-vOff:vOff), ptA.y + (ptA.y<ptB.y?-vOff:vOff));
-        ctx.fillText("B", ptB.x + (ptB.x<ptA.x?-vOff:vOff), ptB.y + (ptB.y<ptC.y?-vOff:vOff));
-        ctx.fillText("C", ptC.x + (ptC.x<ptA.x?-vOff:vOff), ptC.y + (ptC.y<ptB.y?-vOff:vOff));
-
-        // Draw Side Labels
+        // Draw Vertices (Pushed outward from the midpoints)
+        const vDist = 24;
+        ctx.fillStyle = '#2c3e50';
         ctx.font = 'bold 20px -apple-system, sans-serif';
-        ctx.fillStyle = '#3498db'; 
-        let midA = {x: (ptB.x+ptC.x)/2, y: (ptB.y+ptC.y)/2}; // Side a (Opp A)
-        let midB = {x: (ptA.x+ptC.x)/2, y: (ptA.y+ptC.y)/2}; // Side b (Opp B)
-        let midC = {x: (ptA.x+ptB.x)/2, y: (ptA.y+ptB.y)/2}; // Side c (Hyp)
         
-        const sOff = 15;
-        if(labels.a) ctx.fillText(labels.a, midA.x + (midA.x>ptA.x?sOff:-sOff), midA.y);
-        if(labels.b) ctx.fillText(labels.b, midB.x, midB.y + (midB.y>ptB.y?sOff:-sOff));
+        let nVA = getNorm(midA, ptA);
+        ctx.fillText(labels.vertA || "A", ptA.x + nVA.x*vDist, ptA.y + nVA.y*vDist);
         
-        let dx = ptA.x - ptB.x; let dy = ptA.y - ptB.y;
-        let len = Math.hypot(dx, dy);
-        let nx = -dy/len * 20; let ny = dx/len * 20;
-        if (orientation === 0 || orientation === 2) { nx = -nx; ny = -ny; } 
-        if(labels.c) ctx.fillText(labels.c, midC.x + nx, midC.y + ny);
+        let nVB = getNorm(midB, ptB);
+        ctx.fillText(labels.vertB || "B", ptB.x + nVB.x*vDist, ptB.y + nVB.y*vDist);
+        
+        let nVC = getNorm(midC, ptC);
+        ctx.fillText(labels.vertC || "C", ptC.x + nVC.x*(vDist-5), ptC.y + nVC.y*(vDist-5));
 
-        // Draw Angles
+        // Draw Side Values (Pushed outward from the opposite vertex)
+        const sDist = 22;
+        ctx.font = 'bold 22px -apple-system, sans-serif';
+        ctx.fillStyle = '#3498db'; 
+        
+        if(labels.a) {
+            let nA = getNorm(ptA, midA);
+            ctx.fillText(labels.a, midA.x + nA.x*sDist, midA.y + nA.y*sDist);
+        }
+        if(labels.b) {
+            let nB = getNorm(ptB, midB);
+            ctx.fillText(labels.b, midB.x + nB.x*sDist, midB.y + nB.y*sDist);
+        }
+        if(labels.c) {
+            let nC = getNorm(ptC, midC);
+            ctx.fillText(labels.c, midC.x + nC.x*sDist, midC.y + nC.y*sDist);
+        }
+
+        // Draw Angles (Pushed inward from the vertex toward the opposite midpoint)
+        const aDist = 35;
         ctx.fillStyle = '#e67e22'; 
-        ctx.font = 'bold 18px -apple-system, sans-serif';
+        ctx.font = 'bold 20px -apple-system, sans-serif';
         
         if (labels.angleA) {
-            ctx.beginPath();
-            let startAngle = Math.atan2(ptC.y - ptA.y, ptC.x - ptA.x);
-            let endAngle = Math.atan2(ptB.y - ptA.y, ptB.x - ptA.x);
-            ctx.arc(ptA.x, ptA.y, 25, Math.min(startAngle, endAngle), Math.max(startAngle, endAngle));
-            ctx.strokeStyle = '#e67e22'; ctx.stroke();
-            
-            let midAng = (startAngle + endAngle) / 2;
-            if (Math.abs(startAngle - endAngle) > Math.PI) midAng += Math.PI;
-            ctx.fillText(labels.angleA, ptA.x + Math.cos(midAng)*40, ptA.y + Math.sin(midAng)*40);
+            let nA = getNorm(ptA, midA);
+            ctx.fillText(labels.angleA, ptA.x + nA.x*aDist, ptA.y + nA.y*aDist);
         }
         
         if (labels.angleB) {
-            ctx.beginPath();
-            let startAngle = Math.atan2(ptC.y - ptB.y, ptC.x - ptB.x);
-            let endAngle = Math.atan2(ptA.y - ptB.y, ptA.x - ptB.x);
-            ctx.arc(ptB.x, ptB.y, 25, Math.min(startAngle, endAngle), Math.max(startAngle, endAngle));
-            ctx.strokeStyle = '#e67e22'; ctx.stroke();
-            
-            let midAng = (startAngle + endAngle) / 2;
-            if (Math.abs(startAngle - endAngle) > Math.PI) midAng += Math.PI;
-            ctx.fillText(labels.angleB, ptB.x + Math.cos(midAng)*40, ptB.y + Math.sin(midAng)*40);
+            let nB = getNorm(ptB, midB);
+            ctx.fillText(labels.angleB, ptB.x + nB.x*aDist, ptB.y + nB.y*aDist);
         }
     }
 
     // --- Navigation ---
     function startGame(mode) {
-        initAudio();
-        currentMode = mode;
-        currentStreak = 0;
-        lastPrompt = ""; 
-        document.getElementById('streakDisplay').innerText = currentStreak;
-        
-        document.getElementById('menuScreen').style.display = 'none';
-        document.getElementById('gameScreen').style.display = 'block';
-        
-        generateProblem();
+        try {
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) { console.error(e); }
     }
 
     function showMenu() {
@@ -507,211 +549,268 @@
     function generateProblem() {
         isTransitioning = false;
         
-        let promptText = "";
-        let correctTeX = "";
+        let correctAns = "";
         let distractors = new Set();
-        let options = [];
-        let labels = {};
-
-        let loopCount = 0;
-        do {
-            distractors.clear();
-            // Reset labels every loop to prevent ghost texts from previous rolls
-            labels = { a: '', b: '', c: '', angleA: '', angleB: '' };
-
-            // MODE 1: Identify Sides (Opp, Adj, Hyp)
-            if (currentMode === 1) {
-                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
-                let targetSide = getRandomEl(['Opposite', 'Adjacent', 'Hypotenuse']);
-                
-                document.getElementById('promptTitle').innerText = `Identify the side:`;
-                promptText = `\\text{Which side is the } \\textbf{${targetSide}} \\text{ to } \\angle ${targetAngle}?`;
-                
-                labels[`angle${targetAngle}`] = 'θ';
-                labels.a = "a"; labels.b = "b"; labels.c = "c"; 
-
-                if (targetSide === 'Hypotenuse') correctTeX = "c";
-                else if (targetSide === 'Opposite') correctTeX = targetAngle === 'A' ? "a" : "b";
-                else correctTeX = targetAngle === 'A' ? "b" : "a"; // Adjacent
-
-                distractors.add("a"); distractors.add("b"); distractors.add("c");
-            }
-
-            // MODE 2: Naming Angles
-            else if (currentMode === 2) {
-                document.getElementById('promptTitle').innerText = `Identify the angle:`;
-                
-                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
-                labels[`angle${targetAngle}`] = 'θ';
-                
-                promptText = `\\text{What is the proper name for the angle marked } \\theta?`;
-                
-                if (targetAngle === 'A') {
-                    correctTeX = "\\angle BAC";
-                    distractors.add("\\angle ABC");
-                    distractors.add("\\angle BCA");
-                    distractors.add("\\angle ACB");
-                } else {
-                    correctTeX = "\\angle ABC";
-                    distractors.add("\\angle BAC");
-                    distractors.add("\\angle CAB");
-                    distractors.add("\\angle BCA");
-                }
-            }
-
-            // MODE 3: Identify Primary Trig Ratios
-            else if (currentMode === 3) {
-                document.getElementById('promptTitle').innerText = `Identify the ratio:`;
-                
-                let trips = [ [3,4,5], [5,12,13], [8,15,17], [7,24,25], [6,8,10] ];
-                let trip = getRandomEl(trips);
-                labels.a = trip[0].toString();
-                labels.b = trip[1].toString();
-                labels.c = trip[2].toString();
-                
-                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
-                labels[`angle${targetAngle}`] = 'θ';
-                
-                let trigFunc = getRandomEl(['\\sin', '\\cos', '\\tan']);
-                promptText = `\\text{What is } \\mathbf{${trigFunc}(\\theta)}?`;
-                
-                let opp = targetAngle === 'A' ? trip[0] : trip[1];
-                let adj = targetAngle === 'A' ? trip[1] : trip[0];
-                let hyp = trip[2];
-
-                if (trigFunc === '\\sin') correctTeX = `\\frac{${opp}}{${hyp}}`;
-                else if (trigFunc === '\\cos') correctTeX = `\\frac{${adj}}{${hyp}}`;
-                else correctTeX = `\\frac{${opp}}{${adj}}`;
-
-                distractors.add(`\\frac{${opp}}{${hyp}}`);
-                distractors.add(`\\frac{${adj}}{${hyp}}`);
-                distractors.add(`\\frac{${opp}}{${adj}}`);
-                distractors.add(`\\frac{${adj}}{${opp}}`); // Trap!
-            }
-
-            // MODE 4: Solve for Missing Side (Any Orientation / Operation)
-            else if (currentMode === 4) {
-                document.getElementById('promptTitle').innerText = `Solve for x (1 decimal place):`;
-                
-                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
-                let deg = getRandomInt(20, 70);
-                labels[`angle${targetAngle}`] = `${deg}^\\circ`;
-                
-                let trigFunc = getRandomEl(['sin', 'cos', 'tan']);
-                let givenLen = getRandomInt(8, 25);
-                let isMultiply = Math.random() > 0.5; // Dictates if x is numerator or denominator
-                
-                let ans;
-                if (trigFunc === 'sin') {
-                    if (isMultiply) { // find opp, given hyp
-                        labels.c = givenLen.toString();
-                        if (targetAngle === 'A') labels.a = "x"; else labels.b = "x";
-                        ans = givenLen * Math.sin(d2r(deg));
-                    } else { // find hyp, given opp
-                        labels.c = "x";
-                        if (targetAngle === 'A') labels.a = givenLen.toString(); else labels.b = givenLen.toString();
-                        ans = givenLen / Math.sin(d2r(deg));
-                    }
-                } else if (trigFunc === 'cos') {
-                    if (isMultiply) { // find adj, given hyp
-                        labels.c = givenLen.toString();
-                        if (targetAngle === 'A') labels.b = "x"; else labels.a = "x";
-                        ans = givenLen * Math.cos(d2r(deg));
-                    } else { // find hyp, given adj
-                        labels.c = "x";
-                        if (targetAngle === 'A') labels.b = givenLen.toString(); else labels.a = givenLen.toString();
-                        ans = givenLen / Math.cos(d2r(deg));
-                    }
-                } else { // tan
-                    if (isMultiply) { // find opp, given adj
-                        if (targetAngle === 'A') { labels.b = givenLen.toString(); labels.a = "x"; }
-                        else { labels.a = givenLen.toString(); labels.b = "x"; }
-                        ans = givenLen * Math.tan(d2r(deg));
-                    } else { // find adj, given opp
-                        if (targetAngle === 'A') { labels.a = givenLen.toString(); labels.b = "x"; }
-                        else { labels.b = givenLen.toString(); labels.a = "x"; }
-                        ans = givenLen / Math.tan(d2r(deg));
-                    }
-                }
-                
-                promptText = `\\text{Find the length of side } x.`;
-                correctTeX = round1(ans).toString();
-                
-                // Smart distractors based on flipping the operation or function
-                if (trigFunc === 'sin') {
-                    distractors.add(round1(isMultiply ? givenLen / Math.sin(d2r(deg)) : givenLen * Math.sin(d2r(deg))).toString());
-                    distractors.add(round1(givenLen * Math.cos(d2r(deg))).toString());
-                } else if (trigFunc === 'cos') {
-                    distractors.add(round1(isMultiply ? givenLen / Math.cos(d2r(deg)) : givenLen * Math.cos(d2r(deg))).toString());
-                    distractors.add(round1(givenLen * Math.sin(d2r(deg))).toString());
-                } else {
-                    distractors.add(round1(isMultiply ? givenLen / Math.tan(d2r(deg)) : givenLen * Math.tan(d2r(deg))).toString());
-                    distractors.add(round1(givenLen * Math.cos(d2r(deg))).toString());
-                }
-            }
-
-            // MODE 5: Solve for Missing Angle (Inverse Trig)
-            else if (currentMode === 5) {
-                document.getElementById('promptTitle').innerText = `Find the angle to 1 decimal place:`;
-                
-                let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
-                labels[`angle${targetAngle}`] = `\\theta`;
-                
-                let trigFunc = getRandomEl(['sin', 'cos', 'tan']);
-                let s1 = getRandomInt(5, 15);
-                let s2 = getRandomInt(16, 25); 
-                
-                let ans;
-                if (trigFunc === 'sin') {
-                    labels.c = s2.toString();
-                    if (targetAngle === 'A') labels.a = s1.toString(); else labels.b = s1.toString();
-                    ans = r2d(Math.asin(s1/s2));
-                    distractors.add(round1(r2d(Math.acos(s1/s2))).toString() + "^\\circ"); // Wrong ratio
-                } else if (trigFunc === 'cos') {
-                    labels.c = s2.toString();
-                    if (targetAngle === 'A') labels.b = s1.toString(); else labels.a = s1.toString();
-                    ans = r2d(Math.acos(s1/s2));
-                    distractors.add(round1(r2d(Math.asin(s1/s2))).toString() + "^\\circ"); 
-                } else { // tan
-                    if (targetAngle === 'A') { labels.a = s1.toString(); labels.b = s2.toString(); }
-                    else { labels.b = s1.toString(); labels.a = s2.toString(); }
-                    ans = r2d(Math.atan(s1/s2));
-                    distractors.add(round1(r2d(Math.atan(s2/s1))).toString() + "^\\circ"); // Flipped tan
-                }
-                
-                promptText = `\\text{Find the measure of } \\theta.`;
-                correctTeX = round1(ans).toString() + "^\\circ";
-                distractors.add(round1(ans + getRandomInt(5, 10)).toString() + "^\\circ"); // Pad
-            }
-
-            loopCount++;
-        } while (promptText === lastPrompt && loopCount < 10); 
+        let infoLines = [];
         
-        lastPrompt = promptText;
+        const letterSets = [ ['A','B','C'], ['P','Q','R'], ['X','Y','Z'] ];
+        let letters = getRandomEl(letterSets);
+        let rightAngle = getRandomEl(letters);
+        let acuteAngles = letters.filter(l => l !== rightAngle);
+        
+        let vertC = rightAngle;
+        let vertA = acuteAngles[0];
+        let vertB = acuteAngles[1];
 
-        drawRightTriangle(labels);
+        let hypSide = sortSide(vertA + vertB);
+        
+        const getOppSide = (ang) => sortSide(letters.filter(l => l !== ang).join(''));
+        const getAdjSide = (ang) => sortSide(ang + vertC);
 
-        // Fill options, ensuring uniqueness
+        let labels = { vertA: vertA, vertB: vertB, vertC: vertC, a: '', b: '', c: '', angleA: '', angleB: '' };
+
+        infoLines.push(`\\text{In } \\triangle ${letters.join('')}, \\quad \\angle ${rightAngle} = 90^\\circ`);
+
+        // Set target options length
+        let targetOptionsSize = currentMode === 1 ? 3 : 4; 
+
+        if (currentMode === 1) { // Identify Sides (3 Options strictly)
+            document.getElementById('promptTitle').innerText = "Identify the side:";
+            
+            let targetAngle = getRandomEl(acuteAngles);
+            let targetType = getRandomEl(['Hypotenuse', 'Opposite', 'Adjacent']);
+            
+            infoLines.push(`\\text{With respect to reference } \\angle ${targetAngle}:`);
+            
+            labels[targetAngle === vertA ? 'angleA' : 'angleB'] = '\u03B8'; // Unicode Theta
+
+            if (targetType === 'Hypotenuse') {
+                infoLines.push(`\\text{Which side is the \\textbf{Hypotenuse}?}`);
+                correctAns = hypSide;
+            } else if (targetType === 'Opposite') {
+                infoLines.push(`\\text{Which side is \\textbf{Opposite} to } \\angle ${targetAngle}?`);
+                correctAns = getOppSide(targetAngle);
+            } else {
+                infoLines.push(`\\text{Which side is \\textbf{Adjacent} to } \\angle ${targetAngle}?`);
+                correctAns = getAdjSide(targetAngle);
+            }
+
+            // Exactly 3 distractors guarantees no NaN padding needed
+            distractors.add(hypSide);
+            distractors.add(getOppSide(targetAngle));
+            distractors.add(getAdjSide(targetAngle));
+        }
+
+        else if (currentMode === 2) { // Naming Angles
+            document.getElementById('promptTitle').innerText = "Identify the angle:";
+            
+            let qType = getRandomInt(1, 2);
+            let targetAng = getRandomEl(acuteAngles);
+            
+            labels[targetAng === vertA ? 'angleA' : 'angleB'] = '\u03B8';
+
+            if (qType === 1) {
+                let oppSide = getOppSide(targetAng);
+                infoLines.push(`\\text{Which angle is \\textbf{opposite} to side } ${oppSide}?`);
+            } else {
+                let adjSide = getAdjSide(targetAng);
+                infoLines.push(`\\text{Which angle is formed by } ${hypSide} \\text{ and } ${adjSide}?`);
+            }
+            
+            let otherAng = acuteAngles.find(a => a !== targetAng);
+            correctAns = `\\angle ${otherAng}${targetAng}${rightAngle}`;
+            
+            distractors.add(`\\angle ${targetAng}${otherAng}${rightAngle}`);
+            distractors.add(`\\angle ${targetAng}${rightAngle}${otherAng}`);
+            distractors.add(`\\angle ${rightAngle}${otherAng}${targetAng}`);
+        }
+
+        else if (currentMode === 3) { // Trig Ratios
+            document.getElementById('promptTitle').innerText = "Determine the exact ratio:";
+            
+            let trips = [ [3,4,5], [5,12,13], [8,15,17], [7,24,25] ];
+            let trip = getRandomEl(trips);
+            
+            let leg1 = trip[0]; let leg2 = trip[1];
+            if (Math.random() > 0.5) { leg1 = trip[1]; leg2 = trip[0]; }
+            
+            let targetAngle = getRandomEl(acuteAngles);
+            let opp = getOppSide(targetAngle);
+            let adj = getAdjSide(targetAngle);
+            
+            infoLines.push(`${opp} = ${leg1}, \\quad ${adj} = ${leg2}, \\quad ${hypSide} = ${trip[2]}`);
+            
+            let trigFunc = getRandomEl(['\\sin', '\\cos', '\\tan']);
+            infoLines.push(`\\text{Evaluate } \\mathbf{${trigFunc}(${targetAngle})}`);
+            
+            labels[targetAngle === vertA ? 'angleA' : 'angleB'] = '\u03B8';
+            if (targetAngle === vertA) { labels.a = leg1; labels.b = leg2; }
+            else { labels.b = leg1; labels.a = leg2; }
+            labels.c = trip[2];
+
+            if (trigFunc === '\\sin') correctAns = `\\frac{${leg1}}{${trip[2]}}`;
+            else if (trigFunc === '\\cos') correctAns = `\\frac{${leg2}}{${trip[2]}}`;
+            else correctAns = `\\frac{${leg1}}{${leg2}}`;
+
+            distractors.add(`\\frac{${leg1}}{${trip[2]}}`);
+            distractors.add(`\\frac{${leg2}}{${trip[2]}}`);
+            distractors.add(`\\frac{${leg1}}{${leg2}}`);
+            distractors.add(`\\frac{${leg2}}{${leg1}}`);
+        }
+
+        else if (currentMode === 4) { // Solve Side
+            document.getElementById('promptTitle').innerText = "Solve (to 1 decimal place):";
+            
+            let targetAngle = getRandomEl(acuteAngles);
+            let deg = getRandomInt(20, 70);
+            
+            let opp = getOppSide(targetAngle);
+            let adj = getAdjSide(targetAngle);
+            let hyp = hypSide;
+            
+            let givenLen = getRandomInt(10, 30);
+            let trigScenario = getRandomInt(1, 6);
+            let ans;
+
+            infoLines.push(`\\angle ${targetAngle} = ${deg}^\\circ`);
+            labels[targetAngle === vertA ? 'angleA' : 'angleB'] = `${deg}\u00B0`; // Unicode degree
+
+            if (trigScenario === 1) { // Given Hyp, Find Opp 
+                infoLines.push(`${hyp} = ${givenLen}`);
+                infoLines.push(`\\text{Find } ${opp}`);
+                
+                labels.c = givenLen.toString();
+                if (targetAngle === vertA) labels.a = "x"; else labels.b = "x";
+
+                ans = givenLen * Math.sin(d2r(deg));
+                distractors.add(round1(givenLen / Math.sin(d2r(deg))).toString());
+                distractors.add(round1(givenLen * Math.cos(d2r(deg))).toString());
+            } else if (trigScenario === 2) { // Given Opp, Find Hyp 
+                infoLines.push(`${opp} = ${givenLen}`);
+                infoLines.push(`\\text{Find } ${hyp}`);
+                
+                labels.c = "x";
+                if (targetAngle === vertA) labels.a = givenLen.toString(); else labels.b = givenLen.toString();
+
+                ans = givenLen / Math.sin(d2r(deg));
+                distractors.add(round1(givenLen * Math.sin(d2r(deg))).toString());
+                distractors.add(round1(givenLen / Math.cos(d2r(deg))).toString());
+            } else if (trigScenario === 3) { // Given Hyp, Find Adj
+                infoLines.push(`${hyp} = ${givenLen}`);
+                infoLines.push(`\\text{Find } ${adj}`);
+
+                labels.c = givenLen.toString();
+                if (targetAngle === vertA) labels.b = "x"; else labels.a = "x";
+
+                ans = givenLen * Math.cos(d2r(deg));
+                distractors.add(round1(givenLen / Math.cos(d2r(deg))).toString());
+                distractors.add(round1(givenLen * Math.sin(d2r(deg))).toString());
+            } else if (trigScenario === 4) { // Given Adj, Find Hyp 
+                infoLines.push(`${adj} = ${givenLen}`);
+                infoLines.push(`\\text{Find } ${hyp}`);
+
+                labels.c = "x";
+                if (targetAngle === vertA) labels.b = givenLen.toString(); else labels.a = givenLen.toString();
+
+                ans = givenLen / Math.cos(d2r(deg));
+                distractors.add(round1(givenLen * Math.cos(d2r(deg))).toString());
+                distractors.add(round1(givenLen / Math.sin(d2r(deg))).toString());
+            } else if (trigScenario === 5) { // Given Adj, Find Opp 
+                infoLines.push(`${adj} = ${givenLen}`);
+                infoLines.push(`\\text{Find } ${opp}`);
+
+                if (targetAngle === vertA) { labels.b = givenLen.toString(); labels.a = "x"; }
+                else { labels.a = givenLen.toString(); labels.b = "x"; }
+
+                ans = givenLen * Math.tan(d2r(deg));
+                distractors.add(round1(givenLen / Math.tan(d2r(deg))).toString());
+                distractors.add(round1(givenLen * Math.sin(d2r(deg))).toString());
+            } else { // Given Opp, Find Adj 
+                infoLines.push(`${opp} = ${givenLen}`);
+                infoLines.push(`\\text{Find } ${adj}`);
+
+                if (targetAngle === vertA) { labels.a = givenLen.toString(); labels.b = "x"; }
+                else { labels.b = givenLen.toString(); labels.a = "x"; }
+
+                ans = givenLen / Math.tan(d2r(deg));
+                distractors.add(round1(givenLen * Math.tan(d2r(deg))).toString());
+                distractors.add(round1(givenLen / Math.sin(d2r(deg))).toString());
+            }
+
+            correctAns = round1(ans).toString();
+        }
+
+        else if (currentMode === 5) { // Solve Angle
+            document.getElementById('promptTitle').innerText = "Solve (to 1 decimal place):";
+            
+            let targetAngle = getRandomEl(acuteAngles);
+            
+            let opp = getOppSide(targetAngle);
+            let adj = getAdjSide(targetAngle);
+            let hyp = hypSide;
+
+            let s1 = getRandomInt(5, 15);
+            let s2 = getRandomInt(16, 25);
+            
+            let trigScenario = getRandomInt(1, 3);
+            let ans;
+
+            labels[targetAngle === vertA ? 'angleA' : 'angleB'] = '\u03B8';
+
+            if (trigScenario === 1) { // Sin
+                infoLines.push(`${opp} = ${s1}, \\quad ${hyp} = ${s2}`);
+                labels.c = s2.toString();
+                if (targetAngle === vertA) labels.a = s1.toString(); else labels.b = s1.toString();
+
+                ans = r2d(Math.asin(s1/s2));
+                distractors.add(round1(r2d(Math.acos(s1/s2))).toString() + "^\\circ"); 
+            } else if (trigScenario === 2) { // Cos
+                infoLines.push(`${adj} = ${s1}, \\quad ${hyp} = ${s2}`);
+                labels.c = s2.toString();
+                if (targetAngle === vertA) labels.b = s1.toString(); else labels.a = s1.toString();
+
+                ans = r2d(Math.acos(s1/s2));
+                distractors.add(round1(r2d(Math.asin(s1/s2))).toString() + "^\\circ"); 
+            } else { // Tan 
+                if (Math.random() > 0.5) { let temp = s1; s1 = s2; s2 = temp; }
+                infoLines.push(`${opp} = ${s1}, \\quad ${adj} = ${s2}`);
+
+                if (targetAngle === vertA) { labels.a = s1.toString(); labels.b = s2.toString(); }
+                else { labels.b = s1.toString(); labels.a = s2.toString(); }
+
+                ans = r2d(Math.atan(s1/s2));
+                distractors.add(round1(r2d(Math.atan(s2/s1))).toString() + "^\\circ"); 
+            }
+
+            infoLines.push(`\\text{Find } \\angle ${targetAngle}`);
+            correctAns = round1(ans).toString() + "^\\circ";
+            distractors.add(round1(ans + getRandomInt(5, 10)).toString() + "^\\circ"); 
+        }
+
+        drawTriangle(labels);
+
+        let boxHtml = infoLines.map(line => `<p style="margin:5px 0;">\\(${line}\\)</p>`).join('');
+        document.getElementById('infoBox').innerHTML = boxHtml;
+
+        // Fill options safely based on dynamic size (3 for mode 1, 4 for others)
         let finalOptions = new Set();
-        finalOptions.add(correctTeX);
+        finalOptions.add(correctAns);
         let distArray = Array.from(distractors);
         let i = 0;
         
-        while(finalOptions.size < 4 && i < distArray.length) {
+        while(finalOptions.size < targetOptionsSize && i < distArray.length) {
             finalOptions.add(distArray[i]); i++;
         }
         
-        // Pad safely based on mode
         let pad = 1;
-        while(finalOptions.size < 4) { 
+        while(finalOptions.size < targetOptionsSize) { 
             if (currentMode === 5) finalOptions.add(`${pad++}^\\circ`);
-            else finalOptions.add(pad++.toString()); 
+            else if (currentMode === 2) finalOptions.add(`\\angle ${rightAngle}${pad++}${vertA}`);
+            else finalOptions.add((parseFloat(correctAns || "10") + pad++).toString()); 
         }
 
-        options = shuffle(Array.from(finalOptions));
+        let options = shuffle(Array.from(finalOptions));
 
-        document.getElementById('problemDisplay').innerHTML = `\\(${promptText}\\)`;
-        
         const grid = document.getElementById('optionsGrid');
         grid.innerHTML = ''; 
 
@@ -719,7 +818,7 @@
             let btn = document.createElement('button');
             btn.className = 'option-btn';
             btn.innerHTML = `\\(${opt}\\)`;
-            btn.onclick = (e) => handleGuess(btn, opt === correctTeX, e);
+            btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
             grid.appendChild(btn);
         });
 
@@ -745,7 +844,7 @@
             }
 
             createSparkle(event.clientX, event.clientY);
-            setTimeout(generateProblem, 1200);
+            setTimeout(generateProblem, 1000);
         } else {
             btn.classList.add('wrong');
             playWrong();
@@ -755,7 +854,7 @@
     }
 
     function createSparkle(x, y) {
-        const emojis = ['🌟', '📐', '🚀', '✨', '🏆'];
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
         const sparkle = document.createElement('div');
         sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
         sparkle.className = 'confetti';
