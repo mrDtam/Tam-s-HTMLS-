@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 8 Acc: Rational Numbers</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; /* Orange */
+            --level2: #f39c12; /* Yellow-Orange */
+            --level3: #27ae60; /* Green */
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+        }
+
+        .level-1 { border: 2px solid var(--level1); }
+        .level-1 .level-title { background: var(--level1); color: white; display: inline-block; padding: 5px 15px; border-radius: 5px; margin-top: -35px; margin-bottom: 15px; font-weight: bold; }
+        
+        .level-2 { border: 2px solid var(--level2); }
+        .level-2 .level-title { background: var(--level2); color: white; display: inline-block; padding: 5px 15px; border-radius: 5px; margin-top: -35px; margin-bottom: 15px; font-weight: bold; }
+
+        .level-3 { border: 2px solid var(--level3); }
+        .level-3 .level-title { background: var(--level3); color: white; display: inline-block; padding: 5px 15px; border-radius: 5px; margin-top: -35px; margin-bottom: 15px; font-weight: bold; }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .problem-display {
+            font-size: 36px;
+            margin: 0 0 25px 0;
+            padding: 20px 30px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 18px 10px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+            animation: shake 0.4s;
+        }
+
+        /* --- DRAG & DROP CLASSIFICATION STYLES --- */
+        #dragContainer { display: none; margin-bottom: 20px; }
+        .pool {
+            background-color: #ecf0f1;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 50px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .num-pill {
+            background-color: white;
+            border: 2px solid #34495e;
+            color: #2c3e50;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: grab;
+            touch-action: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .diagram-container { display: flex; gap: 15px; justify-content: center; align-items: stretch; }
+        .set-box {
+            border-radius: 12px;
+            padding: 35px 10px 10px 10px;
+            position: relative;
+            min-height: 50px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 8px;
+        }
+        .set-label { position: absolute; top: 8px; left: 12px; font-weight: bold; font-size: 12px; text-transform: uppercase; pointer-events: none; }
+        .rational { border: 3px solid #f39c12; background-color: rgba(243, 156, 18, 0.05); flex: 3; }
+        .rational .set-label { color: #d35400; }
+        .integer { border: 3px solid #3498db; background-color: rgba(52, 152, 219, 0.1); width: 100%; margin-top: 8px; box-sizing: border-box; }
+        .integer .set-label { color: #2980b9; }
+        .whole { border: 3px solid #9b59b6; background-color: rgba(155, 89, 182, 0.15); width: 100%; margin-top: 8px; box-sizing: border-box; }
+        .whole .set-label { color: #8e44ad; }
+        .natural { border: 3px solid #2ecc71; background-color: rgba(46, 204, 113, 0.2); width: 100%; margin-top: 8px; min-height: 60px; box-sizing: border-box; }
+        .natural .set-label { color: #27ae60; }
+        .irrational { border: 3px solid #e74c3c; background-color: rgba(231, 76, 60, 0.05); flex: 1; min-width: 130px; }
+        .irrational .set-label { color: #c0392b; }
+        .set-box.drag-over { background-color: rgba(0, 0, 0, 0.08); }
+        .drag-controls { margin-top: 15px; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .options-grid { grid-template-columns: 1fr; }
+            .diagram-container { flex-direction: column; }
+            .problem-display { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Rational Numbers</h1>
+        <p class="subtitle">🚫 NO CALCULATORS ALLOWED 🚫</p>
+        
+        <div class="level-section level-1">
+            <div class="level-title">Emerging Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)">Mixed ↔ Improper Conversions</button>
+                <button class="menu-btn" onclick="startGame(2)">Convert Decimals to Fractions</button>
+                <button class="menu-btn" onclick="startGame(3)">Simple Arithmetic with Rationals</button>
+            </div>
+        </div>
+
+        <div class="level-section level-2">
+            <div class="level-title">Developing Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(4)">Identify & Classify Number Sets (Interactive Drag)</button>
+                <button class="menu-btn" onclick="startGame(5)">Compare Rational Numbers (<, >, =)</button>
+            </div>
+        </div>
+
+        <div class="level-section level-3">
+            <div class="level-title">Proficient Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(6)">Order of Operations with Rationals</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
+            </div>
+            <div class="streak-counter">🔥 Streak: <span id="streakDisplay">0</span> | 🏆 Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-text" id="promptTitle">Solve:</div>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <!-- Multiple Choice Options -->
+        <div class="options-grid" id="optionsGrid"></div>
+
+        <!-- Drag and Drop Interface (Used for Classification Mode) -->
+        <div id="dragContainer">
+            <div id="numberPool" class="pool" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="diagram-container">
+                <div id="rational" class="set-box rational" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <span class="set-label">Rational (Q)</span>
+                    <div id="integer" class="set-box integer" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                        <span class="set-label">Integer (Z)</span>
+                        <div id="whole" class="set-box whole" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                            <span class="set-label">Whole (W)</span>
+                            <div id="natural" class="set-box natural" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                                <span class="set-label">Natural (N)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="irrational" class="set-box irrational" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <span class="set-label">Irrational (I)</span>
+                </div>
+            </div>
+            <div class="drag-controls">
+                <button class="icon-btn" style="background:#3498db; color:white;" onclick="checkDragSorting()">Check Classification</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio Engine ---
+    let audioCtx;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    
+    function playTone(freq, type, duration, vol) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Formatting Utilities ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { let temp = b; b = a % b; a = temp; } return a; }
+    
+    function simplify(n, d) {
+        if (d < 0) { n = -n; d = -d; }
+        let g = gcd(n, d);
+        return [n / g, d / g];
+    }
+
+    function formatFracTex(n, d) {
+        let [num, den] = simplify(n, d);
+        if (den === 1) return num.toString();
+        if (num === 0) return "0";
+        if (num < 0) return `-\\frac{${Math.abs(num)}}{${den}}`;
+        return `\\frac{${num}}{${den}}`;
+    }
+
+    function toMixedTex(n, d) {
+        let [num, den] = simplify(n, d);
+        if (den === 1) return num.toString();
+        if (num === 0) return "0";
+        
+        let sign = num < 0 ? "-" : "";
+        num = Math.abs(num);
+        let whole = Math.floor(num / den);
+        let rem = num % den;
+        
+        if (whole === 0) return `${sign}\\frac{${rem}}{${den}}`;
+        return `${sign}${whole}\\frac{${rem}}{${den}}`;
+    }
+
+    function mixedToImproper(w, n, d) {
+        let sign = w < 0 ? -1 : 1;
+        let num = (Math.abs(w) * d) + n;
+        return [sign * num, d];
+    }
+
+    // --- Navigation ---
+    function startGame(mode) {
+        initAudio();
+        currentMode = mode;
+        currentStreak = 0;
+        lastPrompt = ""; 
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        const gameContainer = document.querySelector('.container');
+        
+        if (mode <= 3) gameContainer.style.borderColor = "var(--level1)";
+        else if (mode <= 5) gameContainer.style.borderColor = "var(--level2)";
+        else gameContainer.style.borderColor = "var(--level3)";
+
+        generateProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Core Engine ---
+    function generateProblem() {
+        isTransitioning = false;
+        
+        document.getElementById('problemDisplay').style.display = 'flex';
+        document.getElementById('optionsGrid').style.display = 'grid';
+        document.getElementById('dragContainer').style.display = 'none';
+
+        let promptTeX = "";
+        let correctTeX = "";
+        let distractors = new Set();
+        let options = [];
+
+        do {
+            distractors.clear();
+
+            // MODE 1: Mixed ↔ Improper Conversions
+            if (currentMode === 1) {
+                let type = getRandomInt(1, 2);
+                let w = getRandomInt(1, 6);
+                let d = getRandomInt(3, 9);
+                let n = getRandomInt(1, d - 1);
+                let isNeg = Math.random() > 0.5 ? -1 : 1;
+                
+                if (type === 1) {
+                    document.getElementById('promptTitle').innerText = "Convert to an improper fraction:";
+                    promptTeX = `${isNeg < 0 ? "-" : ""}${w}\\frac{${n}}{${d}}`;
+                    correctTeX = `-\\frac{${w*d + n}}{${d}}`;
+                    if (isNeg > 0) correctTeX = `\\frac{${w*d + n}}{${d}}`;
+                    
+                    distractors.add(`${isNeg < 0 ? "-" : ""}\\frac{${w*n + d}}{${d}}`);
+                    distractors.add(`${isNeg < 0 ? "-" : ""}\\frac{${w+n}}{${d}}`);
+                    distractors.add(`${isNeg < 0 ? "-" : ""}\\frac{${w*d + n}}{${w}}`);
+                } else {
+                    document.getElementById('promptTitle').innerText = "Convert to a mixed number:";
+                    let num = (w * d) + n;
+                    promptTeX = `${isNeg < 0 ? "-" : ""}\\frac{${num}}{${d}}`;
+                    correctTeX = `${isNeg < 0 ? "-" : ""}${w}\\frac{${n}}{${d}}`;
+                    
+                    distractors.add(`${isNeg < 0 ? "-" : ""}${w}\\frac{${d-n}}{${d}}`);
+                    distractors.add(`${isNeg < 0 ? "-" : ""}${w+1}\\frac{${n}}{${d}}`);
+                    distractors.add(`${isNeg < 0 ? "-" : ""}${n}\\frac{${w}}{${d}}`);
+                }
+            }
+
+            // MODE 2: Decimals to Fractions
+            else if (currentMode === 2) {
+                document.getElementById('promptTitle').innerText = "Convert the decimal to a simplified fraction:";
+                let isNeg = Math.random() > 0.5 ? -1 : 1;
+                let decType = getRandomInt(1, 3);
+                
+                if (decType === 1) { // Tenths
+                    let n = getRandomNonZero(1, 9);
+                    let val = (n / 10) * isNeg;
+                    promptTeX = val.toString();
+                    correctTeX = formatFracTex(n * isNeg, 10);
+                    distractors.add(formatFracTex(n * isNeg, 100));
+                    distractors.add(formatFracTex(n, 10));
+                } else if (decType === 2) { // Hundredths
+                    let n = getRandomEl([25, 50, 75, 12, 15, 35, 45, 85]);
+                    let val = (n / 100) * isNeg;
+                    promptTeX = val.toString();
+                    correctTeX = formatFracTex(n * isNeg, 100);
+                    distractors.add(formatFracTex(n * isNeg, 10));
+                    distractors.add(formatFracTex(-n * isNeg, 100));
+                } else { // Repeating Decimals
+                    let rep = getRandomEl([3, 6, 1]);
+                    if (rep === 3) { promptTeX = `${isNeg < 0 ? "-" : ""}0.\\overline{3}`; correctTeX = formatFracTex(1 * isNeg, 3); }
+                    if (rep === 6) { promptTeX = `${isNeg < 0 ? "-" : ""}0.\\overline{6}`; correctTeX = formatFracTex(2 * isNeg, 3); }
+                    if (rep === 1) { promptTeX = `${isNeg < 0 ? "-" : ""}0.\\overline{1}`; correctTeX = formatFracTex(1 * isNeg, 9); }
+                    
+                    distractors.add(formatFracTex(rep * isNeg, 10));
+                    distractors.add(formatFracTex(rep * isNeg, 100));
+                }
+                distractors.add(formatFracTex(1, 2));
+            }
+
+            // MODE 3: Simple Arithmetic with Rationals
+            else if (currentMode === 3) {
+                document.getElementById('promptTitle').innerText = "Evaluate:";
+                let d1 = getRandomInt(2, 5); let n1 = getRandomInt(1, d1-1);
+                let dec2 = getRandomEl([-0.5, -0.25, 0.5, 0.25, -1.5, 1.5]);
+                let isNeg1 = Math.random() > 0.5 ? -1 : 1;
+                
+                let frac1Val = (n1/d1) * isNeg1;
+                promptTeX = `${formatFracTex(n1*isNeg1, d1)} + (${dec2})`;
+                
+                let dec2FracN = dec2 * 100;
+                let [ansN, ansD] = simplify((n1*isNeg1*100) + (dec2FracN*d1), d1*100);
+                
+                correctTeX = formatFracTex(ansN, ansD);
+                distractors.add(formatFracTex(-ansN, ansD));
+                distractors.add(formatFracTex(ansN + 1, ansD));
+                distractors.add(formatFracTex(ansN, ansD + 2));
+            }
+
+            // MODE 4: Interactive Drag & Drop Classification
+            else if (currentMode === 4) {
+                document.getElementById('promptTitle').innerText = "Sort each number into its MOST SPECIFIC number set:";
+                document.getElementById('problemDisplay').style.display = 'none';
+                document.getElementById('optionsGrid').style.display = 'none';
+                document.getElementById('dragContainer').style.display = 'block';
+                
+                setupDragGame();
+                return; // Exit normal MC flow
+            }
+
+            // MODE 5: Compare Rational Numbers (<, >, =)
+            else if (currentMode === 5) {
+                document.getElementById('promptTitle').innerText = "Which symbol correctly compares the two numbers?";
+                let d1 = getRandomInt(2, 6); let n1 = getRandomInt(1, d1);
+                let d2 = getRandomInt(2, 6); let n2 = getRandomInt(1, d2);
+                let s1 = Math.random() > 0.5 ? 1 : -1;
+                let s2 = Math.random() > 0.5 ? 1 : -1;
+                
+                let val1 = (n1/d1) * s1;
+                let val2 = (n2/d2) * s2;
+                
+                promptTeX = `${formatFracTex(n1*s1, d1)} \\quad \\square \\quad ${formatFracTex(n2*s2, d2)}`;
+                
+                if (val1 > val2) correctTeX = ">";
+                else if (val1 < val2) correctTeX = "<";
+                else correctTeX = "=";
+                
+                distractors.add(">"); distractors.add("<"); distractors.add("=");
+            }
+
+            // MODE 6: Order of Operations with Rationals
+            else if (currentMode === 6) {
+                document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
+                let d1 = 2; let n1 = 1; // 1/2
+                let d2 = 3; let n2 = 1; // 1/3
+                let dec = getRandomEl([-0.5, 0.5]);
+                
+                promptTeX = `\\left(${formatFracTex(n1, d1)} - ${formatFracTex(n2, d2)}\\right) \\times (${dec})`;
+                
+                // (1/2 - 1/3) * dec  = (1/6) * (1/2 or -1/2) = 1/12 or -1/6
+                let diffN = (n1*d2 - n2*d1); let diffD = d1*d2; // 1/6
+                let decN = dec * 10; let decD = 10;
+                
+                let [ansN, ansD] = simplify(diffN * decN, diffD * decD);
+                correctTeX = formatFracTex(ansN, ansD);
+                
+                distractors.add(formatFracTex(-ansN, ansD));
+                distractors.add(formatFracTex(ansN * 2, ansD));
+                distractors.add(formatFracTex(1, 6));
+            }
+
+        } while (promptTeX === lastPrompt); 
+        
+        lastPrompt = promptTeX;
+
+        // Fill options, ensuring uniqueness
+        let finalOptions = new Set();
+        finalOptions.add(correctTeX);
+        let distArray = Array.from(distractors);
+        let i = 0;
+        while(finalOptions.size < 4 && i < distArray.length) {
+            finalOptions.add(distArray[i]); i++;
+        }
+        let pad = 1;
+        while(finalOptions.size < 4) { finalOptions.add(pad.toString()); pad++; }
+
+        options = shuffle(Array.from(finalOptions));
+
+        document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`;
+        
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; 
+
+        options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `\\(${opt}\\)`;
+            btn.onclick = (e) => handleGuess(btn, opt === correctTeX, e);
+            grid.appendChild(btn);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: true}] });
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+        }
+    }
+
+    // --- DRAG AND DROP INTEGRATION FOR CLASSIFICATION ---
+    function setupDragGame() {
+        const pool = document.getElementById('numberPool');
+        pool.innerHTML = '';
+        
+        ['natural', 'whole', 'integer', 'rational', 'irrational'].forEach(id => {
+            const zone = document.getElementById(id);
+            Array.from(zone.children).forEach(child => {
+                if (child.classList.contains('num-pill')) child.remove();
+            });
+        });
+
+        // Generated 5 active sorting numbers
+        let numSet = [
+            { id: "p1", tex: `\\sqrt{${getRandomInt(2, 6)**2}}`, target: "natural" },
+            { id: "p2", tex: "0", target: "whole" },
+            { id: "p3", tex: `-${getRandomInt(2, 10)}`, target: "integer" },
+            { id: "p4", tex: getRandomEl(["-0.75", "\\frac{3}{4}", "0.\\overline{3}"]), target: "rational" },
+            { id: "p5", tex: getRandomEl(["\\pi", "\\sqrt{5}", "-\\sqrt{2}"]), target: "irrational" }
+        ];
+
+        shuffle(numSet).forEach(num => {
+            let pill = document.createElement('div');
+            pill.id = num.id;
+            pill.className = 'num-pill';
+            pill.draggable = true;
+            pill.dataset.target = num.target;
+            pill.innerHTML = `\\(${num.tex}\\)`;
+            pill.ondragstart = dragStart;
+            pill.addEventListener('touchstart', handleTouchStart, {passive: false});
+            pill.addEventListener('touchmove', handleTouchMove, {passive: false});
+            pill.addEventListener('touchend', handleTouchEnd);
+            pool.appendChild(pill);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(pool, { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+        }
+    }
+
+    function checkDragSorting() {
+        const pills = document.querySelectorAll('.num-pill');
+        let allCorrect = true;
+        let anyUnplaced = false;
+
+        pills.forEach(pill => {
+            pill.style.borderColor = ''; pill.style.backgroundColor = '';
+            const parent = pill.parentNode;
+            if (parent.id === 'numberPool') { anyUnplaced = true; return; }
+            if (pill.dataset.target !== parent.id) allCorrect = false;
+        });
+
+        if (anyUnplaced) {
+            alert("Please drag all numbers into a set before checking!");
+            return;
+        }
+
+        if (allCorrect) {
+            playSuccess();
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+            alert("Excellent! All rational and irrational numbers are correctly classified.");
+            generateProblem();
+        } else {
+            playWrong();
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            alert("Some numbers are placed incorrectly! Remember to simplify square roots first.");
+        }
+    }
+
+    // Mouse & Touch Drag Handlers
+    function dragStart(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+    function allowDrop(ev) { ev.preventDefault(); if (ev.target.classList.contains('set-box') || ev.target.id === 'numberPool') ev.target.classList.add('drag-over'); }
+    function dragLeave(ev) { if (ev.target.classList.contains('set-box') || ev.target.id === 'numberPool') ev.target.classList.remove('drag-over'); }
+    function drop(ev) {
+        ev.preventDefault(); ev.stopPropagation();
+        let target = ev.target; target.classList.remove('drag-over');
+        while (!target.classList.contains('set-box') && target.id !== 'numberPool' && target !== document.body) target = target.parentNode;
+        if (target.classList.contains('set-box') || target.id === 'numberPool') {
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            if (draggedElement) target.appendChild(draggedElement);
+        }
+    }
+
+    let draggedTouchElement = null, initialParent = null, touchOffsetX = 0, touchOffsetY = 0, lastDropTarget = null;
+    function handleTouchStart(e) {
+        if (e.touches.length > 1) return;
+        draggedTouchElement = e.target;
+        while (!draggedTouchElement.classList.contains('num-pill')) { draggedTouchElement = draggedTouchElement.parentNode; if (draggedTouchElement === document.body) return; }
+        initialParent = draggedTouchElement.parentNode;
+        const rect = draggedTouchElement.getBoundingClientRect();
+        touchOffsetX = e.touches[0].clientX - rect.left; touchOffsetY = e.touches[0].clientY - rect.top;
+        draggedTouchElement.style.position = 'fixed'; draggedTouchElement.style.zIndex = '1000'; draggedTouchElement.style.width = rect.width + 'px';
+        draggedTouchElement.style.left = (e.touches[0].clientX - touchOffsetX) + 'px'; draggedTouchElement.style.top = (e.touches[0].clientY - touchOffsetY) + 'px';
+        document.body.appendChild(draggedTouchElement); e.preventDefault();
+    }
+    function handleTouchMove(e) {
+        if (!draggedTouchElement) return; e.preventDefault();
+        const touchX = e.touches[0].clientX, touchY = e.touches[0].clientY;
+        draggedTouchElement.style.left = (touchX - touchOffsetX) + 'px'; draggedTouchElement.style.top = (touchY - touchOffsetY) + 'px';
+        draggedTouchElement.style.visibility = 'hidden';
+        let elemUnder = document.elementFromPoint(touchX, touchY);
+        draggedTouchElement.style.visibility = 'visible';
+        let dropZone = elemUnder;
+        while (dropZone && !dropZone.classList.contains('set-box') && dropZone.id !== 'numberPool') { dropZone = dropZone.parentNode; if (dropZone === document.body || !dropZone) { dropZone = null; break; } }
+        if (lastDropTarget && lastDropTarget !== dropZone) lastDropTarget.classList.remove('drag-over');
+        if (dropZone) dropZone.classList.add('drag-over');
+        lastDropTarget = dropZone;
+    }
+    function handleTouchEnd(e) {
+        if (!draggedTouchElement) return;
+        draggedTouchElement.style.position = ''; draggedTouchElement.style.zIndex = ''; draggedTouchElement.style.left = ''; draggedTouchElement.style.top = ''; draggedTouchElement.style.width = '';
+        if (lastDropTarget) { lastDropTarget.classList.remove('drag-over'); lastDropTarget.appendChild(draggedTouchElement); }
+        else { initialParent.appendChild(draggedTouchElement); }
+        draggedTouchElement = null; lastDropTarget = null; initialParent = null;
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['🌟', '🚀', '✨', '⚡', '🏆'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
