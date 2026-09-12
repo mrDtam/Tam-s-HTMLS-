@@ -163,7 +163,24 @@
             font-size: 22px;
             color: var(--dark);
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* Restored Problem Display Box */
+        .problem-display {
+            font-size: 24px;
+            margin: 0 0 15px 0;
+            padding: 15px 20px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
         }
 
         /* Triangle Canvas */
@@ -257,6 +274,7 @@
         @media (max-width: 600px) {
             .option-btn { flex: 1 1 100%; } 
             .prompt-text { font-size: 18px; }
+            .problem-display { font-size: 20px; }
         }
     </style>
 </head>
@@ -292,6 +310,9 @@
 
         <div class="prompt-text" id="promptTitle">Solve:</div>
         
+        <!-- Restored Text Display for Math Expressions -->
+        <div class="problem-display" id="problemDisplay"></div>
+
         <canvas id="trigCanvas" width="400" height="300"></canvas>
 
         <div class="options-grid" id="optionsGrid"></div>
@@ -490,11 +511,13 @@
         let correctTeX = "";
         let distractors = new Set();
         let options = [];
-        let labels = { a: '', b: '', c: '', angleA: '', angleB: '' };
+        let labels = {};
 
         let loopCount = 0;
         do {
             distractors.clear();
+            // Reset labels every loop to prevent ghost texts from previous rolls
+            labels = { a: '', b: '', c: '', angleA: '', angleB: '' };
 
             // MODE 1: Identify Sides (Opp, Adj, Hyp)
             if (currentMode === 1) {
@@ -502,7 +525,7 @@
                 let targetSide = getRandomEl(['Opposite', 'Adjacent', 'Hypotenuse']);
                 
                 document.getElementById('promptTitle').innerText = `Identify the side:`;
-                promptText = `Which side is the \\textbf{${targetSide}} to \\angle ${targetAngle}?`;
+                promptText = `\\text{Which side is the } \\textbf{${targetSide}} \\text{ to } \\angle ${targetAngle}?`;
                 
                 labels[`angle${targetAngle}`] = 'θ';
                 labels.a = "a"; labels.b = "b"; labels.c = "c"; 
@@ -521,7 +544,7 @@
                 let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
                 labels[`angle${targetAngle}`] = 'θ';
                 
-                promptText = `What is the proper name for the angle marked \\theta?`;
+                promptText = `\\text{What is the proper name for the angle marked } \\theta?`;
                 
                 if (targetAngle === 'A') {
                     correctTeX = "\\angle BAC";
@@ -550,7 +573,7 @@
                 labels[`angle${targetAngle}`] = 'θ';
                 
                 let trigFunc = getRandomEl(['\\sin', '\\cos', '\\tan']);
-                promptText = `What is ${trigFunc}(\\theta)?`;
+                promptText = `\\text{What is } \\mathbf{${trigFunc}(\\theta)}?`;
                 
                 let opp = targetAngle === 'A' ? trip[0] : trip[1];
                 let adj = targetAngle === 'A' ? trip[1] : trip[0];
@@ -563,7 +586,7 @@
                 distractors.add(`\\frac{${opp}}{${hyp}}`);
                 distractors.add(`\\frac{${adj}}{${hyp}}`);
                 distractors.add(`\\frac{${opp}}{${adj}}`);
-                distractors.add(`\\frac{${adj}}{${opp}}`);
+                distractors.add(`\\frac{${adj}}{${opp}}`); // Trap!
             }
 
             // MODE 4: Solve for Missing Side (Any Orientation / Operation)
@@ -572,7 +595,7 @@
                 
                 let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
                 let deg = getRandomInt(20, 70);
-                labels[`angle${targetAngle}`] = `${deg}°`;
+                labels[`angle${targetAngle}`] = `${deg}^\\circ`;
                 
                 let trigFunc = getRandomEl(['sin', 'cos', 'tan']);
                 let givenLen = getRandomInt(8, 25);
@@ -611,10 +634,10 @@
                     }
                 }
                 
-                promptText = `Find the length of side x.`;
+                promptText = `\\text{Find the length of side } x.`;
                 correctTeX = round1(ans).toString();
                 
-                // Smart distractors based on flipping the operation
+                // Smart distractors based on flipping the operation or function
                 if (trigFunc === 'sin') {
                     distractors.add(round1(isMultiply ? givenLen / Math.sin(d2r(deg)) : givenLen * Math.sin(d2r(deg))).toString());
                     distractors.add(round1(givenLen * Math.cos(d2r(deg))).toString());
@@ -632,7 +655,7 @@
                 document.getElementById('promptTitle').innerText = `Find the angle to 1 decimal place:`;
                 
                 let targetAngle = Math.random() > 0.5 ? 'A' : 'B';
-                labels[`angle${targetAngle}`] = `θ`;
+                labels[`angle${targetAngle}`] = `\\theta`;
                 
                 let trigFunc = getRandomEl(['sin', 'cos', 'tan']);
                 let s1 = getRandomInt(5, 15);
@@ -643,7 +666,7 @@
                     labels.c = s2.toString();
                     if (targetAngle === 'A') labels.a = s1.toString(); else labels.b = s1.toString();
                     ans = r2d(Math.asin(s1/s2));
-                    distractors.add(round1(r2d(Math.acos(s1/s2))).toString() + "^\\circ"); // Wrong ratio logic
+                    distractors.add(round1(r2d(Math.acos(s1/s2))).toString() + "^\\circ"); // Wrong ratio
                 } else if (trigFunc === 'cos') {
                     labels.c = s2.toString();
                     if (targetAngle === 'A') labels.b = s1.toString(); else labels.a = s1.toString();
@@ -656,7 +679,7 @@
                     distractors.add(round1(r2d(Math.atan(s2/s1))).toString() + "^\\circ"); // Flipped tan
                 }
                 
-                promptText = `Find the measure of \\theta.`;
+                promptText = `\\text{Find the measure of } \\theta.`;
                 correctTeX = round1(ans).toString() + "^\\circ";
                 distractors.add(round1(ans + getRandomInt(5, 10)).toString() + "^\\circ"); // Pad
             }
