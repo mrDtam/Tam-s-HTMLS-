@@ -428,7 +428,7 @@
         do {
             distractors.clear();
 
-            // MODE 1: Mixed ↔ Improper Conversions (Forces Negatives)
+            // MODE 1: Mixed ↔ Improper Conversions (Pure Random Negatives)
             if (currentMode === 1) {
                 let type = getRandomInt(1, 2);
                 let d = getRandomInt(3, 9);
@@ -460,7 +460,7 @@
                 }
             }
 
-            // MODE 2: Simplify Fractions (Forces Negatives)
+            // MODE 2: Simplify Fractions (Pure Random Negatives)
             else if (currentMode === 2) {
                 document.getElementById('promptTitle').innerText = "Simplify completely:";
                 let d = getRandomInt(3, 12);
@@ -485,15 +485,12 @@
                 }
             }
 
-            // MODE 3: Add/Sub Common Denom (Forces Negatives)
+            // MODE 3: Add/Sub Common Denom (Pure Random Negatives)
             else if (currentMode === 3) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let d = getRandomInt(3, 12);
                 let n1 = getRandomInt(1, d - 1) * (Math.random() > 0.5 ? 1 : -1);
                 let n2 = getRandomInt(1, d - 1) * (Math.random() > 0.5 ? 1 : -1);
-                
-                // Force at least one negative to practice integer skills
-                if (n1 > 0 && n2 > 0) { if (Math.random() > 0.5) n1 = -n1; else n2 = -n2; }
                 
                 let op = Math.random() > 0.5 ? "+" : "-";
                 
@@ -506,14 +503,11 @@
                 distractors.add(formatFracTex(op === "+" ? n1 - n2 : n1 + n2, d)); // Wrong op
             }
 
-            // MODE 4: Mult/Div Pos/Neg Fractions (No Mixed)
+            // MODE 4: Mult/Div Pos/Neg Fractions (Pure Random Negatives)
             else if (currentMode === 4) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let d1 = getRandomInt(2, 6); let n1 = getRandomInt(1, d1 - 1) * (Math.random() > 0.5 ? 1 : -1);
                 let d2 = getRandomInt(2, 6); let n2 = getRandomInt(1, d2 - 1) * (Math.random() > 0.5 ? 1 : -1);
-                
-                // Force at least one negative
-                if (n1 > 0 && n2 > 0) { if (Math.random() > 0.5) n1 = -n1; else n2 = -n2; }
                 
                 let op = Math.random() > 0.5 ? "\\times" : "\\div";
                 
@@ -537,7 +531,7 @@
                 distractors.add(formatFracTex(Math.abs(ansD) * (ansN < 0 ? -1 : 1), Math.abs(ansN))); // Reciprocal
             }
 
-            // MODE 5: Add/Sub Different Denoms (Incl. Mixed & Negatives)
+            // MODE 5: Add/Sub Different Denoms (Pure Random Negatives)
             else if (currentMode === 5) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let denoms = [2, 3, 4, 5, 6];
@@ -549,9 +543,6 @@
                 
                 let w2 = getRandomInt(0, 3); let rem2 = getRandomInt(1, d2 - 1);
                 let n2 = (w2 * d2 + rem2) * (Math.random() > 0.5 ? 1 : -1);
-                
-                // Force at least one negative
-                if (n1 > 0 && n2 > 0) n2 = -n2;
                 
                 let op = Math.random() > 0.5 ? "+" : "-";
                 
@@ -566,7 +557,7 @@
                 distractors.add(texForMixed(op === "+" ? (n1*d2 - n2*d1) : (n1*d2 + n2*d1), ansD)); // Wrong op
             }
 
-            // MODE 6: Mult/Div Includes Mixed (Positives & Negatives)
+            // MODE 6: Mult/Div Includes Mixed (Pure Random Negatives)
             else if (currentMode === 6) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let d1 = getRandomInt(2, 4); let w1 = getRandomInt(1, 3); let rem1 = getRandomInt(1, d1 - 1); 
@@ -574,9 +565,6 @@
                 
                 let d2 = getRandomInt(2, 4); let w2 = getRandomInt(1, 3); let rem2 = getRandomInt(1, d2 - 1); 
                 let n2 = (w2 * d2 + rem2) * (Math.random() > 0.5 ? 1 : -1);
-                
-                // Guarantee negative practice
-                if (n1 > 0 && n2 > 0) n1 = -n1;
                 
                 let op = Math.random() > 0.5 ? "\\times" : "\\div";
                 
@@ -600,15 +588,12 @@
                 distractors.add(texForMixed(ansD * (ansN < 0 ? -1 : 1), Math.abs(ansN))); // Reciprocal
             }
 
-            // MODE 7: Order of Operations (Includes Negative Rational Terms)
+            // MODE 7: Order of Operations (Pure Random Negatives)
             else if (currentMode === 7) {
                 document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
                 let d1 = getRandomInt(2, 4); let n1 = getRandomInt(1, d1-1) * (Math.random() > 0.5 ? 1 : -1);
                 let d2 = getRandomInt(2, 4); let n2 = getRandomInt(1, d2-1) * (Math.random() > 0.5 ? 1 : -1);
                 let d3 = getRandomInt(2, 4); let n3 = getRandomInt(1, d3-1) * (Math.random() > 0.5 ? 1 : -1);
-                
-                // Force at least one negative
-                if (n1 > 0 && n2 > 0 && n3 > 0) n2 = -n2;
                 
                 let type = getRandomInt(1, 2); // 1: A + B * C,  2: A * B - C
                 
