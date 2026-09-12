@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math 8 Acc: Rational Numbers</title>
+    <title>Math 9 : Rational Numbers</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
@@ -455,6 +455,23 @@
         return [sign * num, d];
     }
 
+    // Fraction arithmetic engine for OOO
+    const fAdd = (n1, d1, n2, d2) => [n1*d2 + n2*d1, d1*d2];
+    const fSub = (n1, d1, n2, d2) => [n1*d2 - n2*d1, d1*d2];
+    const fMul = (n1, d1, n2, d2) => [n1*n2, d1*d2];
+    const fDiv = (n1, d1, n2, d2) => [n1*d2, d1*n2];
+
+    // Format term object
+    function fmtOOO(t, isFirst) {
+        if (t.isDec) {
+            let val = t.n / t.d;
+            if (!isFirst && val < 0) return `\\left(${val}\\right)`;
+            return val.toString();
+        } else {
+            return formatTermFrac(t.n, t.d, isFirst);
+        }
+    }
+
     // --- Navigation ---
     function startGame(mode) {
         initAudio();
@@ -531,34 +548,30 @@
                 }
             }
 
-            // MODE 2: Decimals to Fractions (No Repeating Decimals)
+            // MODE 2: Decimals to Fractions
             else if (currentMode === 2) {
                 document.getElementById('promptTitle').innerText = "Convert the decimal to a simplified fraction:";
                 let isNeg = Math.random() > 0.5 ? -1 : 1;
                 let signStr = isNeg < 0 ? "-" : "";
-                let decType = getRandomInt(1, 2); // 1 = tenths, 2 = hundredths
+                let decType = getRandomInt(1, 2);
                 
                 if (decType === 1) { // Tenths
-                    // Pick numbers that guarantee they can be simplified (even numbers + 5)
                     let n = getRandomEl([2, 4, 5, 6, 8]);
                     let val = (n / 10) * isNeg;
                     promptTeX = val.toString();
                     correctTeX = formatFracTex(n * isNeg, 10);
                     
-                    distractors.add(formatFracTex(-n * isNeg, 10)); // Sign error
-                    distractors.add(formatFracTex(n * isNeg, 100)); // Place value error
-                    distractors.add(`${signStr}\\frac{${n}}{10}`); // Unsimplified trap
+                    distractors.add(formatFracTex(-n * isNeg, 10)); 
+                    distractors.add(formatFracTex(n * isNeg, 100)); 
+                    distractors.add(`${signStr}\\frac{${n}}{10}`); 
                 } else { // Hundredths
-                    // Pick numbers that can be simplified, avoid exact multiples of 10
                     let n = getRandomEl([4, 5, 8, 12, 15, 16, 24, 25, 32, 35, 45, 48, 55, 64, 75, 85, 95]);
-                    
-                    // Force 0.0x formatting for single digits
                     promptTeX = signStr + "0." + n.toString().padStart(2, '0');
                     correctTeX = formatFracTex(n * isNeg, 100);
                     
-                    distractors.add(formatFracTex(-n * isNeg, 100)); // Sign error
-                    distractors.add(formatFracTex(n * isNeg, 10)); // Place value error
-                    distractors.add(`${signStr}\\frac{${n}}{100}`); // Unsimplified trap
+                    distractors.add(formatFracTex(-n * isNeg, 100)); 
+                    distractors.add(formatFracTex(n * isNeg, 10)); 
+                    distractors.add(`${signStr}\\frac{${n}}{100}`); 
                 }
             }
 
@@ -601,13 +614,13 @@
             // MODE 5: Compare Rational Numbers (<, >, =)
             else if (currentMode === 5) {
                 document.getElementById('promptTitle').innerText = "Which symbol correctly compares the two numbers?";
-                targetOptionsSize = 3; // Lock exactly to 3 buttons
+                targetOptionsSize = 3; 
                 
                 let subType = getRandomInt(1, 3);
                 let val1, val2;
                 let tex1, tex2;
 
-                if (subType === 1) { // Terminating vs Repeating (Tricky)
+                if (subType === 1) { // Terminating vs Repeating
                     let cases = [
                         { t1: "0.33", v1: 0.33, t2: "0.\\overline{3}", v2: 1/3 },
                         { t1: "-0.66", v1: -0.66, t2: "-0.\\overline{6}", v2: -2/3 },
@@ -641,7 +654,6 @@
 
                 promptTeX = `${tex1} \\quad \\square \\quad ${tex2}`;
 
-                // Add small epsilon to float comparisons
                 if (val1 > val2 + 0.0001) correctTeX = ">";
                 else if (val1 < val2 - 0.0001) correctTeX = "<";
                 else correctTeX = "=";
@@ -649,52 +661,77 @@
                 distractors.add(">"); distractors.add("<"); distractors.add("=");
             }
 
-            // MODE 6: Order of Operations with Rationals
+            // MODE 6: Order of Operations with Rationals (Mixed Random Structures)
             else if (currentMode === 6) {
                 document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
                 
-                let d1 = getRandomInt(2, 4); let n1 = getRandomInt(1, d1-1) * (Math.random() > 0.5 ? -1 : 1);
-                let d2 = getRandomInt(2, 4); let n2 = getRandomInt(1, d2-1) * (Math.random() > 0.5 ? -1 : 1);
-                let decPool = [-0.75, -0.5, -0.25, 0.25, 0.5, 0.75];
-                let dec = getRandomEl(decPool);
+                // Build 3 randomized terms (2 fractions, 1 decimal)
+                let termF1 = { n: getRandomInt(1, 3) * (Math.random()>0.5?-1:1), d: getRandomInt(2, 4), isDec: false };
+                let termF2 = { n: getRandomInt(1, 3) * (Math.random()>0.5?-1:1), d: getRandomInt(2, 4), isDec: false };
                 
-                let t1 = formatTermFrac(n1, d1, true);
-                let t2 = formatTermFrac(n2, d2, false);
-                let tDec = dec < 0 ? `\\left(${dec}\\right)` : `${dec}`;
+                let decVal = getRandomEl([-0.75, -0.5, -0.25, 0.25, 0.5, 0.75]);
+                let [sN, sD] = simplify(Math.round(decVal * 100), 100);
+                let termD = { n: sN, d: sD, isDec: true };
                 
-                let type = getRandomInt(1, 2);
-                if (type === 1) { // (A - B) * C
-                    promptTeX = `\\left(${t1} - ${t2}\\right) \\times ${tDec}`;
-                    let diffN = (n1*d2) - (n2*d1);
-                    let diffD = d1 * d2;
+                // Force at least one negative across the three terms
+                if (termF1.n > 0 && termF2.n > 0 && termD.n > 0) termF2.n = -termF2.n;
+                
+                // Shuffle so the decimal isn't always in the same position
+                let termsArr = shuffle([termF1, termF2, termD]);
+                let A = termsArr[0], B = termsArr[1], C = termsArr[2];
+                
+                let type = getRandomInt(1, 4);
+                let ansN, ansD, d1N, d1D;
+
+                if (type === 1) { 
+                    // Type 1: A x (B +/- C)
+                    let op2 = Math.random() > 0.5 ? "+" : "-";
+                    promptTeX = `${fmtOOO(A, true)} \\times \\left(${fmtOOO(B, true)} ${op2} ${fmtOOO(C, false)}\\right)`;
                     
-                    let decN = Math.round(dec * 100);
-                    let decD = 100;
+                    let [bcN, bcD] = op2 === "+" ? fAdd(B.n, B.d, C.n, C.d) : fSub(B.n, B.d, C.n, C.d);
+                    [ansN, ansD] = fMul(A.n, A.d, bcN, bcD);
                     
-                    let ansN = diffN * decN;
-                    let ansD = diffD * decD;
-                    correctTeX = formatFracTex(ansN, ansD);
-                    distractors.add(formatFracTex(-ansN, ansD)); // Sign error
-                    distractors.add(formatFracTex(ansN + ansD, ansD));
-                } else { // A + B / C
-                    promptTeX = `${t1} + ${t2} \\div ${tDec}`;
-                    let decN = Math.round(dec * 100);
-                    let decD = 100;
+                    let [abN, abD] = fMul(A.n, A.d, B.n, B.d);
+                    [d1N, d1D] = op2 === "+" ? fAdd(abN, abD, C.n, C.d) : fSub(abN, abD, C.n, C.d); // Ignored brackets error
+                } 
+                else if (type === 2) { 
+                    // Type 2: (A +/- B) / C
+                    let op1 = Math.random() > 0.5 ? "+" : "-";
+                    promptTeX = `\\left(${fmtOOO(A, true)} ${op1} ${fmtOOO(B, false)}\\right) \\div ${fmtOOO(C, false)}`;
                     
-                    // Division step: (n2/d2) / (decN/decD) = (n2 * decD) / (d2 * decN)
-                    let divN = n2 * decD;
-                    let divD = d2 * decN;
+                    let [abN, abD] = op1 === "+" ? fAdd(A.n, A.d, B.n, B.d) : fSub(A.n, A.d, B.n, B.d);
+                    [ansN, ansD] = fDiv(abN, abD, C.n, C.d);
                     
-                    // Addition step: n1/d1 + divN/divD
-                    let ansN = (n1 * divD) + (divN * d1);
-                    let ansD = d1 * divD;
-                    
-                    correctTeX = formatFracTex(ansN, ansD);
-                    distractors.add(formatFracTex(-ansN, ansD)); // Sign error
-                    distractors.add(formatFracTex(ansN, ansD * 2)); // Denom error
+                    let [bcN, bcD] = fDiv(B.n, B.d, C.n, C.d);
+                    [d1N, d1D] = op1 === "+" ? fAdd(A.n, A.d, bcN, bcD) : fSub(A.n, A.d, bcN, bcD); // Ignored brackets error
                 }
-                
-                distractors.add(formatFracTex(1, 12));
+                else if (type === 3) { 
+                    // Type 3: A +/- B x C
+                    let op1 = Math.random() > 0.5 ? "+" : "-";
+                    promptTeX = `${fmtOOO(A, true)} ${op1} ${fmtOOO(B, false)} \\times ${fmtOOO(C, false)}`;
+                    
+                    let [bcN, bcD] = fMul(B.n, B.d, C.n, C.d);
+                    [ansN, ansD] = op1 === "+" ? fAdd(A.n, A.d, bcN, bcD) : fSub(A.n, A.d, bcN, bcD);
+                    
+                    let [abN, abD] = op1 === "+" ? fAdd(A.n, A.d, B.n, B.d) : fSub(A.n, A.d, B.n, B.d);
+                    [d1N, d1D] = fMul(abN, abD, C.n, C.d); // Left to right error
+                }
+                else { 
+                    // Type 4: A / B +/- C
+                    let op2 = Math.random() > 0.5 ? "+" : "-";
+                    promptTeX = `${fmtOOO(A, true)} \\div ${fmtOOO(B, false)} ${op2} ${fmtOOO(C, false)}`;
+                    
+                    let [abN, abD] = fDiv(A.n, A.d, B.n, B.d);
+                    [ansN, ansD] = op2 === "+" ? fAdd(abN, abD, C.n, C.d) : fSub(abN, abD, C.n, C.d);
+                    
+                    let [bcN, bcD] = op2 === "+" ? fAdd(B.n, B.d, C.n, C.d) : fSub(B.n, B.d, C.n, C.d);
+                    [d1N, d1D] = fDiv(A.n, A.d, bcN, bcD); // Right to left error
+                }
+
+                correctTeX = formatFracTex(ansN, ansD);
+                distractors.add(formatFracTex(-ansN, ansD)); // Sign error
+                distractors.add(formatFracTex(d1N, d1D));    // Order of ops error
+                distractors.add(formatFracTex(-d1N, d1D));   // OOO error + sign error
             }
 
         } while (promptTeX === lastPrompt); 
@@ -713,7 +750,12 @@
         let pad = 1;
         while(finalOptions.size < targetOptionsSize) { finalOptions.add(pad.toString()); pad++; }
 
-        options = shuffle(Array.from(finalOptions));
+        if (currentMode === 5) {
+            // Keep specific order for Mode 5 to reduce extraneous cognitive load
+            options = ["<", ">", "="]; 
+        } else {
+            options = shuffle(Array.from(finalOptions));
+        }
 
         document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`;
         
