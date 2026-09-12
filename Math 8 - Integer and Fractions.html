@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 8: Integers & Fractions</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; /* Orange */
+            --level2: #f39c12; /* Yellow-Orange */
+            --level3: #27ae60; /* Green */
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+        }
+
+        .level-1 { border: 2px solid var(--level1); }
+        .level-1 .level-title { background: var(--level1); color: white; display: inline-block; padding: 5px 15px; border-radius: 5px; margin-top: -35px; margin-bottom: 15px; font-weight: bold; }
+        
+        .level-2 { border: 2px solid var(--level2); }
+        .level-2 .level-title { background: var(--level2); color: white; display: inline-block; padding: 5px 15px; border-radius: 5px; margin-top: -35px; margin-bottom: 15px; font-weight: bold; }
+
+        .level-3 { border: 2px solid var(--level3); }
+        .level-3 .level-title { background: var(--level3); color: white; display: inline-block; padding: 5px 15px; border-radius: 5px; margin-top: -35px; margin-bottom: 15px; font-weight: bold; }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .problem-display {
+            font-size: 36px;
+            margin: 0 0 25px 0;
+            padding: 20px 30px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        
+        .problem-display.word-problem {
+            font-size: 22px;
+            text-align: left;
+            justify-content: flex-start;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 18px 10px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .options-grid { grid-template-columns: 1fr; }
+            .problem-display { font-size: 28px; }
+            .problem-display.word-problem { font-size: 18px; }
+            .streak-counter { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Integers & Fractions</h1>
+        <p class="subtitle">🚫 NO CALCULATORS ALLOWED 🚫</p>
+        
+        <div class="level-section level-1">
+            <div class="level-title">Emerging Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)">Mixed ↔ Improper Conversions</button>
+                <button class="menu-btn" onclick="startGame(2)">Simplify Fractions</button>
+                <button class="menu-btn" onclick="startGame(3)">Add & Subtract (Common Denom)</button>
+                <button class="menu-btn" onclick="startGame(4)">Multiply & Divide (Pos/Neg Fractions)</button>
+            </div>
+        </div>
+
+        <div class="level-section level-2">
+            <div class="level-title">Developing Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(5)">Add & Subtract (Different Denoms & Mixed)</button>
+                <button class="menu-btn" onclick="startGame(6)">Multiply & Divide (Includes Mixed)</button>
+            </div>
+        </div>
+
+        <div class="level-section level-3">
+            <div class="level-title">Proficient Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(7)">Order of Operations (3 Fractions)</button>
+                <button class="menu-btn" onclick="startGame(8)">Fraction Word Problems</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
+            </div>
+            <div class="streak-counter">🔥 Streak: <span id="streakDisplay">0</span> | 🏆 Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-text" id="promptTitle">Solve:</div>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System ---
+    let audioCtx;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    
+    function playTone(freq, type, duration, vol) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Engine & Formatting Utilities ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    
+    function gcd(a, b) { 
+        a = Math.abs(a); b = Math.abs(b); 
+        while (b) { let temp = b; b = a % b; a = temp; } 
+        return a; 
+    }
+    
+    function simplify(n, d) {
+        if (d < 0) { n = -n; d = -d; }
+        let g = gcd(n, d);
+        return [n / g, d / g];
+    }
+
+    // Format n/d as a standard proper/improper fraction in LaTeX
+    function formatFracTex(n, d) {
+        let [num, den] = simplify(n, d);
+        if (den === 1) return num.toString();
+        if (num === 0) return "0";
+        if (num < 0) return `-\\frac{${Math.abs(num)}}{${den}}`;
+        return `\\frac{${num}}{${den}}`;
+    }
+
+    // Format n/d as a mixed fraction in LaTeX
+    function toMixedTex(n, d) {
+        let [num, den] = simplify(n, d);
+        if (den === 1) return num.toString();
+        if (num === 0) return "0";
+        
+        let sign = num < 0 ? "-" : "";
+        num = Math.abs(num);
+        let whole = Math.floor(num / den);
+        let rem = num % den;
+        
+        if (whole === 0) return `${sign}\\frac{${rem}}{${den}}`;
+        return `${sign}${whole}\\frac{${rem}}{${den}}`;
+    }
+
+    // Convert mixed to improper [n, d]
+    function mixedToImproper(w, n, d) {
+        let sign = w < 0 ? -1 : 1;
+        let num = (Math.abs(w) * d) + n;
+        return [sign * num, d];
+    }
+
+    // --- Navigation ---
+    function startGame(mode) {
+        initAudio();
+        currentMode = mode;
+        currentStreak = 0;
+        lastPrompt = ""; 
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        const gameContainer = document.querySelector('.container');
+        document.getElementById('problemDisplay').classList.remove('word-problem');
+        
+        // Theme Colors
+        if (mode <= 4) {
+            gameContainer.style.borderColor = "var(--level1)";
+            document.getElementById('problemDisplay').style.borderColor = "var(--level1)";
+        } else if (mode <= 6) {
+            gameContainer.style.borderColor = "var(--level2)";
+            document.getElementById('problemDisplay').style.borderColor = "var(--level2)";
+        } else {
+            gameContainer.style.borderColor = "var(--level3)";
+            document.getElementById('problemDisplay').style.borderColor = "var(--level3)";
+            if (mode === 8) document.getElementById('problemDisplay').classList.add('word-problem');
+        }
+
+        generateProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Core Engine ---
+    function generateProblem() {
+        isTransitioning = false;
+        
+        let promptTeX = "";
+        let correctTeX = "";
+        let distractors = new Set();
+        let options = [];
+
+        do {
+            distractors.clear();
+
+            // MODE 1: Mixed ↔ Improper Conversions
+            if (currentMode === 1) {
+                let type = getRandomInt(1, 2);
+                let w = getRandomInt(1, 5);
+                let d = getRandomInt(3, 9);
+                let n = getRandomInt(1, d - 1);
+                
+                if (type === 1) { // Mixed to Improper
+                    document.getElementById('promptTitle').innerText = "Convert to an improper fraction:";
+                    promptTeX = `${w}\\frac{${n}}{${d}}`;
+                    correctTeX = `\\frac{${w*d + n}}{${d}}`;
+                    distractors.add(`\\frac{${w*n + d}}{${d}}`);
+                    distractors.add(`\\frac{${w+n}}{${d}}`);
+                    distractors.add(`\\frac{${w*d + n}}{${w}}`);
+                } else { // Improper to Mixed
+                    document.getElementById('promptTitle').innerText = "Convert to a mixed number:";
+                    let num = (w * d) + n;
+                    promptTeX = `\\frac{${num}}{${d}}`;
+                    correctTeX = `${w}\\frac{${n}}{${d}}`;
+                    distractors.add(`${w}\\frac{${d-n}}{${d}}`);
+                    distractors.add(`${w+1}\\frac{${n}}{${d}}`);
+                    distractors.add(`${n}\\frac{${w}}{${d}}`);
+                }
+            }
+
+            // MODE 2: Simplify Fractions
+            else if (currentMode === 2) {
+                document.getElementById('promptTitle').innerText = "Simplify completely:";
+                let d = getRandomInt(3, 12);
+                let n = getRandomInt(1, d - 1);
+                let [sN, sD] = simplify(n, d); // Ensure it's simplified base
+                let multiplier = getRandomInt(2, 6);
+                
+                let bigN = sN * multiplier;
+                let bigD = sD * multiplier;
+                
+                promptTeX = `\\frac{${bigN}}{${bigD}}`;
+                correctTeX = formatFracTex(sN, sD);
+                
+                distractors.add(formatFracTex(sN, sD + 1));
+                distractors.add(formatFracTex(sN + 1, sD));
+                if (multiplier % 2 === 0 && multiplier > 2) {
+                    distractors.add(`\\frac{${bigN/2}}{${bigD/2}}`); // Partially simplified
+                } else {
+                    distractors.add(formatFracTex(sD, sN)); // Flipped
+                }
+            }
+
+            // MODE 3: Add/Sub Common Denom (No Mixed)
+            else if (currentMode === 3) {
+                document.getElementById('promptTitle').innerText = "Evaluate:";
+                let d = getRandomInt(3, 12);
+                let n1 = getRandomInt(1, d - 1);
+                let n2 = getRandomInt(1, d - 1);
+                let op = Math.random() > 0.5 ? "+" : "-";
+                
+                promptTeX = `\\frac{${n1}}{${d}} ${op} \\frac{${n2}}{${d}}`;
+                let ansN = op === "+" ? n1 + n2 : n1 - n2;
+                
+                correctTeX = formatFracTex(ansN, d);
+                distractors.add(formatFracTex(ansN, d + d)); // Added denoms
+                distractors.add(formatFracTex(n1 + n2 + 1, d)); 
+                distractors.add(formatFracTex(op === "+" ? n1 - n2 : n1 + n2, d)); // Wrong operation
+            }
+
+            // MODE 4: Mult/Div Pos/Neg Fractions (No Mixed)
+            else if (currentMode === 4) {
+                document.getElementById('promptTitle').innerText = "Evaluate:";
+                let d1 = getRandomInt(2, 6); let n1 = getRandomInt(1, d1 - 1);
+                let d2 = getRandomInt(2, 6); let n2 = getRandomInt(1, d2 - 1);
+                
+                // Add signs
+                let s1 = Math.random() > 0.5 ? 1 : -1;
+                let s2 = Math.random() > 0.5 ? 1 : -1;
+                n1 *= s1; n2 *= s2;
+                
+                let op = Math.random() > 0.5 ? "\\times" : "\\div";
+                
+                promptTeX = `${n1 < 0 ? `(-\\frac{${Math.abs(n1)}}{${d1}})` : `\\frac{${n1}}{${d1}}`} ${op} ${n2 < 0 ? `(-\\frac{${Math.abs(n2)}}{${d2}})` : `\\frac{${n2}}{${d2}}`}`;
+                
+                let ansN, ansD;
+                if (op === "\\times") {
+                    ansN = n1 * n2; ansD = d1 * d2;
+                } else {
+                    ansN = n1 * d2; ansD = d1 * n2;
+                }
+                
+                correctTeX = formatFracTex(ansN, ansD);
+                distractors.add(formatFracTex(-ansN, ansD)); // Wrong sign
+                
+                if (op === "\\times") {
+                    distractors.add(formatFracTex(n1 * d2, d1 * n2)); // Cross multiplied by mistake
+                } else {
+                    distractors.add(formatFracTex(n1 * n2, d1 * d2)); // Forgot to flip
+                }
+                distractors.add(formatFracTex(Math.abs(ansD), Math.abs(ansN))); // Flipped answer
+            }
+
+            // MODE 5: Add/Sub Different Denoms (Incl. Mixed)
+            else if (currentMode === 5) {
+                document.getElementById('promptTitle').innerText = "Evaluate:";
+                let denoms = [2, 3, 4, 5, 6];
+                let d1 = denoms[getRandomInt(0, denoms.length-1)];
+                let d2; do { d2 = denoms[getRandomInt(0, denoms.length-1)]; } while(d1 === d2);
+                
+                let w1 = getRandomInt(0, 3);
+                let n1 = getRandomInt(1, d1 - 1);
+                let w2 = getRandomInt(0, 2);
+                let n2 = getRandomInt(1, d2 - 1);
+                
+                let op = Math.random() > 0.5 ? "+" : "-";
+                
+                let [impN1, impD1] = mixedToImproper(w1, n1, d1);
+                let [impN2, impD2] = mixedToImproper(w2, n2, d2);
+                
+                // Ensure subtraction doesn't go negative just to keep it manageable, though it can
+                if (op === "-" && (impN1/impD1 < impN2/impD2)) {
+                    // Swap to keep positive result for now
+                    [impN1, impD1, impN2, impD2] = [impN2, impD2, impN1, impD1];
+                    [w1, n1, d1, w2, n2, d2] = [w2, n2, d2, w1, n1, d1];
+                }
+
+                promptTeX = `${w1>0 ? w1 : ""}\\frac{${n1}}{${d1}} ${op} ${w2>0 ? w2 : ""}\\frac{${n2}}{${d2}}`;
+                
+                let ansN = op === "+" ? (impN1*impD2 + impN2*impD1) : (impN1*impD2 - impN2*impD1);
+                let ansD = impD1 * impD2;
+                
+                correctTeX = toMixedTex(ansN, ansD);
+                distractors.add(toMixedTex(impN1 + impN2, impD1 + impD2)); // Added straight across
+                distractors.add(toMixedTex(op === "+" ? (impN1*impD2 - impN2*impD1) : (impN1*impD2 + impN2*impD1), ansD)); // Wrong op
+                distractors.add(toMixedTex(ansN + ansD, ansD)); // Off by 1 whole
+            }
+
+            // MODE 6: Mult/Div Includes Mixed
+            else if (currentMode === 6) {
+                document.getElementById('promptTitle').innerText = "Evaluate:";
+                let d1 = getRandomInt(2, 4); let n1 = getRandomInt(1, d1 - 1); let w1 = getRandomInt(1, 3);
+                let d2 = getRandomInt(2, 4); let n2 = getRandomInt(1, d2 - 1); let w2 = getRandomInt(1, 2);
+                
+                let op = Math.random() > 0.5 ? "\\times" : "\\div";
+                
+                let [impN1, impD1] = mixedToImproper(w1, n1, d1);
+                let [impN2, impD2] = mixedToImproper(w2, n2, d2);
+                
+                promptTeX = `${w1}\\frac{${n1}}{${d1}} ${op} ${w2}\\frac{${n2}}{${d2}}`;
+                
+                let ansN, ansD;
+                if (op === "\\times") {
+                    ansN = impN1 * impN2; ansD = impD1 * impD2;
+                } else {
+                    ansN = impN1 * impD2; ansD = impD1 * impN2;
+                }
+                
+                correctTeX = toMixedTex(ansN, ansD);
+                
+                // Distractor 1: Multiplying wholes and fractions separately
+                if (op === "\\times") distractors.add(toMixedTex( (w1*w2*d1*d2) + (n1*n2), d1*d2)); 
+                else distractors.add(toMixedTex(impN1 * impN2, impD1 * impD2)); // Forgot to flip for division
+                
+                distractors.add(toMixedTex(ansD, ansN)); // Flipped final answer
+                distractors.add(toMixedTex(ansN + ansD, ansD));
+            }
+
+            // MODE 7: Order of Operations
+            else if (currentMode === 7) {
+                document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
+                let d1 = getRandomInt(2, 4); let n1 = 1;
+                let d2 = getRandomInt(2, 4); let n2 = 1;
+                let d3 = getRandomInt(2, 4); let n3 = getRandomInt(1, d3-1);
+                
+                let type = getRandomInt(1, 2); // 1: A + B*C,  2: A * B - C
+                
+                if (type === 1) {
+                    promptTeX = `\\frac{${n1}}{${d1}} + \\frac{${n2}}{${d2}} \\times \\frac{${n3}}{${d3}}`;
+                    // BEDMAS: Mult first
+                    let multN = n2 * n3; let multD = d2 * d3;
+                    let ansN = (n1 * multD) + (multN * d1);
+                    let ansD = d1 * multD;
+                    correctTeX = formatFracTex(ansN, ansD);
+                    
+                    // Distractor: Left to Right
+                    let lrN = (n1*d2 + n2*d1) * n3;
+                    let lrD = (d1*d2) * d3;
+                    distractors.add(formatFracTex(lrN, lrD));
+                } else {
+                    // Ensure A*B > C to avoid negatives
+                    n1 = d1 - 1; n2 = d2 - 1; // Makes fraction larger
+                    n3 = 1; d3 = d1*d2; // Makes C small
+                    
+                    promptTeX = `\\frac{${n1}}{${d1}} \\times \\frac{${n2}}{${d2}} - \\frac{${n3}}{${d3}}`;
+                    let multN = n1 * n2; let multD = d1 * d2;
+                    let ansN = (multN * d3) - (n3 * multD);
+                    let ansD = multD * d3;
+                    correctTeX = formatFracTex(ansN, ansD);
+                    
+                    // Distractor: Right to Left
+                    let rlN = (n2*d3 - n3*d2) * n1;
+                    let rlD = (d2*d3) * d1;
+                    distractors.add(formatFracTex(rlN, rlD));
+                }
+                
+                distractors.add(formatFracTex(1, d1*d2*d3));
+                distractors.add(formatFracTex(n1+n2+n3, d1+d2+d3));
+            }
+
+            // MODE 8: Word Problems
+            else if (currentMode === 8) {
+                document.getElementById('promptTitle').innerText = "Solve:";
+                let type = getRandomInt(1, 4); // +, -, *, /
+                
+                if (type === 1) { // Addition
+                    let d = getRandomInt(3, 8); let n1 = getRandomInt(1, d-1); let n2 = getRandomInt(1, d-1);
+                    promptTeX = `\\text{Alice ate } \\frac{${n1}}{${d}} \\text{ of a pizza. Bob ate } \\frac{${n2}}{${d}}. \\text{ How much did they eat in total?}`;
+                    correctTeX = toMixedTex(n1+n2, d);
+                    distractors.add(toMixedTex(n1+n2, d+d));
+                    distractors.add(toMixedTex(Math.abs(n1-n2), d));
+                } else if (type === 2) { // Subtraction
+                    let d = getRandomInt(3, 8); let n1 = getRandomInt(d-2, d-1); let n2 = getRandomInt(1, n1-1);
+                    promptTeX = `\\text{A recipe needs } \\frac{${n1}}{${d}} \\text{ cups of flour. You used } \\frac{${n2}}{${d}}. \\text{ How much is left?}`;
+                    correctTeX = toMixedTex(n1-n2, d);
+                    distractors.add(toMixedTex(n1+n2, d));
+                    distractors.add(toMixedTex(n1-n2, d+d));
+                } else if (type === 3) { // Multiplication
+                    let w = getRandomInt(2, 4); let d = getRandomInt(3, 5); let n = getRandomInt(1, d-1);
+                    promptTeX = `\\text{A recipe requires } \\frac{${n}}{${d}} \\text{ cup of sugar. You want to make } ${w} \\text{ batches. How much sugar do you need?}`;
+                    correctTeX = toMixedTex(w*n, d);
+                    distractors.add(toMixedTex(w*n, w*d));
+                    distractors.add(toMixedTex(w+n, d));
+                } else { // Division
+                    let d = getRandomInt(2, 5); let n = 1; let p = getRandomInt(2, 4);
+                    promptTeX = `\\text{You have } \\frac{${n}}{${d}} \\text{ of a pie. You share it equally among } ${p} \\text{ people. How much does each person get?}`;
+                    correctTeX = formatFracTex(n, d*p);
+                    distractors.add(formatFracTex(n*p, d));
+                    distractors.add(formatFracTex(p, d));
+                }
+                
+                distractors.add("1"); // Failsafe pad
+            }
+
+        } while (promptTeX === lastPrompt); 
+        
+        lastPrompt = promptTeX;
+
+        // Fill options, ensuring uniqueness
+        let finalOptions = new Set();
+        finalOptions.add(correctTeX);
+        let distArray = Array.from(distractors);
+        let i = 0;
+        while(finalOptions.size < 4 && i < distArray.length) {
+            finalOptions.add(distArray[i]); i++;
+        }
+        let pad = 1;
+        while(finalOptions.size < 4) { finalOptions.add(pad.toString()); pad++; }
+
+        options = shuffle(Array.from(finalOptions));
+
+        // Render the math (handles text seamlessly if using \text{})
+        if (currentMode === 8) {
+            document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`;
+        } else {
+            document.getElementById('problemDisplay').innerHTML = `\\displaystyle ${promptTeX}`;
+            document.getElementById('problemDisplay').innerHTML = `\\(${promptTeX}\\)`; // Re-wrap for renderMathInElement
+        }
+        
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; 
+
+        options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `\\(${opt}\\)`;
+            btn.onclick = (e) => handleGuess(btn, opt === correctTeX, e);
+            grid.appendChild(btn);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: true}] });
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['🌟', '🍕', '🚀', '✨', '🏆'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
