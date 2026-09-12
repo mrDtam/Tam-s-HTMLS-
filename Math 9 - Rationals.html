@@ -312,7 +312,7 @@
         <div class="level-section level-2">
             <div class="level-title">Developing Level</div>
             <div class="menu-grid">
-                <button class="menu-btn" onclick="startGame(4)">Identify & Classify Number Sets (Interactive Drag)</button>
+                <button class="menu-btn" onclick="startGame(4)">Identify & Classify Number Sets</button>
                 <button class="menu-btn" onclick="startGame(5)">Compare Rational Numbers (&lt;, &gt;, =)</button>
             </div>
         </div>
@@ -414,36 +414,12 @@
         return `\\frac{${num}}{${den}}`;
     }
 
+    // Safely wraps negative fractions in parentheses if they aren't the leading term
     function formatTermFrac(n, d, isFirst = false) {
         let tex = formatFracTex(n, d);
-        if (!isFirst && n < 0) return `\\left(${tex}\\right)`;
+        let val = n / d;
+        if (!isFirst && val < 0) return `\\left(${tex}\\right)`;
         return tex;
-    }
-
-    function toMixedTex(n, d) {
-        let [num, den] = simplify(n, d);
-        if (den === 1) return num.toString();
-        if (num === 0) return "0";
-        
-        let sign = num < 0 ? "-" : "";
-        num = Math.abs(num);
-        let whole = Math.floor(num / den);
-        let rem = num % den;
-        
-        if (whole === 0) return `${sign}\\frac{${rem}}{${den}}`;
-        return `${sign}${whole}\\frac{${rem}}{${den}}`;
-    }
-
-    function formatSignedMixed(w, n, d, isFirst = false) {
-        let tex = toMixedTex(w < 0 ? -((Math.abs(w) * d) + n) : (w * d) + n, d);
-        if (!isFirst && w < 0) return `\\left(${tex}\\right)`;
-        return tex;
-    }
-
-    function mixedToImproper(w, n, d) {
-        let sign = w < 0 ? -1 : 1;
-        let num = (Math.abs(w) * d) + n;
-        return [sign * num, d];
     }
 
     // --- Navigation ---
@@ -489,12 +465,14 @@
         do {
             distractors.clear();
 
-            // MODE 1: Mixed ↔ Improper Conversions (Positive & Negative)
+            // MODE 1: Mixed ↔ Improper Conversions
             if (currentMode === 1) {
                 let type = getRandomInt(1, 2);
                 let w = getRandomInt(1, 6);
                 let d = getRandomInt(3, 9);
                 let n = getRandomInt(1, d - 1);
+                
+                // Pure random chance of being negative
                 let isNeg = Math.random() > 0.5 ? -1 : 1;
                 let signStr = isNeg < 0 ? "-" : "";
                 
@@ -520,7 +498,7 @@
                 }
             }
 
-            // MODE 2: Decimals to Fractions (Positive & Negative)
+            // MODE 2: Decimals to Fractions
             else if (currentMode === 2) {
                 document.getElementById('promptTitle').innerText = "Convert the decimal to a simplified fraction:";
                 let isNeg = Math.random() > 0.5 ? -1 : 1;
@@ -551,18 +529,20 @@
                 }
             }
 
-            // MODE 3: Simple Arithmetic with Rationals (Forced Negative Operations)
+            // MODE 3: Simple Arithmetic with Rationals
             else if (currentMode === 3) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let d1 = getRandomInt(2, 5); 
+                
+                // Pure random chance for negative fraction
                 let n1 = getRandomInt(1, d1-1) * (Math.random() > 0.5 ? -1 : 1);
-                let dec2 = getRandomEl([-0.5, -0.25, -0.75, -1.5, 0.5, 0.25]);
                 
-                // Guarantee at least one negative term in the expression
-                if (n1 > 0 && dec2 > 0) dec2 = -dec2;
+                // Pure random chance for negative decimal
+                let decPool = [-1.5, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1.5];
+                let dec2 = getRandomEl(decPool);
                 
-                let term1 = formatFracTex(n1, d1);
-                let term2 = dec2 < 0 ? `(${dec2})` : `${dec2}`;
+                let term1 = formatTermFrac(n1, d1, true);
+                let term2 = dec2 < 0 ? `\\left(${dec2}\\right)` : `${dec2}`;
                 
                 let op = Math.random() > 0.5 ? "+" : "-";
                 promptTeX = `${term1} ${op} ${term2}`;
@@ -594,9 +574,9 @@
                 let d1 = getRandomInt(2, 6); let n1 = getRandomInt(1, d1);
                 let d2 = getRandomInt(2, 6); let n2 = getRandomInt(1, d2);
                 
-                // Guarantee negative practice in comparisons
-                let s1 = Math.random() > 0.5 ? -1 : 1;
-                let s2 = (s1 === 1) ? -1 : (Math.random() > 0.5 ? -1 : 1);
+                // Pure random chance for negatives
+                let s1 = Math.random() > 0.5 ? 1 : -1;
+                let s2 = Math.random() > 0.5 ? 1 : -1;
                 
                 let val1 = (n1/d1) * s1;
                 let val2 = (n2/d2) * s2;
@@ -610,19 +590,19 @@
                 distractors.add(">"); distractors.add("<"); distractors.add("=");
             }
 
-            // MODE 6: Order of Operations with Rationals (Negative Terms & Operations)
+            // MODE 6: Order of Operations with Rationals
             else if (currentMode === 6) {
                 document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
+                
+                // Pure random chance for all terms to be negative
                 let d1 = getRandomInt(2, 4); let n1 = getRandomInt(1, d1-1) * (Math.random() > 0.5 ? -1 : 1);
                 let d2 = getRandomInt(2, 4); let n2 = getRandomInt(1, d2-1) * (Math.random() > 0.5 ? -1 : 1);
-                let dec = getRandomEl([-0.5, -0.25, 0.5]);
-                
-                // Ensure at least one fraction or decimal is negative
-                if (n1 > 0 && n2 > 0 && dec > 0) n1 = -n1;
+                let decPool = [-0.75, -0.5, -0.25, 0.25, 0.5, 0.75];
+                let dec = getRandomEl(decPool);
                 
                 let t1 = formatTermFrac(n1, d1, true);
                 let t2 = formatTermFrac(n2, d2, false);
-                let tDec = dec < 0 ? `(${dec})` : `${dec}`;
+                let tDec = dec < 0 ? `\\left(${dec}\\right)` : `${dec}`;
                 
                 let type = getRandomInt(1, 2);
                 if (type === 1) { // (A - B) * C
@@ -643,7 +623,7 @@
                     let decN = Math.round(dec * 100);
                     let decD = 100;
                     
-                    // Division step: n2/d2 / dec = (n2 * decD) / (d2 * decN)
+                    // Division step: (n2/d2) / (decN/decD) = (n2 * decD) / (d2 * decN)
                     let divN = n2 * decD;
                     let divD = d2 * decN;
                     
@@ -653,7 +633,7 @@
                     
                     correctTeX = formatFracTex(ansN, ansD);
                     distractors.add(formatFracTex(-ansN, ansD)); // Sign error
-                    distractors.add(formatFracTex(ansN, ansD * 2));
+                    distractors.add(formatFracTex(ansN, ansD * 2)); // Denom error
                 }
                 
                 distractors.add(formatFracTex(1, 12));
