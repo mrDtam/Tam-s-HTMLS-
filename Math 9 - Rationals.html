@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math 9: Rational Numbers</title>
+    <title>Math 8 Acc: Rational Numbers</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
@@ -292,7 +292,7 @@
 
         @media (max-width: 600px) {
             .menu-grid { grid-template-columns: 1fr; }
-            .option-btn { flex: 1 1 100%; } /* Stacks buttons on small screens */
+            .option-btn { flex: 1 1 100%; } 
             .option-btn.three-col { flex: 1 1 100%; } 
             .diagram-container { flex-direction: column; }
             .problem-display { font-size: 26px; }
@@ -531,34 +531,34 @@
                 }
             }
 
-            // MODE 2: Decimals to Fractions
+            // MODE 2: Decimals to Fractions (No Repeating Decimals)
             else if (currentMode === 2) {
                 document.getElementById('promptTitle').innerText = "Convert the decimal to a simplified fraction:";
                 let isNeg = Math.random() > 0.5 ? -1 : 1;
-                let decType = getRandomInt(1, 3);
+                let signStr = isNeg < 0 ? "-" : "";
+                let decType = getRandomInt(1, 2); // 1 = tenths, 2 = hundredths
                 
                 if (decType === 1) { // Tenths
-                    let n = getRandomNonZero(1, 9);
+                    // Pick numbers that guarantee they can be simplified (even numbers + 5)
+                    let n = getRandomEl([2, 4, 5, 6, 8]);
                     let val = (n / 10) * isNeg;
                     promptTeX = val.toString();
                     correctTeX = formatFracTex(n * isNeg, 10);
-                    distractors.add(formatFracTex(-n * isNeg, 10)); 
-                    distractors.add(formatFracTex(n * isNeg, 100));
-                } else if (decType === 2) { // Hundredths
-                    let n = getRandomEl([25, 50, 75, 12, 15, 35, 45, 85]);
-                    let val = (n / 100) * isNeg;
-                    promptTeX = val.toString();
-                    correctTeX = formatFracTex(n * isNeg, 100);
-                    distractors.add(formatFracTex(-n * isNeg, 100)); 
-                    distractors.add(formatFracTex(n * isNeg, 10));
-                } else { // Repeating Decimals
-                    let rep = getRandomEl([3, 6, 1]);
-                    if (rep === 3) { promptTeX = `${isNeg < 0 ? "-" : ""}0.\\overline{3}`; correctTeX = formatFracTex(1 * isNeg, 3); }
-                    if (rep === 6) { promptTeX = `${isNeg < 0 ? "-" : ""}0.\\overline{6}`; correctTeX = formatFracTex(2 * isNeg, 3); }
-                    if (rep === 1) { promptTeX = `${isNeg < 0 ? "-" : ""}0.\\overline{1}`; correctTeX = formatFracTex(1 * isNeg, 9); }
                     
-                    distractors.add(formatFracTex(-1 * isNeg, (rep === 1 ? 9 : 3))); 
-                    distractors.add(formatFracTex(rep * isNeg, 10));
+                    distractors.add(formatFracTex(-n * isNeg, 10)); // Sign error
+                    distractors.add(formatFracTex(n * isNeg, 100)); // Place value error
+                    distractors.add(`${signStr}\\frac{${n}}{10}`); // Unsimplified trap
+                } else { // Hundredths
+                    // Pick numbers that can be simplified, avoid exact multiples of 10
+                    let n = getRandomEl([4, 5, 8, 12, 15, 16, 24, 25, 32, 35, 45, 48, 55, 64, 75, 85, 95]);
+                    
+                    // Force 0.0x formatting for single digits
+                    promptTeX = signStr + "0." + n.toString().padStart(2, '0');
+                    correctTeX = formatFracTex(n * isNeg, 100);
+                    
+                    distractors.add(formatFracTex(-n * isNeg, 100)); // Sign error
+                    distractors.add(formatFracTex(n * isNeg, 10)); // Place value error
+                    distractors.add(`${signStr}\\frac{${n}}{100}`); // Unsimplified trap
                 }
             }
 
