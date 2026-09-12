@@ -11,9 +11,9 @@
 
     <style>
         :root {
-            --level1: #e67e22; /* Orange */
-            --level2: #f39c12; /* Yellow-Orange */
-            --level3: #27ae60; /* Green */
+            --level1: #e67e22; 
+            --level2: #f39c12; 
+            --level3: #27ae60; 
             --dark: #2c3e50;
             --light: #f8f9fa;
             --secondary: #3498db;
@@ -162,12 +162,14 @@
         }
 
         .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 15px;
         }
 
         .option-btn {
+            flex: 1 1 calc(50% - 15px); /* Default 2 columns */
             background-color: white;
             color: var(--dark);
             border: 2px solid #bdc3c7;
@@ -182,6 +184,11 @@
             justify-content: center;
             align-items: center;
             min-height: 60px;
+        }
+        
+        .option-btn.three-col {
+            flex: 1 1 calc(33% - 15px); /* 3 columns for comparisons */
+            font-size: 32px; /* Make the < > = larger */
         }
 
         .option-btn:hover {
@@ -285,7 +292,8 @@
 
         @media (max-width: 600px) {
             .menu-grid { grid-template-columns: 1fr; }
-            .options-grid { grid-template-columns: 1fr; }
+            .option-btn { flex: 1 1 100%; } /* Stacks buttons on small screens */
+            .option-btn.three-col { flex: 1 1 100%; } 
             .diagram-container { flex-direction: column; }
             .problem-display { font-size: 26px; }
         }
@@ -341,7 +349,7 @@
         <!-- Multiple Choice Options -->
         <div class="options-grid" id="optionsGrid"></div>
 
-        <!-- Drag and Drop Interface (Used for Classification Mode) -->
+        <!-- Drag and Drop Interface -->
         <div id="dragContainer">
             <div id="numberPool" class="pool" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
             <div class="diagram-container">
@@ -414,12 +422,37 @@
         return `\\frac{${num}}{${den}}`;
     }
 
-    // Safely wraps negative fractions in parentheses if they aren't the leading term
     function formatTermFrac(n, d, isFirst = false) {
         let tex = formatFracTex(n, d);
         let val = n / d;
         if (!isFirst && val < 0) return `\\left(${tex}\\right)`;
         return tex;
+    }
+
+    function toMixedTex(n, d) {
+        let [num, den] = simplify(n, d);
+        if (den === 1) return num.toString();
+        if (num === 0) return "0";
+        
+        let sign = num < 0 ? "-" : "";
+        num = Math.abs(num);
+        let whole = Math.floor(num / den);
+        let rem = num % den;
+        
+        if (whole === 0) return `${sign}\\frac{${rem}}{${den}}`;
+        return `${sign}${whole}\\frac{${rem}}{${den}}`;
+    }
+
+    function formatSignedMixed(w, n, d, isFirst = false) {
+        let tex = toMixedTex(w < 0 ? -((Math.abs(w) * d) + n) : (w * d) + n, d);
+        if (!isFirst && w < 0) return `\\left(${tex}\\right)`;
+        return tex;
+    }
+
+    function mixedToImproper(w, n, d) {
+        let sign = w < 0 ? -1 : 1;
+        let num = (Math.abs(w) * d) + n;
+        return [sign * num, d];
     }
 
     // --- Navigation ---
@@ -454,25 +487,25 @@
         isTransitioning = false;
         
         document.getElementById('problemDisplay').style.display = 'flex';
-        document.getElementById('optionsGrid').style.display = 'grid';
+        document.getElementById('optionsGrid').style.display = 'flex';
         document.getElementById('dragContainer').style.display = 'none';
 
         let promptTeX = "";
         let correctTeX = "";
         let distractors = new Set();
         let options = [];
+        let targetOptionsSize = 4;
 
         do {
             distractors.clear();
 
-            // MODE 1: Mixed ↔ Improper Conversions (Pure Random Negatives)
+            // MODE 1: Mixed ↔ Improper Conversions
             if (currentMode === 1) {
                 let type = getRandomInt(1, 2);
                 let w = getRandomInt(1, 6);
                 let d = getRandomInt(3, 9);
                 let n = getRandomInt(1, d - 1);
                 
-                // Pure random chance of being negative
                 let isNeg = Math.random() > 0.5 ? -1 : 1;
                 let signStr = isNeg < 0 ? "-" : "";
                 
@@ -484,7 +517,7 @@
                     distractors.add(`${signStr}\\frac{${w*n + d}}{${d}}`);
                     distractors.add(`${signStr}\\frac{${w+n}}{${d}}`);
                     distractors.add(`${signStr}\\frac{${w*d + n}}{${w}}`);
-                    distractors.add(`${isNeg < 0 ? "" : "-"}\\frac{${w*d + n}}{${d}}`); // Sign swap error
+                    distractors.add(`${isNeg < 0 ? "" : "-"}\\frac{${w*d + n}}{${d}}`); 
                 } else {
                     document.getElementById('promptTitle').innerText = "Convert to a mixed number:";
                     let num = (w * d) + n;
@@ -494,11 +527,11 @@
                     distractors.add(`${signStr}${w}\\frac{${d-n}}{${d}}`);
                     distractors.add(`${signStr}${w+1}\\frac{${n}}{${d}}`);
                     distractors.add(`${signStr}${n}\\frac{${w}}{${d}}`);
-                    distractors.add(`${isNeg < 0 ? "" : "-"}${w}\\frac{${n}}{${d}}`); // Sign swap error
+                    distractors.add(`${isNeg < 0 ? "" : "-"}${w}\\frac{${n}}{${d}}`); 
                 }
             }
 
-            // MODE 2: Decimals to Fractions (Pure Random Negatives)
+            // MODE 2: Decimals to Fractions
             else if (currentMode === 2) {
                 document.getElementById('promptTitle').innerText = "Convert the decimal to a simplified fraction:";
                 let isNeg = Math.random() > 0.5 ? -1 : 1;
@@ -509,14 +542,14 @@
                     let val = (n / 10) * isNeg;
                     promptTeX = val.toString();
                     correctTeX = formatFracTex(n * isNeg, 10);
-                    distractors.add(formatFracTex(-n * isNeg, 10)); // Sign error
+                    distractors.add(formatFracTex(-n * isNeg, 10)); 
                     distractors.add(formatFracTex(n * isNeg, 100));
                 } else if (decType === 2) { // Hundredths
                     let n = getRandomEl([25, 50, 75, 12, 15, 35, 45, 85]);
                     let val = (n / 100) * isNeg;
                     promptTeX = val.toString();
                     correctTeX = formatFracTex(n * isNeg, 100);
-                    distractors.add(formatFracTex(-n * isNeg, 100)); // Sign error
+                    distractors.add(formatFracTex(-n * isNeg, 100)); 
                     distractors.add(formatFracTex(n * isNeg, 10));
                 } else { // Repeating Decimals
                     let rep = getRandomEl([3, 6, 1]);
@@ -524,20 +557,17 @@
                     if (rep === 6) { promptTeX = `${isNeg < 0 ? "-" : ""}0.\\overline{6}`; correctTeX = formatFracTex(2 * isNeg, 3); }
                     if (rep === 1) { promptTeX = `${isNeg < 0 ? "-" : ""}0.\\overline{1}`; correctTeX = formatFracTex(1 * isNeg, 9); }
                     
-                    distractors.add(formatFracTex(-1 * isNeg, (rep === 1 ? 9 : 3))); // Sign error
+                    distractors.add(formatFracTex(-1 * isNeg, (rep === 1 ? 9 : 3))); 
                     distractors.add(formatFracTex(rep * isNeg, 10));
                 }
             }
 
-            // MODE 3: Simple Arithmetic with Rationals (Pure Random Negatives)
+            // MODE 3: Simple Arithmetic with Rationals
             else if (currentMode === 3) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let d1 = getRandomInt(2, 5); 
-                
-                // Pure random chance for negative fraction
                 let n1 = getRandomInt(1, d1-1) * (Math.random() > 0.5 ? -1 : 1);
                 
-                // Pure random chance for negative decimal
                 let decPool = [-1.5, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1.5];
                 let dec2 = getRandomEl(decPool);
                 
@@ -552,7 +582,7 @@
                 let ansD = d1 * 100;
                 
                 correctTeX = formatFracTex(ansN, ansD);
-                distractors.add(formatFracTex(-ansN, ansD)); // Sign error
+                distractors.add(formatFracTex(-ansN, ansD)); 
                 distractors.add(formatFracTex(ansN + 100, ansD));
                 distractors.add(formatFracTex(ansN, ansD + 100));
             }
@@ -571,30 +601,58 @@
             // MODE 5: Compare Rational Numbers (<, >, =)
             else if (currentMode === 5) {
                 document.getElementById('promptTitle').innerText = "Which symbol correctly compares the two numbers?";
-                let d1 = getRandomInt(2, 6); let n1 = getRandomInt(1, d1);
-                let d2 = getRandomInt(2, 6); let n2 = getRandomInt(1, d2);
+                targetOptionsSize = 3; // Lock exactly to 3 buttons
                 
-                // Pure random chance for negatives
-                let s1 = Math.random() > 0.5 ? 1 : -1;
-                let s2 = Math.random() > 0.5 ? 1 : -1;
-                
-                let val1 = (n1/d1) * s1;
-                let val2 = (n2/d2) * s2;
-                
-                promptTeX = `${formatFracTex(n1*s1, d1)} \\quad \\square \\quad ${formatFracTex(n2*s2, d2)}`;
-                
-                if (val1 > val2) correctTeX = ">";
-                else if (val1 < val2) correctTeX = "<";
+                let subType = getRandomInt(1, 3);
+                let val1, val2;
+                let tex1, tex2;
+
+                if (subType === 1) { // Terminating vs Repeating (Tricky)
+                    let cases = [
+                        { t1: "0.33", v1: 0.33, t2: "0.\\overline{3}", v2: 1/3 },
+                        { t1: "-0.66", v1: -0.66, t2: "-0.\\overline{6}", v2: -2/3 },
+                        { t1: "0.8", v1: 0.8, t2: "0.\\overline{8}", v2: 8/9 },
+                        { t1: "-0.1", v1: -0.1, t2: "-0.\\overline{1}", v2: -1/9 },
+                        { t1: "0.67", v1: 0.67, t2: "0.\\overline{6}", v2: 2/3 }
+                    ];
+                    let c = getRandomEl(cases);
+                    if (Math.random() > 0.5) { tex1=c.t1; val1=c.v1; tex2=c.t2; val2=c.v2; }
+                    else { tex1=c.t2; val1=c.v2; tex2=c.t1; val2=c.v1; }
+                } 
+                else if (subType === 2) { // Double Negatives
+                    let d = getRandomInt(3, 8); let n = getRandomInt(1, d-1);
+                    let cases = [
+                        { t1: `-\\left(-\\frac{${n}}{${d}}\\right)`, v1: n/d, t2: `\\frac{${n}}{${d}}`, v2: n/d },
+                        { t1: `\\frac{-${n}}{-${d}}`, v1: n/d, t2: `-\\frac{${n}}{${d}}`, v2: -n/d },
+                        { t1: `-\\left(\\frac{-${n}}{${d}}\\right)`, v1: n/d, t2: `\\frac{-${n}}{-${d}}`, v2: n/d },
+                        { t1: `\\frac{${n}}{-${d}}`, v1: -n/d, t2: `-\\frac{${n}}{${d}}`, v2: -n/d }
+                    ];
+                    let c = getRandomEl(cases);
+                    if (Math.random() > 0.5) { tex1=c.t1; val1=c.v1; tex2=c.t2; val2=c.v2; }
+                    else { tex1=c.t2; val1=c.v2; tex2=c.t1; val2=c.v1; }
+                } 
+                else { // Close fractions
+                    let d = getRandomInt(4, 9); let n = getRandomInt(2, d-1);
+                    let sign = Math.random() > 0.5 ? 1 : -1;
+                    tex1 = `${sign < 0 ? "-" : ""}\\frac{${n}}{${d}}`; val1 = sign * n/d;
+                    tex2 = `${sign < 0 ? "-" : ""}\\frac{${n+1}}{${d+1}}`; val2 = sign * (n+1)/(d+1);
+                    if (Math.random() > 0.5) { let tempT=tex1, tempV=val1; tex1=tex2; val1=val2; tex2=tempT; val2=tempV; }
+                }
+
+                promptTeX = `${tex1} \\quad \\square \\quad ${tex2}`;
+
+                // Add small epsilon to float comparisons
+                if (val1 > val2 + 0.0001) correctTeX = ">";
+                else if (val1 < val2 - 0.0001) correctTeX = "<";
                 else correctTeX = "=";
-                
+
                 distractors.add(">"); distractors.add("<"); distractors.add("=");
             }
 
-            // MODE 6: Order of Operations with Rationals (Pure Random Negatives)
+            // MODE 6: Order of Operations with Rationals
             else if (currentMode === 6) {
                 document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
                 
-                // Pure random chance for all terms to be negative
                 let d1 = getRandomInt(2, 4); let n1 = getRandomInt(1, d1-1) * (Math.random() > 0.5 ? -1 : 1);
                 let d2 = getRandomInt(2, 4); let n2 = getRandomInt(1, d2-1) * (Math.random() > 0.5 ? -1 : 1);
                 let decPool = [-0.75, -0.5, -0.25, 0.25, 0.5, 0.75];
@@ -648,11 +706,12 @@
         finalOptions.add(correctTeX);
         let distArray = Array.from(distractors);
         let i = 0;
-        while(finalOptions.size < 4 && i < distArray.length) {
+        
+        while(finalOptions.size < targetOptionsSize && i < distArray.length) {
             finalOptions.add(distArray[i]); i++;
         }
         let pad = 1;
-        while(finalOptions.size < 4) { finalOptions.add(pad.toString()); pad++; }
+        while(finalOptions.size < targetOptionsSize) { finalOptions.add(pad.toString()); pad++; }
 
         options = shuffle(Array.from(finalOptions));
 
@@ -664,6 +723,7 @@
         options.forEach(opt => {
             let btn = document.createElement('button');
             btn.className = 'option-btn';
+            if (currentMode === 5) btn.classList.add('three-col'); // makes < > = buttons larger
             btn.innerHTML = `\\(${opt}\\)`;
             btn.onclick = (e) => handleGuess(btn, opt === correctTeX, e);
             grid.appendChild(btn);
@@ -701,6 +761,45 @@
     }
 
     // --- DRAG AND DROP INTEGRATION FOR CLASSIFICATION ---
+    
+    // Dynamic generator from the standalone app to yield ~14 items
+    function generateNumbers() {
+        let nums = [];
+        let idCounter = 1;
+        const addNum = (tex, target) => { nums.push({ id: "n" + idCounter++, tex, target }); };
+
+        // 1. Natural
+        let natRoot = getRandomInt(2, 10);
+        addNum(`\\sqrt{${natRoot * natRoot}}`, "natural"); 
+        let natNum = getRandomInt(2, 12); let natDen = getRandomInt(2, 5);
+        addNum(`\\frac{${natNum * natDen}}{${natDen}}`, "natural"); 
+
+        // 2. Whole
+        addNum(getRandomEl(["0", "0.0"]), "whole");
+        addNum(getRandomEl([`\\sqrt{0}`, `\\frac{0}{${getRandomInt(2, 9)}}`]), "whole");
+
+        // 3. Integer
+        addNum(`-${getRandomInt(1, 15)}`, "integer");
+        addNum(`-\\,\\sqrt{${getRandomInt(2, 9)**2}}`, "integer"); 
+        addNum(`\\frac{-${getRandomInt(2, 10) * getRandomInt(2, 5)}}{${getRandomInt(2, 5)}}`, "integer"); 
+
+        // 4. Rational
+        addNum(getRandomEl(["0.25", "0.5", "-1.5", "-4.25", "2.75", "-0.1"]), "rational");
+        addNum(`0.\\overline{${getRandomEl([1, 3, 6, 7])}}`, "rational");
+        addNum(`\\sqrt{${getRandomEl(["0.01", "0.04", "0.09", "0.16", "0.25", "0.36", "0.81", "1.44"])}}`, "rational");
+        addNum(getRandomEl(["\\frac{1}{2}", "\\frac{3}{4}", "-\\frac{2}{3}", "\\frac{5}{8}", "\\frac{7}{10}"]), "rational");
+
+        // 5. Irrational
+        addNum(getRandomEl(["\\pi", "2\\pi", "-3\\pi", "\\frac{\\pi}{2}", "\\frac{\\pi}{4}"]), "irrational");
+        let nonSquares = [2, 3, 5, 6, 7, 8, 10, 11, 12, 14, 15, 20];
+        let ir1 = getRandomEl(nonSquares);
+        addNum(`\\sqrt{${ir1}}`, "irrational");
+        let ir2; do { ir2 = getRandomEl(nonSquares); } while (ir1 === ir2);
+        addNum(`-\\sqrt{${ir2}}`, "irrational");
+
+        return nums;
+    }
+
     function setupDragGame() {
         const pool = document.getElementById('numberPool');
         pool.innerHTML = '';
@@ -712,15 +811,9 @@
             });
         });
 
-        let numSet = [
-            { id: "p1", tex: `\\sqrt{${getRandomInt(2, 6)**2}}`, target: "natural" },
-            { id: "p2", tex: "0", target: "whole" },
-            { id: "p3", tex: `-${getRandomInt(2, 10)}`, target: "integer" },
-            { id: "p4", tex: getRandomEl(["-0.75", "-\\frac{3}{4}", "-0.\\overline{3}", "\\frac{2}{5}"]), target: "rational" },
-            { id: "p5", tex: getRandomEl(["\\pi", "\\sqrt{5}", "-\\sqrt{2}"]), target: "irrational" }
-        ];
-
-        shuffle(numSet).forEach(num => {
+        let activeNumbers = generateNumbers();
+        
+        shuffle(activeNumbers).forEach(num => {
             let pill = document.createElement('div');
             pill.id = num.id;
             pill.className = 'num-pill';
@@ -765,7 +858,7 @@
                 document.getElementById('highStreakDisplay').innerText = highestStreak;
             }
             alert("Excellent! All rational and irrational numbers are correctly classified.");
-            generateProblem();
+            setupDragGame(); // Reset with new numbers for infinite practice
         } else {
             playWrong();
             currentStreak = 0;
