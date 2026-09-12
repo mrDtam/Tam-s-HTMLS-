@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math 8 Acc: Rational Numbers</title>
+    <title>Math 9: Rational Numbers</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
@@ -465,7 +465,7 @@
         do {
             distractors.clear();
 
-            // MODE 1: Mixed ↔ Improper Conversions
+            // MODE 1: Mixed ↔ Improper Conversions (Pure Random Negatives)
             if (currentMode === 1) {
                 let type = getRandomInt(1, 2);
                 let w = getRandomInt(1, 6);
@@ -498,7 +498,7 @@
                 }
             }
 
-            // MODE 2: Decimals to Fractions
+            // MODE 2: Decimals to Fractions (Pure Random Negatives)
             else if (currentMode === 2) {
                 document.getElementById('promptTitle').innerText = "Convert the decimal to a simplified fraction:";
                 let isNeg = Math.random() > 0.5 ? -1 : 1;
@@ -529,7 +529,7 @@
                 }
             }
 
-            // MODE 3: Simple Arithmetic with Rationals
+            // MODE 3: Simple Arithmetic with Rationals (Pure Random Negatives)
             else if (currentMode === 3) {
                 document.getElementById('promptTitle').innerText = "Evaluate:";
                 let d1 = getRandomInt(2, 5); 
@@ -590,7 +590,7 @@
                 distractors.add(">"); distractors.add("<"); distractors.add("=");
             }
 
-            // MODE 6: Order of Operations with Rationals
+            // MODE 6: Order of Operations with Rationals (Pure Random Negatives)
             else if (currentMode === 6) {
                 document.getElementById('promptTitle').innerText = "Evaluate using Order of Operations:";
                 
