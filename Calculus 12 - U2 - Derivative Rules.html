@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus: Differentiation Rules</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #3498db;
+            --level3: #9b59b6;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .problem-display {
+            font-size: 32px;
+            margin: 0 0 25px 0;
+            padding: 20px 30px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        .info-box {
+            background-color: white;
+            border: 2px dashed #bdc3c7;
+            border-radius: 12px;
+            padding: 15px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 20px auto;
+            display: none;
+            justify-content: center;
+        }
+
+        /* Abstract Tables */
+        .calc-table {
+            border-collapse: collapse;
+            font-size: 20px;
+            width: 100%;
+            background: white;
+        }
+        .calc-table th, .calc-table td {
+            border: 2px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+        }
+        .calc-table th { background-color: #ecf0f1; color: var(--dark); }
+
+        #errorAlert {
+            display: none;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 700px) {
+            .options-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .option-btn {
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 18px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+            overflow-x: auto;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .problem-display { font-size: 26px; }
+            .option-btn { font-size: 18px; padding: 12px 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="menuScreen">
+        <h1>Calculus: Derivatives</h1>
+        <p class="subtitle">Differentiation Rules & Applications</p>
+        
+        <div class="level-section">
+            <div class="level-title">Level 1 to Level 2</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Power Rule</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Product Rule</button>
+                <button class="menu-btn" onclick="startGame(3)"><span>3</span> Quotient Rule</button>
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Chain Rule</button>
+                <button class="menu-btn" onclick="startGame(5)" style="grid-column: 1 / -1;"><span>5</span> Implicit Differentiation</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Level 3 to Level 4</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Multiple Rules (Unsimplified)</button>
+                <button class="menu-btn" onclick="startGame(7)"><span>7</span> Abstract Rules (Table of Values)</button>
+                <button class="menu-btn" onclick="startGame(8)" style="grid-column: 1 / -1;"><span>8</span> Applications: Tangent Lines & Slope</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="errorAlert"></div>
+
+        <div class="prompt-text" id="promptTitle">Find the derivative:</div>
+        
+        <div class="info-box" id="infoBox"></div>
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandomNonZero(min, max) {
+        let val; do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0); return val;
+    }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while(b) { let t = b; b = a % b; a = t; } return a; }
+
+    function termFmt(c, p, v='x', isFirst=false) {
+        if (c === 0) return "";
+        let absC = Math.abs(c);
+        let sign = (c < 0) ? (isFirst ? "-" : " - ") : (isFirst ? "" : " + ");
+        
+        let vPart = "";
+        if (p === 1) vPart = v;
+        else if (p !== 0) vPart = `${v}^{${p}}`;
+        
+        let cPart = (absC === 1 && p !== 0) ? "" : absC.toString();
+        
+        return `${sign}${cPart}${vPart}`;
+    }
+
+    function polyFmt(terms, v='x') {
+        let filtered = terms.filter(t => t[0] !== 0);
+        if (filtered.length === 0) return "0";
+        filtered.sort((a,b) => b[1] - a[1]);
+        
+        let res = termFmt(filtered[0][0], filtered[0][1], v, true);
+        for(let i=1; i<filtered.length; i++){
+            res += termFmt(filtered[i][0], filtered[i][1], v, false);
+        }
+        return res;
+    }
+
+    function polyDeriv(terms) {
+        let d = terms.map(t => [t[0]*t[1], t[1]-1]).filter(t => t[0] !== 0);
+        if (d.length === 0) return [[0,0]];
+        return d;
+    }
+
+    function formatFrac(n, d) {
+        let g = gcd(n, d);
+        n /= g; d /= g;
+        if (d < 0) { n = -n; d = -d; }
+        if (d === 1) return n.toString();
+        if (n === 0) return "0";
+        if (n < 0) return `-\\frac{${Math.abs(n)}}{${d}}`;
+        return `\\frac{${n}}{${d}}`;
+    }
+
+    // --- Equation Formatters for Mode 8 ---
+    function formatPointSlope(m, x1, y1) {
+        let left = `y`;
+        if (y1 !== 0) left += y1 < 0 ? ` + ${Math.abs(y1)}` : ` - ${y1}`;
+        let right = "";
+        let xPart = `x`;
+        if (x1 !== 0) xPart += x1 < 0 ? ` + ${Math.abs(x1)}` : ` - ${x1}`;
+        
+        if (m === 0) return `${left} = 0`; 
+        
+        if (m === 1) right = x1 === 0 ? `x` : `(${xPart})`;
+        else if (m === -1) right = x1 === 0 ? `-x` : `-(${xPart})`;
+        else right = x1 === 0 ? `${m}x` : `${m}(${xPart})`;
+        
+        return `${left} = ${right}`;
+    }
+
+    function formatStandard(m, x1, y1) {
+        let A = m;
+        let B = -1;
+        let C = m * x1 - y1;
+
+        if (A < 0) { A = -A; B = -B; C = -C; }
+        if (A === 0) return `y = ${y1}`;
+
+        let aStr = A === 1 ? "x" : `${A}x`;
+        let bStr = B === 1 ? " + y" : (B === -1 ? " - y" : (B > 0 ? ` + ${B}y` : ` - ${Math.abs(B)}y`));
+        return `${aStr}${bStr} = ${C}`;
+    }
+    
+    function formatSlopeIntercept(m, b) {
+        if (m === 0) return `y = ${b}`;
+        let mStr = m === 1 ? "x" : (m === -1 ? "-x" : `${m}x`);
+        let bStr = b === 0 ? "" : (b > 0 ? ` + ${b}` : ` - ${Math.abs(b)}`);
+        return `y = ${mStr}${bStr}`;
+    }
+
+    // --- Navigation ---
+    function startGame(mode) {
+        try {
+            document.getElementById('errorAlert').style.display = 'none';
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            document.getElementById('gameScreen').style.borderColor = mode <= 5 ? "var(--level1)" : "var(--level3)";
+            document.getElementById('problemDisplay').style.borderColor = mode <= 5 ? "var(--level1)" : "var(--level3)";
+
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) {
+            console.error(e);
+            alert("App initialization failed. Please refresh the page.");
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Bulletproof Generation Engine ---
+    function generateProblem() {
+        try {
+            isTransitioning = false;
+            
+            let correctAns = "";
+            let distractors = new Set();
+            let promptHTML = "";
+            let promptText = "";
+            let infoHTML = "";
+
+            let problemSignature = "";
+            let loopCount = 0;
+
+            do {
+                distractors.clear();
+                infoHTML = "";
+
+                // MODE 1: Power Rule
+                if (currentMode === 1) {
+                    promptText = "Find the derivative:";
+                    
+                    let p1 = [ [getRandomNonZero(-5, 5), getRandomInt(3, 5)], 
+                               [getRandomNonZero(-5, 5), getRandomInt(1, 2)], 
+                               [getRandomNonZero(-8, 8), 0] ];
+                    
+                    promptHTML = `\\frac{d}{dx} \\left[ ${polyFmt(p1)} \\right]`;
+                    
+                    let d_correct = polyDeriv(p1);
+                    correctAns = polyFmt(d_correct);
+                    
+                    distractors.add(polyFmt(p1.map(t => [t[0]*t[1], t[1]])));
+                    distractors.add(polyFmt(p1.map(t => [t[0], t[1]-1])));
+                    distractors.add(polyFmt(p1.map(t => [t[0]*t[1], t[1]+1])));
+                }
+
+                // MODE 2: Product Rule
+                else if (currentMode === 2) {
+                    promptText = "Apply the Product Rule (Do not simplify):";
+                    
+                    let a = getRandomNonZero(-4, 4); let p_a = getRandomInt(2, 4);
+                    let b = getRandomNonZero(-5, 5); 
+                    let u = [ [a, p_a], [b, 0] ];
+                    let du = polyDeriv(u);
+                    
+                    let c = getRandomNonZero(-4, 4); let p_c = getRandomInt(1, 2);
+                    let d = getRandomNonZero(-5, 5);
+                    let v = [ [c, p_c], [d, 0] ];
+                    let dv = polyDeriv(v);
+
+                    promptHTML = `\\frac{d}{dx} \\left[ (${polyFmt(u)})(${polyFmt(v)}) \\right]`;
+                    
+                    let u_str = `(${polyFmt(u)})`; let du_str = `(${polyFmt(du)})`;
+                    let v_str = `(${polyFmt(v)})`; let dv_str = `(${polyFmt(dv)})`;
+
+                    correctAns = `${du_str}${v_str} + ${u_str}${dv_str}`;
+                    
+                    distractors.add(`${du_str}${v_str} - ${u_str}${dv_str}`); 
+                    distractors.add(`${du_str}${dv_str}`); 
+                    distractors.add(`${u_str}${v_str} + ${du_str}${dv_str}`); 
+                }
+
+                // MODE 3: Quotient Rule
+                else if (currentMode === 3) {
+                    promptText = "Apply the Quotient Rule (Do not simplify):";
+                    
+                    let a = getRandomNonZero(-4, 4); let p_a = getRandomInt(2, 3);
+                    let u = [ [a, p_a] ];
+                    let du = polyDeriv(u);
+                    
+                    let c = getRandomNonZero(1, 4); let p_c = 1;
+                    let d = getRandomNonZero(-5, 5);
+                    let v = [ [c, p_c], [d, 0] ];
+                    let dv = polyDeriv(v);
+
+                    promptHTML = `\\frac{d}{dx} \\left[ \\frac{${polyFmt(u)}}{${polyFmt(v)}} \\right]`;
+                    
+                    let u_str = `(${polyFmt(u)})`; let du_str = `(${polyFmt(du)})`;
+                    let v_str = `(${polyFmt(v)})`; let dv_str = `(${polyFmt(dv)})`;
+                    let v2_str = `(${polyFmt(v)})^2`;
+
+                    correctAns = `\\frac{${du_str}${v_str} - ${u_str}${dv_str}}{${v2_str}}`;
+                    
+                    distractors.add(`\\frac{${u_str}${dv_str} - ${du_str}${v_str}}{${v2_str}}`); 
+                    distractors.add(`\\frac{${du_str}${v_str} + ${u_str}${dv_str}}{${v2_str}}`); 
+                    distractors.add(`\\frac{${du_str}}{${dv_str}}`); 
+                }
+
+                // MODE 4: Chain Rule (No Trig, only Poly/Radicals)
+                else if (currentMode === 4) {
+                    promptText = "Apply the Chain Rule:";
+                    
+                    let type = getRandomInt(1, 2);
+                    let a = getRandomNonZero(-3, 3); let p_a = getRandomInt(2, 3);
+                    let b = getRandomNonZero(-5, 5);
+                    let inner = [ [a, p_a], [b, 1] ];
+                    let d_inner = polyDeriv(inner);
+                    
+                    let in_str = polyFmt(inner);
+                    let din_str = polyFmt(d_inner);
+
+                    if (type === 1) { // Power Chain
+                        let n = getRandomInt(3, 6);
+                        promptHTML = `\\frac{d}{dx} \\left[ (${in_str})^{${n}} \\right]`;
+                        correctAns = `${n}(${in_str})^{${n-1}}(${din_str})`;
+                        
+                        distractors.add(`${n}(${in_str})^{${n-1}}`); 
+                        distractors.add(`(${in_str})^{${n-1}}(${din_str})`); 
+                        distractors.add(`${n}(${din_str})^{${n-1}}`); 
+                    } else { // Radical Chain (Square root)
+                        promptHTML = `\\frac{d}{dx} \\left[ \\sqrt{${in_str}} \\right]`;
+                        correctAns = `\\frac{${din_str}}{2\\sqrt{${in_str}}}`;
+                        
+                        distractors.add(`\\frac{1}{2\\sqrt{${in_str}}}`);
+                        distractors.add(`\\frac{${din_str}}{\\sqrt{${in_str}}}`);
+                        distractors.add(`\\frac{1}{\\sqrt{${din_str}}}`);
+                    }
+                }
+
+                // MODE 5: Implicit Differentiation (Diverse Forms)
+                else if (currentMode === 5) {
+                    promptText = "Find \\(\\frac{dy}{dx} \\) using implicit differentiation:";
+                    
+                    let type = getRandomInt(1, 3);
+                    if (type === 1) { // ax^2 + by^2 = c
+                        let a = getRandomNonZero(1, 5);
+                        let b = getRandomNonZero(1, 5);
+                        let c = getRandomInt(10, 20);
+                        
+                        promptHTML = `${a===1?"":a}x^2 + ${b===1?"":b}y^2 = ${c}`;
+                        
+                        let top = a*2; let bot = b*2; let g = gcd(top, bot);
+                        let s_top = top/g === 1 ? "x" : `${top/g}x`;
+                        let s_bot = bot/g === 1 ? "y" : `${bot/g}y`;
+                        
+                        correctAns = `-\\frac{${s_top}}{${s_bot}}`;
+                        distractors.add(`\\frac{${s_top}}{${s_bot}}`);
+                        distractors.add(`-\\frac{${s_bot}}{${s_top}}`);
+                        distractors.add(`\\frac{${s_bot}}{${s_top}}`);
+                    } 
+                    else if (type === 2) { // ax^3 + by^3 = c
+                        let a = getRandomNonZero(1, 4);
+                        let b = getRandomNonZero(1, 4);
+                        let c = getRandomInt(10, 20);
+                        
+                        promptHTML = `${a===1?"":a}x^3 + ${b===1?"":b}y^3 = ${c}`;
+                        
+                        let top = a*3; let bot = b*3; let g = gcd(top, bot);
+                        let s_top = top/g === 1 ? "x^2" : `${top/g}x^2`;
+                        let s_bot = bot/g === 1 ? "y^2" : `${bot/g}y^2`;
+                        
+                        correctAns = `-\\frac{${s_top}}{${s_bot}}`;
+                        distractors.add(`\\frac{${s_top}}{${s_bot}}`);
+                        distractors.add(`-\\frac{${s_bot}}{${s_top}}`);
+                        distractors.add(`\\frac{${s_bot}}{${s_top}}`);
+                    }
+                    else { // ax^2 - by^3 = c
+                        let a = getRandomNonZero(1, 4);
+                        let b = getRandomNonZero(1, 4);
+                        let c = getRandomInt(10, 20);
+                        
+                        promptHTML = `${a===1?"":a}x^2 - ${b===1?"":b}y^3 = ${c}`;
+                        
+                        let top = a*2; let bot = b*3; let g = gcd(top, bot);
+                        let s_top = top/g === 1 ? "x" : `${top/g}x`;
+                        let s_bot = bot/g === 1 ? "y^2" : `${bot/g}y^2`;
+                        
+                        correctAns = `\\frac{${s_top}}{${s_bot}}`;
+                        distractors.add(`-\\frac{${s_top}}{${s_bot}}`);
+                        distractors.add(`\\frac{${s_bot}}{${s_top}}`);
+                        distractors.add(`-\\frac{${s_bot}}{${s_top}}`);
+                    }
+                }
+
+                // MODE 6: Multiple Rules (Chain + Product/Quotient)
+                else if (currentMode === 6) {
+                    promptText = "Apply multiple rules (Do not simplify):";
+                    
+                    let a = getRandomNonZero(2, 4);
+                    let u = [ [a, 2] ]; // ax^2
+                    let du = polyDeriv(u);
+                    
+                    let b = getRandomNonZero(2, 5);
+                    let inner = [ [b, 1], [getRandomNonZero(1,4), 0] ]; // bx + c
+                    let d_inner = polyDeriv(inner);
+                    let n = getRandomInt(3, 5);
+                    
+                    promptHTML = `\\frac{d}{dx} \\left[ (${polyFmt(u)})(${polyFmt(inner)})^{${n}} \\right]`;
+                    
+                    let u_str = `(${polyFmt(u)})`; let du_str = `(${polyFmt(du)})`;
+                    let v_str = `(${polyFmt(inner)})^{${n}}`; 
+                    let dv_str = `${n}(${polyFmt(inner)})^{${n-1}}(${polyFmt(d_inner)})`;
+
+                    correctAns = `${du_str}${v_str} + ${u_str}\\left[${dv_str}\\right]`;
+                    
+                    distractors.add(`${du_str}${v_str} - ${u_str}\\left[${dv_str}\\right]`); 
+                    distractors.add(`${du_str}\\left[${dv_str}\\right]`); 
+                    let bad_dv = `${n}(${polyFmt(inner)})^{${n-1}}`;
+                    distractors.add(`${du_str}${v_str} + ${u_str}\\left[${bad_dv}\\right]`); 
+                }
+
+                // MODE 7: Abstract Rules (Tables with Solving Option)
+                else if (currentMode === 7) {
+                    let x_val = getRandomInt(1, 4);
+                    let f = getRandomNonZero(-4, 4);
+                    let fp = getRandomNonZero(-4, 4);
+                    let g = getRandomNonZero(-4, 4);
+                    let gp = getRandomNonZero(-4, 4);
+
+                    let isSolve = Math.random() > 0.5;
+
+                    if (isSolve) {
+                        promptText = "Find the missing value in the table:";
+                        let hideVar = getRandomInt(1, 4); // 1:f, 2:fp, 3:g, 4:gp
+                        
+                        let f_disp = hideVar === 1 ? "?" : f;
+                        let fp_disp = hideVar === 2 ? "?" : fp;
+                        let g_disp = hideVar === 3 ? "?" : g;
+                        let gp_disp = hideVar === 4 ? "?" : gp;
+
+                        infoHTML = `
+                            <table class="calc-table">
+                                <tr><th>\\( x \\)</th><th>\\( f(x) \\)</th><th>\\( f'(x) \\)</th><th>\\( g(x) \\)</th><th>\\( g'(x) \\)</th></tr>
+                                <tr><td>${x_val}</td><td>${f_disp}</td><td>${fp_disp}</td><td>${g_disp}</td><td>${gp_disp}</td></tr>
+                            </table>
+                        `;
+
+                        // Use Product Rule to generate a clean integer for h'(x)
+                        let ans_k = (fp * g) + (f * gp);
+                        promptHTML = `\\text{If } h(x) = f(x)g(x) \\text{ and } h'(${x_val}) = ${ans_k}`;
+                        
+                        let targetAns = hideVar === 1 ? f : hideVar === 2 ? fp : hideVar === 3 ? g : gp;
+                        correctAns = targetAns.toString();
+                        
+                        distractors.add((targetAns * -1).toString());
+                        distractors.add((targetAns + 2).toString());
+                        distractors.add((targetAns - 2).toString());
+                    } else {
+                        promptText = "Evaluate the derivative using the table of values:";
+                        infoHTML = `
+                            <table class="calc-table">
+                                <tr><th>\\( x \\)</th><th>\\( f(x) \\)</th><th>\\( f'(x) \\)</th><th>\\( g(x) \\)</th><th>\\( g'(x) \\)</th></tr>
+                                <tr><td>${x_val}</td><td>${f}</td><td>${fp}</td><td>${g}</td><td>${gp}</td></tr>
+                            </table>
+                        `;
+
+                        let isProduct = Math.random() > 0.5;
+                        if (isProduct) {
+                            promptHTML = `\\text{If } h(x) = f(x)g(x), \\text{ find } h'(${x_val})`;
+                            let ans = (fp * g) + (f * gp);
+                            correctAns = ans.toString();
+                            
+                            distractors.add((fp * gp).toString()); 
+                            distractors.add(((fp * g) - (f * gp)).toString()); 
+                        } else {
+                            promptHTML = `\\text{If } h(x) = \\frac{f(x)}{g(x)}, \\text{ find } h'(${x_val})`;
+                            let top = (fp * g) - (f * gp);
+                            let bot = g * g;
+                            correctAns = formatFrac(top, bot);
+                            
+                            distractors.add(formatFrac((fp*g) + (f*gp), bot)); 
+                            distractors.add(formatFrac((f*gp) - (fp*g), bot)); 
+                            distractors.add(formatFrac(fp, gp)); 
+                        }
+                    }
+                }
+
+                // MODE 8: Applications (Tangent Lines)
+                else if (currentMode === 8) {
+                    let isEq = Math.random() > 0.5;
+                    let a = getRandomNonZero(-2, 2);
+                    let b = getRandomNonZero(-4, 4);
+                    let c = getRandomInt(-5, 5);
+                    let x_val = getRandomInt(-3, 3);
+                    
+                    let y_val = a*(x_val*x_val) + b*x_val + c;
+                    let m = 2*a*x_val + b;
+
+                    let quadStr = polyFmt([ [a, 2], [b, 1], [c, 0] ]);
+
+                    if (isEq) {
+                        promptText = "Find the equation of the tangent line to:";
+                        promptHTML = `y = ${quadStr} \\quad \\text{at } x = ${x_val}`;
+                        
+                        let eqFormat = getRandomInt(0, 3); // 0: y=mx+b, 1: y-y1=m(x-x1), 2: Ax+By=C
+                        let b_line = -m * x_val + y_val;
+                        
+                        let b_bad = -y_val * x_val + y_val; 
+                        let b_bad2 = m * x_val + y_val; 
+                        let m_bad = 2*a*x_val - b; 
+                        let b_bad3 = -m_bad * x_val + y_val; 
+
+                        if (eqFormat === 0) {
+                            correctAns = formatSlopeIntercept(m, b_line);
+                            distractors.add(formatSlopeIntercept(y_val, b_bad));
+                            distractors.add(formatSlopeIntercept(-m, b_bad2));
+                            distractors.add(formatSlopeIntercept(m_bad, b_bad3));
+                            distractors.add(formatSlopeIntercept(m, y_val)); 
+                        } else if (eqFormat === 1) {
+                            correctAns = formatPointSlope(m, x_val, y_val);
+                            distractors.add(formatPointSlope(m, -x_val, -y_val));
+                            distractors.add(formatPointSlope(y_val, x_val, y_val));
+                            distractors.add(formatPointSlope(-m, x_val, y_val));
+                            distractors.add(formatPointSlope(m, y_val, x_val));
+                        } else {
+                            correctAns = formatStandard(m, x_val, y_val);
+                            distractors.add(formatStandard(-m, x_val, y_val));
+                            distractors.add(formatStandard(y_val, x_val, y_val));
+                            distractors.add(formatStandard(m, -x_val, -y_val));
+                            distractors.add(formatStandard(m_bad, x_val, y_val));
+                        }
+                    } else {
+                        promptText = "Find the slope of the tangent line to:";
+                        promptHTML = `y = ${quadStr} \\quad \\text{at } x = ${x_val}`;
+                        
+                        correctAns = `m = ${m}`;
+                        distractors.add(`m = ${y_val}`); 
+                        distractors.add(`m = ${-m}`);
+                        distractors.add(`m = ${2*a*x_val - b}`); 
+                    }
+                }
+
+                problemSignature = promptText + promptHTML + correctAns;
+                loopCount++;
+
+            } while (problemSignature === lastPrompt && loopCount < 10); 
+            
+            lastPrompt = problemSignature;
+
+            // --- Safe DOM Updates ---
+            document.getElementById('promptTitle').innerText = promptText; 
+            
+            let displayBox = document.getElementById('problemDisplay');
+            displayBox.innerHTML = `\\( ${promptHTML} \\)`;
+            
+            let infoBox = document.getElementById('infoBox');
+            if (infoHTML !== "") {
+                infoBox.innerHTML = infoHTML;
+                infoBox.style.display = 'flex';
+                if (window.renderMathInElement) renderMathInElement(infoBox, { delimiters: [{left: "\\(", right: "\\)", display: false}] });
+            } else {
+                infoBox.style.display = 'none';
+            }
+
+            let finalOptions = new Set();
+            finalOptions.add(correctAns);
+            let distArray = Array.from(distractors);
+            let i = 0;
+
+            while(finalOptions.size < 4 && i < distArray.length) {
+                finalOptions.add(distArray[i]); i++;
+            }
+            
+            // Pad safely based on mode formats
+            let pad = 1;
+            while(finalOptions.size < 4) { 
+                if (currentMode === 8 && correctAns.includes("m =")) {
+                    finalOptions.add(`m = ${pad++}`);
+                } else if (currentMode === 8 && correctAns.includes("y =")) {
+                    finalOptions.add(`y = ${pad}x + ${getRandomInt(-3, 3)}`);
+                    pad++;
+                } else if (currentMode === 7 && correctAns.includes("\\frac")) {
+                    finalOptions.add(`\\frac{${pad++}}{2}`);
+                } else {
+                    let parsed = parseInt(correctAns);
+                    if (isNaN(parsed)) parsed = getRandomInt(10, 20);
+                    finalOptions.add((parsed + pad).toString()); 
+                    pad++;
+                }
+            }
+
+            let options = shuffle(Array.from(finalOptions));
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = ''; 
+
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `\\(${opt}\\)`;
+                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                grid.appendChild(btn);
+            });
+
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: true}] });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            setTimeout(() => display.classList.remove('error'), 400);
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>

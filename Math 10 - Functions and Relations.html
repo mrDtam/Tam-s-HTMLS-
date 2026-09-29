@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 10: Functions & Relations</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #3498db;
+            --level3: #9b59b6;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 14px;
+        }
+        
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        .menu-btn:hover span {
+            background-color: white;
+            color: var(--secondary);
+        }
+        
+        .lvl-3 .menu-btn:hover span { color: var(--level3); }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 22px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .question-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        .info-box {
+            background-color: #fdfbf7;
+            border: 2px dashed var(--level2);
+            border-radius: 12px;
+            padding: 15px 25px;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            color: var(--dark);
+            min-height: 80px;
+            overflow-x: auto;
+        }
+
+        /* Fixed Canvas Container */
+        #graphCanvas {
+            background-color: #ffffff;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+            display: none; 
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 18px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        /* HTML Table inside InfoBox */
+        .rel-table {
+            border-collapse: collapse;
+            margin: 5px;
+            background: white;
+            font-size: 20px;
+        }
+        .rel-table th, .rel-table td {
+            border: 2px solid #bdc3c7;
+            padding: 5px 15px;
+            text-align: center;
+        }
+        .rel-table th { background-color: #ecf0f1; color: var(--dark); }
+
+        @media (min-width: 700px) {
+            .question-layout.with-graph {
+                flex-direction: row;
+                justify-content: center;
+                align-items: stretch;
+            }
+            .question-layout.with-graph .info-box {
+                flex: 1;
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .prompt-text { font-size: 18px; }
+            .info-box { font-size: 18px; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Functions & Relations</h1>
+        <p class="subtitle">Math 10 Core Skills</p>
+        
+        <div class="level-section">
+            <div class="level-title">Level 1 to Level 2</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Function or Relation? (All Reps)</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Find Domain & Range (Discrete)</button>
+                <button class="menu-btn" onclick="startGame(3)"><span>3</span> Arithmetic Sequences (Basic)</button>
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Evaluate Function Notation f(x)</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Level 3 to Level 4</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Domain & Range from Graphs</button>
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Arithmetic Formulas (Solve)</button>
+                <button class="menu-btn" onclick="startGame(7)"><span>7</span> Interval & Inequality Notation</button>
+                <button class="menu-btn" onclick="startGame(8)"><span>8</span> Read Functions from Graphs</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-text" id="promptTitle">Question:</div>
+        
+        <div class="question-layout" id="qLayout">
+            <div class="info-box" id="infoBox"></div>
+            <canvas id="graphCanvas" width="350" height="350"></canvas>
+        </div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System (Safely Decoupled) ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function getSortedUnique(arr) { return [...new Set(arr)].sort((a,b)=>a-b); }
+
+    // Dynamic Interval/Inequality formatter (Supports Infinity)
+    function formatSet(min, max, cMin, cMax, isDomain, useIneq) {
+        let v = isDomain ? 'x' : 'y';
+        if (min === -Infinity && max === Infinity) {
+            return useIneq ? `${v} \\in \\mathbb{R}` : `(-\\infty, \\infty)`;
+        }
+        if (useIneq) {
+            if (min === -Infinity) return `${v} ${cMax ? '\\le' : '<'} ${max}`;
+            if (max === Infinity) return `${v} ${cMin ? '\\ge' : '>'} ${min}`;
+            return `${min} ${cMin ? '\\le' : '<'} ${v} ${cMax ? '\\le' : '<'} ${max}`;
+        } else {
+            let l = min === -Infinity ? '(' : (cMin ? '[' : '(');
+            let r = max === Infinity ? ')' : (cMax ? ']' : ')');
+            let m1 = min === -Infinity ? '-\\infty' : min;
+            let m2 = max === Infinity ? '\\infty' : max;
+            return `${l}${m1}, ${m2}${r}`;
+        }
+    }
+
+    // --- Graphing Engine ---
+    function drawCartesianGraph(config) {
+        const canvas = document.getElementById('graphCanvas');
+        canvas.style.display = 'block';
+        const ctx = canvas.getContext('2d');
+        
+        const W = 350; const H = 350;
+        canvas.width = W; canvas.height = H;
+        ctx.clearRect(0, 0, W, H);
+
+        if (config.type === 'mapping') {
+            // Draw Ovals
+            ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.ellipse(90, 175, 45, 120, 0, 0, 2*Math.PI); ctx.stroke();
+            ctx.beginPath(); ctx.ellipse(260, 175, 45, 120, 0, 0, 2*Math.PI); ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#2c3e50'; ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText("Domain", 90, 30); ctx.fillText("Range", 260, 30);
+            
+            let dYs = config.dVals.map((_, i) => 175 - ((config.dVals.length-1)*25) + i*50);
+            let rYs = config.rVals.map((_, i) => 175 - ((config.rVals.length-1)*25) + i*50);
+            
+            ctx.font = '18px sans-serif';
+            config.dVals.forEach((v, i) => {
+                ctx.fillText(v, 70, dYs[i]);
+                ctx.beginPath(); ctx.arc(110, dYs[i], 4, 0, 2*Math.PI); ctx.fill();
+            });
+            config.rVals.forEach((v, i) => {
+                ctx.fillText(v, 280, rYs[i]);
+                ctx.beginPath(); ctx.arc(240, rYs[i], 4, 0, 2*Math.PI); ctx.fill();
+            });
+            
+            // Draw arrows
+            ctx.strokeStyle = '#3498db'; ctx.fillStyle = '#3498db'; ctx.lineWidth = 2;
+            config.arrows.forEach(arr => {
+                let startY = dYs[arr.from];
+                let endY = rYs[arr.to];
+                ctx.beginPath();
+                ctx.moveTo(110, startY);
+                ctx.bezierCurveTo(150, startY, 200, endY, 235, endY);
+                ctx.stroke();
+                // Arrowhead
+                ctx.beginPath();
+                ctx.moveTo(235, endY);
+                ctx.lineTo(225, endY - 4);
+                ctx.lineTo(225, endY + 4);
+                ctx.fill();
+            });
+            return; 
+        }
+
+        const gridScale = 25; 
+        const midX = W / 2;
+        const midY = H / 2;
+        
+        const toPix = (x, y) => ({ px: midX + x*gridScale, py: midY - y*gridScale });
+
+        // Draw Grid
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#ecf0f1';
+        for(let i = 0; i <= W; i+=gridScale) {
+            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke();
+        }
+
+        // Draw Axes
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#2c3e50';
+        ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke(); 
+        ctx.beginPath(); ctx.moveTo(midX, 0); ctx.lineTo(midX, H); ctx.stroke(); 
+
+        ctx.fillStyle = '#3498db';
+        ctx.strokeStyle = '#3498db';
+        ctx.lineWidth = 3;
+
+        // Arrow drawing helper
+        const drawArrow = (p1, p2) => {
+            let angle = Math.atan2(p2.py - p1.py, p2.px - p1.px);
+            ctx.beginPath();
+            ctx.moveTo(p2.px, p2.py);
+            ctx.lineTo(p2.px - 12 * Math.cos(angle - Math.PI / 6), p2.py - 12 * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(p2.px, p2.py);
+            ctx.lineTo(p2.px - 12 * Math.cos(angle + Math.PI / 6), p2.py - 12 * Math.sin(angle + Math.PI / 6));
+            ctx.stroke();
+        };
+
+        const drawEndpoint = (p, closed, isArrow, pPrev) => {
+            if (isArrow) {
+                drawArrow(pPrev, p);
+            } else {
+                ctx.beginPath(); ctx.arc(p.px, p.py, 5, 0, Math.PI*2);
+                if (closed) { ctx.fillStyle = '#3498db'; ctx.fill(); }
+                else { ctx.fillStyle = 'white'; ctx.fill(); ctx.stroke(); }
+            }
+        };
+
+        if (config.type === 'points') { 
+            config.points.forEach(p => {
+                let coord = toPix(p[0], p[1]);
+                ctx.beginPath(); ctx.arc(coord.px, coord.py, 4, 0, Math.PI*2); ctx.fill();
+            });
+        } 
+        else if (config.type === 'segment') { 
+            let p1 = toPix(config.x1, config.y1);
+            let p2 = toPix(config.x2, config.y2);
+            
+            ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
+            
+            drawEndpoint(p1, config.c1, config.arrows && config.arrows[0], p2);
+            drawEndpoint(p2, config.c2, config.arrows && config.arrows[1], p1);
+        }
+        else if (config.type === 'piecewise') { 
+            let ptsPix = config.pts.map(p => toPix(p[0], p[1]));
+            
+            ctx.beginPath();
+            ctx.moveTo(ptsPix[0].px, ptsPix[0].py);
+            for(let i=1; i<ptsPix.length; i++) ctx.lineTo(ptsPix[i].px, ptsPix[i].py);
+            ctx.stroke();
+            
+            if (config.showPts) {
+                ptsPix.forEach(p => {
+                    ctx.fillStyle = '#3498db';
+                    ctx.beginPath(); ctx.arc(p.px, p.py, 4, 0, Math.PI*2); ctx.fill();
+                });
+            }
+
+            if (config.hasOwnProperty('c1')) {
+                drawEndpoint(ptsPix[0], config.c1, config.arrows && config.arrows[0], ptsPix[1]);
+                drawEndpoint(ptsPix[ptsPix.length-1], config.c2, config.arrows && config.arrows[1], ptsPix[ptsPix.length-2]);
+            }
+        }
+        else if (config.type === 'parabola_func') { 
+            let ptsPix = [];
+            for(let x=config.startX; x<=config.endX; x+=0.1) {
+                let y = config.a * Math.pow(x - config.vx, 2) + config.vy;
+                ptsPix.push(toPix(x, y));
+            }
+            ptsPix.push(toPix(config.endX, config.a * Math.pow(config.endX - config.vx, 2) + config.vy));
+
+            ctx.beginPath();
+            ctx.moveTo(ptsPix[0].px, ptsPix[0].py);
+            for(let i=1; i<ptsPix.length; i++) ctx.lineTo(ptsPix[i].px, ptsPix[i].py);
+            ctx.stroke();
+
+            if (config.showPts) {
+                ctx.fillStyle = '#3498db';
+                for(let dx=-3; dx<=3; dx++) {
+                    let px = config.vx + dx;
+                    let py = config.a * dx * dx + config.vy;
+                    if(px >= config.startX && px <= config.endX) {
+                        let pt = toPix(px, py);
+                        ctx.beginPath(); ctx.arc(pt.px, pt.py, 4, 0, Math.PI*2); ctx.fill();
+                    }
+                }
+            }
+
+            if(config.hasOwnProperty('c1')){
+                let refStart = ptsPix[5];
+                let refEnd = ptsPix[ptsPix.length-6];
+                drawEndpoint(ptsPix[0], config.c1, config.arrows && config.arrows[0], refStart);
+                drawEndpoint(ptsPix[ptsPix.length-1], config.c2, config.arrows && config.arrows[1], refEnd);
+            }
+        }
+        else if (config.type === 'parabola_side_inf') { 
+            let startY = config.vy - 6;
+            let endY = config.vy + 6;
+            let a = config.opensRight ? 0.25 : -0.25; 
+            
+            let ptsPix = [];
+            for(let y=startY; y<=endY; y+=0.1) {
+                let x = a*Math.pow(y - config.vy, 2) + config.vx;
+                ptsPix.push(toPix(x, y));
+            }
+            ptsPix.push(toPix(a*Math.pow(endY - config.vy, 2) + config.vx, endY));
+
+            ctx.beginPath();
+            ctx.moveTo(ptsPix[0].px, ptsPix[0].py);
+            for(let i=1; i<ptsPix.length; i++) ctx.lineTo(ptsPix[i].px, ptsPix[i].py);
+            ctx.stroke();
+
+            let refStart = ptsPix[5];
+            let refEnd = ptsPix[ptsPix.length-6];
+            drawEndpoint(ptsPix[0], false, true, refStart);
+            drawEndpoint(ptsPix[ptsPix.length-1], false, true, refEnd);
+        }
+        else if (config.type === 'circle') {
+            let cp = toPix(config.cx, config.cy);
+            ctx.beginPath(); ctx.arc(cp.px, cp.py, config.r * gridScale, 0, 2*Math.PI); ctx.stroke();
+        }
+    }
+
+    // --- Navigation ---
+    function startGame(mode) {
+        try {
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            const layout = document.getElementById('qLayout');
+            if (mode === 1 || mode === 5 || mode === 8) {
+                layout.classList.add('with-graph');
+            } else {
+                layout.classList.remove('with-graph');
+                document.getElementById('graphCanvas').style.display = 'none';
+            }
+            
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) { console.error(e); }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Problem Generation Engine ---
+    function generateProblem() {
+        isTransitioning = false;
+        
+        let correctAns = "";
+        let distractors = new Set();
+        let infoLines = [];
+        let infoHtml = "";
+        let promptText = "";
+
+        let canvasConfig = null;
+        let problemSignature = "";
+        let loopCount = 0;
+
+        do {
+            distractors.clear();
+            infoLines = [];
+            infoHtml = "";
+            canvasConfig = null;
+
+            // MODE 1: Function or Relation?
+            if (currentMode === 1) {
+                promptText = "Is this relation a function?";
+                
+                let isFunction = Math.random() > 0.5;
+                correctAns = isFunction ? "Yes" : "No";
+
+                let repType = getRandomInt(1, 4); 
+                
+                if (repType === 1) { // Ordered Pairs
+                    let pts = [];
+                    let xVals = new Set();
+                    let dupX = getRandomInt(-5, 5);
+                    for(let i=0; i<4; i++) {
+                        let x = (!isFunction && i===3) ? dupX : getRandomInt(-5, 5);
+                        if(isFunction) { while(xVals.has(x)) x = getRandomInt(-5, 5); }
+                        if(!isFunction && i===0) { x = dupX; }
+                        xVals.add(x);
+                        pts.push(`(${x}, ${getRandomInt(-5, 5)})`);
+                    }
+                    infoLines.push(`\\{ ${pts.join(', ')} \\}`);
+                    document.getElementById('graphCanvas').style.display = 'none';
+                } 
+                else if (repType === 2) { // Table
+                    let xHTML = "<tr><th>x</th>";
+                    let yHTML = "<tr><th>y</th>";
+                    let xVals = new Set();
+                    let dupX = getRandomInt(-5, 5);
+                    
+                    for(let i=0; i<4; i++) {
+                        let x = (!isFunction && i===3) ? dupX : getRandomInt(-5, 5);
+                        if(isFunction) { while(xVals.has(x)) x = getRandomInt(-5, 5); }
+                        if(!isFunction && i===0) { x = dupX; }
+                        xVals.add(x);
+                        
+                        xHTML += `<td>${x}</td>`;
+                        yHTML += `<td>${getRandomInt(-5, 5)}</td>`;
+                    }
+                    xHTML += "</tr>"; yHTML += "</tr>";
+                    infoHtml = `<table class="rel-table">${xHTML}${yHTML}</table>`;
+                    document.getElementById('graphCanvas').style.display = 'none';
+                }
+                else if (repType === 3) { // Graph
+                    infoLines.push("Examine the graph below:");
+                    if (isFunction) {
+                        let pts = []; let curX = -5;
+                        for(let i=0; i<5; i++) { pts.push([curX, getRandomInt(-5, 5)]); curX += getRandomInt(1, 3); }
+                        canvasConfig = { type: 'piecewise', pts: pts, c1: true, c2: true, showPts: false, arrows: [true, true] };
+                    } else {
+                        if(Math.random() > 0.5) {
+                            canvasConfig = { type: 'parabola_side_inf', vx: getRandomInt(-3, 3), vy: getRandomInt(-2, 2), opensRight: Math.random() > 0.5 };
+                        } else {
+                            let pts = [];
+                            let dupX = getRandomInt(-3, 3);
+                            pts.push([dupX, 2]); pts.push([dupX, -2]); pts.push([dupX+2, 0]); pts.push([-4, 1]);
+                            canvasConfig = { type: 'points', points: pts };
+                        }
+                    }
+                }
+                else { // Mapping Diagram
+                    infoLines.push("Examine the mapping diagram below:");
+                    let dVals = getSortedUnique([getRandomInt(-5, 5), getRandomInt(-5, 5), getRandomInt(-5, 5)]);
+                    let rVals = getSortedUnique([getRandomInt(-5, 5), getRandomInt(-5, 5), getRandomInt(-5, 5)]);
+                    if (dVals.length < 2) dVals.push(dVals[0]+1);
+                    if (rVals.length < 2) rVals.push(rVals[0]+1);
+
+                    let arrows = [];
+                    if (isFunction) {
+                        dVals.forEach((d, i) => { arrows.push({ from: i, to: getRandomInt(0, rVals.length-1) }); });
+                    } else {
+                        dVals.forEach((d, i) => { arrows.push({ from: i, to: getRandomInt(0, rVals.length-1) }); });
+                        arrows.push({ from: 0, to: (arrows[0].to === 0 ? 1 : 0) });
+                    }
+                    canvasConfig = { type: 'mapping', dVals, rVals, arrows };
+                }
+            }
+
+            // MODE 2: Discrete Domain & Range
+            else if (currentMode === 2) {
+                let askDomain = Math.random() > 0.5;
+                promptText = askDomain ? "What is the Domain?" : "What is the Range?";
+                
+                let pts = [];
+                let dVals = []; let rVals = [];
+                for(let i=0; i<4; i++) {
+                    let x = getRandomInt(-6, 6);
+                    let y = getRandomInt(-6, 6);
+                    dVals.push(x); rVals.push(y);
+                    pts.push(`(${x}, ${y})`);
+                }
+                
+                infoLines.push(`\\{ ${pts.join(', ')} \\}`);
+                
+                let dSet = `\\{${getSortedUnique(dVals).join(', ')}\\}`;
+                let rSet = `\\{${getSortedUnique(rVals).join(', ')}\\}`;
+                
+                correctAns = askDomain ? dSet : rSet;
+                distractors.add(askDomain ? rSet : dSet); 
+                
+                let fake = getSortedUnique((askDomain?dVals:rVals).map(Math.abs));
+                distractors.add(`\\{${fake.join(', ')}\\}`);
+            }
+
+            // MODE 3: Basic Arithmetic Sequences
+            else if (currentMode === 3) {
+                let t1 = getRandomInt(-10, 10);
+                let d = getRandomInt(2, 6) * (Math.random()>0.5?1:-1);
+                
+                let seq = [t1, t1+d, t1+2*d];
+                
+                let askDiff = Math.random() > 0.5;
+                if (askDiff) {
+                    promptText = "What is the common difference \\( d \\)?";
+                    infoLines.push(`${seq.join(', ')}, \\dots`);
+                    correctAns = d.toString();
+                    distractors.add((-d).toString()); 
+                    distractors.add((seq[1]+seq[0]).toString()); 
+                } else {
+                    promptText = "Find the next term in the sequence:";
+                    infoLines.push(`${seq.join(', ')}, \\_\\_`);
+                    let ans = t1+3*d;
+                    correctAns = ans.toString();
+                    distractors.add((ans + d).toString()); 
+                    distractors.add((ans - 2*d).toString()); 
+                }
+            }
+
+            // MODE 4: Evaluate Function Notation
+            else if (currentMode === 4) {
+                let a = getRandomInt(2, 5) * (Math.random()>0.5?1:-1);
+                let b = getRandomInt(1, 10) * (Math.random()>0.5?1:-1);
+                let isQuad = Math.random() > 0.6;
+                let x = getRandomInt(-4, 4);
+                
+                promptText = `Find \\( f(${x}) \\)`;
+                
+                let ans;
+                if (isQuad) {
+                    infoLines.push(`f(x) = x^2 ${b>0?'+':'-'} ${Math.abs(b)}x`);
+                    ans = (x*x) + (b*x);
+                    distractors.add(( -(x*x) + (b*x) ).toString());
+                } else {
+                    infoLines.push(`f(x) = ${a}x ${b>0?'+':'-'} ${Math.abs(b)}`);
+                    ans = (a*x) + b;
+                    distractors.add( ((-a)*x + b).toString() ); 
+                }
+                
+                correctAns = ans.toString();
+                distractors.add((ans + a).toString()); 
+            }
+
+            // MODE 5: Domain & Range from Graph (All Reals Added)
+            else if (currentMode === 5) {
+                let askDomain = Math.random() > 0.5;
+                let useIneq = Math.random() > 0.5;
+                promptText = askDomain ? "State the Domain of the graph:" : "State the Range of the graph:";
+                infoLines.push("Assume grid lines represent 1 unit.");
+                
+                let shapeType = getRandomInt(1, 6); 
+                let domAns, ranAns, badDom, badRan;
+                
+                if (shapeType === 1) { // Finite Segment
+                    let x1 = getRandomInt(-5, -1); let y1 = getRandomInt(-4, 4);
+                    let x2 = getRandomInt(1, 5);   let y2 = getRandomInt(-4, 4);
+                    if (y1 === y2) y2 += 1;
+                    let c1 = Math.random() > 0.5; let c2 = Math.random() > 0.5;
+                    canvasConfig = { type: 'segment', x1, y1, x2, y2, c1, c2, arrows: [false, false] };
+                    
+                    let minX = Math.min(x1, x2); let maxX = Math.max(x1, x2);
+                    let minY = Math.min(y1, y2); let maxY = Math.max(y1, y2);
+                    let cLeft = x1 < x2 ? c1 : c2; let cRight = x1 < x2 ? c2 : c1;
+                    let cBottom = y1 < y2 ? c1 : c2; let cTop = y1 < y2 ? c2 : c1;
+                    
+                    domAns = formatSet(minX, maxX, cLeft, cRight, true, useIneq);
+                    ranAns = formatSet(minY, maxY, cBottom, cTop, false, useIneq);
+                    badDom = formatSet(minX, maxX, !cLeft, !cRight, true, useIneq);
+                    badRan = formatSet(minY, maxY, !cBottom, !cTop, false, useIneq);
+                    
+                    correctAns = askDomain ? domAns : ranAns;
+                    distractors.add(askDomain ? ranAns : domAns); 
+                    distractors.add(askDomain ? badDom : badRan);
+                }
+                else if (shapeType === 2) { // Infinite Line
+                    let y1 = getRandomInt(-4, 4); let y2 = getRandomInt(-4, 4);
+                    if (y1 === y2) y2 += 2;
+                    canvasConfig = { type: 'segment', x1: -6, y1: y1, x2: 6, y2: y2, arrows: [true, true] };
+                    
+                    domAns = formatSet(-Infinity, Infinity, false, false, true, useIneq);
+                    ranAns = formatSet(-Infinity, Infinity, false, false, false, useIneq);
+                    badDom = formatSet(-6, 6, true, true, true, useIneq); 
+                    badRan = formatSet(-6, 6, false, false, false, useIneq);
+                    
+                    correctAns = askDomain ? domAns : ranAns;
+                    distractors.add(askDomain ? badDom : badRan);
+                    distractors.add(formatSet(0, Infinity, true, false, askDomain, useIneq));
+                    distractors.add(formatSet(-Infinity, 0, false, true, askDomain, useIneq));
+                }
+                else if (shapeType === 3) { // Piecewise Monotonic (Finite)
+                    let dir = Math.random() > 0.5 ? 1 : -1;
+                    let p1 = [getRandomInt(-5,-3), getRandomInt(-4,-2) * dir];
+                    let p2 = [getRandomInt(-1, 1), getRandomInt(-1, 1) * dir];
+                    let p3 = [getRandomInt(3, 5), getRandomInt(2, 4) * dir];
+                    let c1 = Math.random() > 0.5; let c2 = Math.random() > 0.5;
+                    
+                    canvasConfig = { type: 'piecewise', pts: [p1, p2, p3], c1, c2, showPts: false, arrows: [false, false] };
+                    
+                    let minX = p1[0]; let maxX = p3[0];
+                    let minY = dir === 1 ? p1[1] : p3[1];
+                    let maxY = dir === 1 ? p3[1] : p1[1];
+                    let cBottom = dir === 1 ? c1 : c2;
+                    let cTop = dir === 1 ? c2 : c1;
+                    
+                    domAns = formatSet(minX, maxX, c1, c2, true, useIneq);
+                    ranAns = formatSet(minY, maxY, cBottom, cTop, false, useIneq);
+                    badDom = formatSet(minX, maxX, !c1, !c2, true, useIneq);
+                    badRan = formatSet(minY, maxY, !cBottom, !cTop, false, useIneq);
+                    
+                    correctAns = askDomain ? domAns : ranAns;
+                    distractors.add(askDomain ? ranAns : domAns); 
+                    distractors.add(askDomain ? badDom : badRan);
+                }
+                else if (shapeType === 4) { // Restricted Parabola
+                    let vx = getRandomInt(-2, 2); 
+                    let opensUp = Math.random() > 0.5;
+                    let vy = opensUp ? getRandomInt(-4, -2) : getRandomInt(2, 4);
+                    let c1 = Math.random() > 0.5; 
+                    
+                    let startX = vx - 2; let endX = vx + 2;
+                    let a = opensUp ? 1 : -1;
+                    
+                    canvasConfig = { type: 'parabola_func', vx, vy, a, startX, endX, c1: c1, c2: c1, showPts: false, arrows: [false, false] };
+                    
+                    let yEnd = a*4 + vy; 
+                    
+                    domAns = formatSet(startX, endX, c1, c1, true, useIneq);
+                    ranAns = opensUp ? formatSet(vy, yEnd, true, c1, false, useIneq) : formatSet(yEnd, vy, c1, true, false, useIneq);
+                    badDom = formatSet(startX, endX, !c1, !c1, true, useIneq);
+                    badRan = opensUp ? formatSet(vy, yEnd, false, !c1, false, useIneq) : formatSet(yEnd, vy, !c1, false, false, useIneq);
+                    
+                    correctAns = askDomain ? domAns : ranAns;
+                    distractors.add(askDomain ? ranAns : domAns); 
+                    distractors.add(askDomain ? badDom : badRan);
+                }
+                else if (shapeType === 5) { // Infinite Parabola (Up/Down)
+                    let vx = getRandomInt(-2, 2); 
+                    let opensUp = Math.random() > 0.5;
+                    let vy = opensUp ? getRandomInt(-4, -2) : getRandomInt(2, 4);
+                    
+                    let startX = vx - 2.5; let endX = vx + 2.5;
+                    let a = opensUp ? 1 : -1;
+                    
+                    canvasConfig = { type: 'parabola_func', vx, vy, a, startX, endX, c1: false, c2: false, showPts: false, arrows: [true, true] };
+                    
+                    domAns = formatSet(-Infinity, Infinity, false, false, true, useIneq);
+                    ranAns = opensUp ? formatSet(vy, Infinity, true, false, false, useIneq) : formatSet(-Infinity, vy, false, true, false, useIneq);
+                    
+                    badDom = formatSet(-6, 6, true, true, true, useIneq);
+                    badRan = formatSet(-Infinity, Infinity, false, false, false, useIneq);
+                    
+                    correctAns = askDomain ? domAns : ranAns;
+                    distractors.add(askDomain ? ranAns : domAns); 
+                    distractors.add(askDomain ? badDom : badRan);
+                    distractors.add(askDomain ? formatSet(0, Infinity, true, false, true, useIneq) : formatSet(vy, Infinity, false, false, false, useIneq));
+                }
+                else { // Infinite Sideways Parabola (Left/Right)
+                    let vy = getRandomInt(-2, 2); 
+                    let opensRight = Math.random() > 0.5;
+                    let vx = opensRight ? getRandomInt(-4, -2) : getRandomInt(2, 4);
+                    
+                    canvasConfig = { type: 'parabola_side_inf', vx, vy, opensRight };
+                    
+                    domAns = opensRight ? formatSet(vx, Infinity, true, false, true, useIneq) : formatSet(-Infinity, vx, false, true, true, useIneq);
+                    ranAns = formatSet(-Infinity, Infinity, false, false, false, useIneq);
+                    
+                    badDom = formatSet(-Infinity, Infinity, false, false, true, useIneq);
+                    badRan = formatSet(-6, 6, true, true, false, useIneq);
+                    
+                    correctAns = askDomain ? domAns : ranAns;
+                    distractors.add(askDomain ? ranAns : domAns);
+                    distractors.add(askDomain ? badDom : badRan);
+                    distractors.add(askDomain ? formatSet(vx, Infinity, false, false, true, useIneq) : formatSet(0, Infinity, true, false, false, useIneq));
+                }
+            }
+
+            // MODE 6: Arithmetic Formulas
+            else if (currentMode === 6) {
+                promptText = "Solve:";
+                let type = getRandomInt(1, 2); 
+                
+                let t1 = getRandomInt(-5, 5);
+                let d = getRandomInt(2, 6);
+                let n = getRandomInt(8, 15);
+                
+                let tn = t1 + (n-1)*d;
+                
+                if (type === 1) {
+                    infoLines.push("Given the arithmetic sequence:");
+                    infoLines.push(`t_1 = ${t1}, \\quad d = ${d}`);
+                    infoLines.push(`\\text{Find } t_{${n}}`);
+                    
+                    correctAns = tn.toString();
+                    distractors.add((t1 + n*d).toString()); 
+                    distractors.add((t1 + (n-1)*(-d)).toString()); 
+                } else {
+                    let sn = (n/2) * (2*t1 + (n-1)*d);
+                    infoLines.push("Given the arithmetic series:");
+                    infoLines.push(`t_1 = ${t1}, \\quad d = ${d}`);
+                    infoLines.push(`\\text{Find the sum } S_{${n}}`);
+                    
+                    correctAns = sn.toString();
+                    distractors.add(((n/2) * (2*t1 + n*d)).toString()); 
+                    distractors.add((n * (t1 + tn)).toString()); 
+                }
+            }
+
+            // MODE 7: Notation Translation
+            else if (currentMode === 7) {
+                promptText = "Convert the inequality to Interval Notation:";
+                let a = getRandomInt(-10, 0);
+                let b = getRandomInt(1, 10);
+                let type = getRandomInt(1, 3);
+                
+                if (type === 1) { 
+                    infoLines.push(`${a} \\le x < ${b}`);
+                    correctAns = `[${a}, ${b})`;
+                    distractors.add(`(${a}, ${b}]`); 
+                    distractors.add(`[${a}, ${b}]`);
+                } else if (type === 2) { 
+                    infoLines.push(`x \\ge ${a}`);
+                    correctAns = `[${a}, \\infty)`;
+                    distractors.add(`(${a}, \\infty)`);
+                    distractors.add(`(-\\infty, ${a}]`); 
+                } else { 
+                    infoLines.push(`x < ${b}`);
+                    correctAns = `(-\\infty, ${b})`;
+                    distractors.add(`(-\\infty, ${b}]`);
+                    distractors.add(`(${b}, \\infty)`); 
+                }
+            }
+
+            // MODE 8: Read from Graph (Multiple answers supported using V-shape / Parabolas)
+            else if (currentMode === 8) {
+                let isParabola = Math.random() > 0.5;
+                let a = Math.random() > 0.5 ? 1 : -1;
+                let h = getRandomInt(-2, 2);
+                
+                let pts = [];
+                if (isParabola) {
+                    let k = getRandomInt(-1, 1);
+                    canvasConfig = { type: 'parabola_func', vx: h, vy: k, a: a, startX: h-3, endX: h+3, c1: true, c2: true, showPts: true, arrows: [false, false] };
+                    for(let dx=-3; dx<=3; dx++) {
+                        let y = a*dx*dx + k;
+                        if(y >= -5 && y <= 5) pts.push([h+dx, y]);
+                    }
+                } else { // V-shape Piecewise (Absolute Value)
+                    let k = getRandomInt(-2, 2);
+                    canvasConfig = { type: 'piecewise', pts: [[h-4, k+4*a], [h, k], [h+4, k+4*a]], c1: true, c2: true, showPts: true, arrows: [false, false] };
+                    for(let dx=-4; dx<=4; dx++) {
+                        let y = a*Math.abs(dx) + k;
+                        if(y >= -5 && y <= 5) pts.push([h+dx, y]);
+                    }
+                }
+                
+                let targetPt = getRandomEl(pts);
+                let askY = Math.random() > 0.5;
+                
+                if (askY) {
+                    promptText = `Evaluate \\( f(${targetPt[0]}) \\)`;
+                    correctAns = `y = ${targetPt[1]}`;
+                    distractors.add(`y = ${targetPt[0]}`); 
+                    distractors.add(`y = ${targetPt[1] + 1}`);
+                    distractors.add(`y = ${targetPt[1] - 1}`);
+                    distractors.add(`x = ${targetPt[1]}`); // extra axis trap
+                } else {
+                    promptText = `Solve \\( f(x) = ${targetPt[1]} \\)`;
+                    let x_sols = getSortedUnique(pts.filter(p => p[1] === targetPt[1]).map(p => p[0]));
+                    
+                    if (x_sols.length === 1) {
+                        correctAns = `x = ${x_sols[0]}`;
+                        distractors.add(`x = ${targetPt[1]}`); 
+                        distractors.add(`x = ${x_sols[0] + 1}`);
+                        distractors.add(`y = ${x_sols[0]}`);
+                    } else {
+                        correctAns = `x = ${x_sols[0]}, ${x_sols[1]}`;
+                        distractors.add(`x = ${x_sols[0]}`); 
+                        distractors.add(`x = ${x_sols[1]}`);
+                        distractors.add(`x = ${x_sols[0]+1}, ${x_sols[1]+1}`);
+                        distractors.add(`y = ${x_sols[0]}, ${x_sols[1]}`);
+                    }
+                }
+            }
+
+            problemSignature = promptText + infoLines.join('|') + infoHtml + (canvasConfig ? JSON.stringify(canvasConfig) : "");
+            loopCount++;
+
+        } while (problemSignature === lastPrompt && loopCount < 10); 
+        
+        lastPrompt = problemSignature;
+
+        document.getElementById('promptTitle').innerHTML = promptText; 
+
+        if (canvasConfig) { 
+            drawCartesianGraph(canvasConfig); 
+        } else {
+            document.getElementById('graphCanvas').style.display = 'none';
+        }
+
+        if (infoHtml) {
+            document.getElementById('infoBox').innerHTML = infoHtml;
+            document.getElementById('infoBox').style.display = 'flex';
+        } else if (infoLines.length > 0) {
+            let boxHtml = infoLines.map(line => {
+                if (line.includes("\\text{") || line.includes("\\(")) return `<p style="margin:5px 0;">${line}</p>`;
+                if (line.match(/^[a-zA-Z]/)) return `<p style="margin:5px 0;">${line}</p>`;
+                return `<p style="margin:5px 0;">\\( ${line} \\)</p>`;
+            }).join('');
+            document.getElementById('infoBox').innerHTML = boxHtml;
+            document.getElementById('infoBox').style.display = 'flex';
+        } else {
+            document.getElementById('infoBox').innerHTML = '';
+            document.getElementById('infoBox').style.display = 'none';
+        }
+
+        let finalOptions = new Set();
+        finalOptions.add(correctAns);
+        let distArray = Array.from(distractors);
+        let i = 0;
+        
+        let targetOptionsSize = (currentMode === 1) ? 2 : 4;
+
+        while(finalOptions.size < targetOptionsSize && i < distArray.length) {
+            finalOptions.add(distArray[i]); i++;
+        }
+        
+        // Strict, format-aware padding to prevent NaN crashes
+        let pad = 1;
+        while(finalOptions.size < targetOptionsSize) { 
+            if (currentMode === 2) {
+                finalOptions.add(`\\{${pad}, ${pad+1}, ${pad+2}\\}`);
+            } else if (currentMode === 5) {
+                if (correctAns.includes("\\infty") || correctAns.includes("\\mathbb{R}")) {
+                    finalOptions.add(`[${pad}, \\infty)`);
+                } else {
+                    finalOptions.add(`[${pad}, ${pad+3}]`);
+                }
+            } else if (currentMode === 7) {
+                finalOptions.add(`[${pad}, \\infty)`);
+            } else if (currentMode === 8) {
+                let v = correctAns.startsWith("y") ? "y" : "x";
+                finalOptions.add(`${v} = ${pad}`);
+            } else {
+                let parsed = parseFloat(correctAns);
+                if (isNaN(parsed)) parsed = getRandomInt(1, 10);
+                finalOptions.add((parsed + pad).toString()); 
+            }
+            pad++;
+        }
+
+        let options;
+        if (currentMode === 1) {
+            options = ["No", "Yes"];
+        } else {
+            options = shuffle(Array.from(finalOptions));
+        }
+
+        const grid = document.getElementById('optionsGrid');
+        grid.innerHTML = ''; 
+
+        options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            
+            if (opt === "Yes" || opt === "No") {
+                btn.innerHTML = opt;
+            } else {
+                btn.innerHTML = `\\(${opt}\\)`;
+            }
+
+            btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+            grid.appendChild(btn);
+        });
+
+        if (window.renderMathInElement) {
+            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: true}] });
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>

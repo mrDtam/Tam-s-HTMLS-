@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 10: Factors & Products</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #3498db;
+            --level3: #9b59b6;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        .menu-btn:hover span { background-color: white; color: var(--secondary); }
+        .lvl-3 .menu-btn:hover span { color: var(--level3); }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .problem-display {
+            font-size: 36px;
+            margin: 0 0 25px 0;
+            padding: 20px 30px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        #errorAlert {
+            display: none;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            flex: 1 1 calc(50% - 15px); 
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 18px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+        
+        .option-btn.three-col {
+            flex: 1 1 calc(33% - 15px); 
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .option-btn { flex: 1 1 100%; } 
+            .option-btn.three-col { flex: 1 1 100%; }
+            .problem-display { font-size: 26px; }
+            .prompt-text { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Factors & Products</h1>
+        <p class="subtitle">Math 10 Core Skills</p>
+        
+        <div class="level-section">
+            <div class="level-title">Level 1 to Level 2</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Primes, GCF & LCM</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Perfect Squares & Cubes</button>
+                <button class="menu-btn" onclick="startGame(3)"><span>3</span> Polynomial Vocabulary</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Level 3 to Level 4</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Multiply & Expand Polynomials</button>
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Factor using GCF & Grouping</button>
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Factor Trinomials (x² + bx + c)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="errorAlert"></div>
+
+        <div class="prompt-text" id="promptTitle">Question:</div>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandomNonZero(min, max) {
+        let val; do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0); return val;
+    }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    
+    // --- Math Safeguards ---
+    function gcd(x, y) {
+        x = Math.abs(x); y = Math.abs(y);
+        while(y) { let t = y; y = x % y; x = t; }
+        return x;
+    }
+    function lcm(x, y) { return (!x || !y) ? 0 : Math.abs((x * y) / gcd(x, y)); }
+
+    function getPrimeFactors(n) {
+        let factors = {};
+        for(let i=2; i<=n; i++) {
+            while(n % i === 0) {
+                factors[i] = (factors[i] || 0) + 1;
+                n /= i;
+            }
+        }
+        return factors;
+    }
+
+    function formatPrimeFactorization(factors) {
+        let keys = Object.keys(factors).map(Number).sort((a,b) => a-b);
+        if (keys.length === 0) return "1";
+        return keys.map(p => factors[p] > 1 ? `${p}^{${factors[p]}}` : `${p}`).join(' \\cdot ');
+    }
+
+    // --- Miniature CAS ---
+    class Term {
+        constructor(c, vars = {}) {
+            this.c = c;
+            this.vars = vars; 
+        }
+        get signature() { return Object.keys(this.vars).sort().map(k => `${k}${this.vars[k]}`).join(''); }
+        get degree() { return Object.values(this.vars).reduce((sum, v) => sum + v, 0); }
+        toString() {
+            if (this.c === 0) return "0";
+            let vKeys = Object.keys(this.vars).sort();
+            let vStr = vKeys.map(k => {
+                if (this.vars[k] === 1) return k;
+                if (this.vars[k] > 1) return `${k}^{${this.vars[k]}}`;
+                return "";
+            }).join('');
+            if (vStr === "") return this.c.toString();
+            if (this.c === 1) return vStr;
+            if (this.c === -1) return "-" + vStr;
+            return this.c + vStr;
+        }
+        clone() { return new Term(this.c, { ...this.vars }); }
+    }
+
+    function multiplyTerms(t1, t2) {
+        let newC = t1.c * t2.c;
+        let newVars = { ...t1.vars };
+        for (let k in t2.vars) { newVars[k] = (newVars[k] || 0) + t2.vars[k]; }
+        return new Term(newC, newVars);
+    }
+
+    function simplifyPoly(terms) {
+        let map = {};
+        terms.forEach(t => {
+            let sig = t.signature;
+            if (!map[sig]) map[sig] = t.clone();
+            else map[sig].c += t.c;
+        });
+        let simplified = Object.values(map).filter(t => t.c !== 0);
+        if (simplified.length === 0) return [new Term(0)];
+        simplified.sort((a, b) => {
+            if (a.degree !== b.degree) return b.degree - a.degree;
+            return a.signature.localeCompare(b.signature);
+        });
+        return simplified;
+    }
+
+    function polyToStr(terms, raw = false) {
+        let poly = raw ? terms : simplifyPoly(terms);
+        if (poly.length === 0) return "0";
+        let str = poly[0].toString();
+        for (let i = 1; i < poly.length; i++) {
+            let tStr = poly[i].toString();
+            if (tStr.startsWith("-")) str += " - " + tStr.substring(1);
+            else str += " + " + tStr;
+        }
+        return str;
+    }
+
+    function multiplyPolys(p1, p2) {
+        let result = [];
+        p1.forEach(t1 => { p2.forEach(t2 => { result.push(multiplyTerms(t1, t2)); }); });
+        return simplifyPoly(result);
+    }
+
+    function termFmt(c, v, isFirst) {
+        if (c === 0) return "";
+        let absC = Math.abs(c);
+        let cStr = (absC === 1 && v !== "") ? "" : absC;
+        let sign = (c < 0) ? (isFirst ? "-" : " - ") : (isFirst ? "" : " + ");
+        return `${sign}${cStr}${v}`;
+    }
+
+    function formatBinomial(a, b, v = 'x') { return `(${termFmt(a, v, true)}${termFmt(b, '', false)})`; }
+    function formatQuadratic(a, b, c, v = 'x') {
+        let p1 = termFmt(a, `${v}^2`, true);
+        let p2 = termFmt(b, v, p1 === "");
+        let p3 = termFmt(c, "", p1 === "" && p2 === "");
+        return `${p1}${p2}${p3}`;
+    }
+    function formatCubic(a, b, c, d, v = 'x') {
+        let p1 = termFmt(a, `${v}^3`, true);
+        let p2 = termFmt(b, `${v}^2`, p1 === "");
+        let p3 = termFmt(c, v, p1 === "" && p2 === "");
+        let p4 = termFmt(d, "", p1 === "" && p2 === "" && p3 === "");
+        return `${p1}${p2}${p3}${p4}`;
+    }
+
+    // --- Navigation ---
+    function startGame(mode) {
+        try {
+            document.getElementById('errorAlert').style.display = 'none';
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            document.getElementById('gameScreen').style.borderColor = mode <= 3 ? "var(--level1)" : "var(--level3)";
+            document.getElementById('problemDisplay').style.borderColor = mode <= 3 ? "var(--level1)" : "var(--level3)";
+
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) {
+            console.error(e);
+            alert("App initialization failed. Please refresh the page.");
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Bulletproof Generation Engine ---
+    function generateProblem() {
+        try {
+            isTransitioning = false;
+            
+            let correctAns = "";
+            let distractors = new Set();
+            let promptHTML = "";
+            let promptText = "";
+            let isTextOnly = false; 
+
+            let problemSignature = "";
+            let loopCount = 0;
+            let targetOptionsSize = 4;
+
+            do {
+                distractors.clear();
+                isTextOnly = false;
+                targetOptionsSize = 4;
+
+                // MODE 1: Primes, GCF, LCM
+                if (currentMode === 1) {
+                    let subType = getRandomInt(1, 3);
+                    
+                    if (subType === 1) { // Prime Factorization
+                        promptText = "Find the prime factorization of the number:";
+                        
+                        let n, factors, isPrime;
+                        // Ensure n is exclusively a composite number
+                        do {
+                            n = getRandomInt(12, 120);
+                            factors = getPrimeFactors(n);
+                            let keys = Object.keys(factors);
+                            isPrime = (keys.length === 1 && factors[keys[0]] === 1);
+                        } while (isPrime);
+
+                        promptHTML = `\\( ${n} \\)`;
+                        
+                        correctAns = formatPrimeFactorization(factors);
+                        
+                        distractors.add(formatPrimeFactorization(getPrimeFactors(n + getRandomEl([-2, 2, 4]))));
+                        if (factors[2]) distractors.add(formatPrimeFactorization(getPrimeFactors(n * 2)));
+                        if (factors[3]) distractors.add(formatPrimeFactorization(getPrimeFactors(n * 3)));
+                    } 
+                    else if (subType === 2) { // GCF
+                        promptText = "Find the Greatest Common Factor:";
+                        let g = getRandomInt(2, 8);
+                        let a = g * getRandomInt(2, 6);
+                        let b = g * getRandomInt(3, 7);
+                        if (a === b) b += g;
+                        
+                        promptHTML = `\\( \\text{GCF}(${a}, \\; ${b}) \\)`;
+                        
+                        correctAns = gcd(a, b).toString();
+                        distractors.add(lcm(a, b).toString()); 
+                        distractors.add(g === 2 ? "4" : "2");
+                        distractors.add((a+b).toString());
+                    }
+                    else { // LCM
+                        promptText = "Find the Least Common Multiple:";
+                        let a = getRandomInt(4, 12);
+                        let b = getRandomInt(6, 15);
+                        if (a === b) b += 2;
+                        
+                        promptHTML = `\\( \\text{LCM}(${a}, \\; ${b}) \\)`;
+                        
+                        correctAns = lcm(a, b).toString();
+                        distractors.add(gcd(a, b).toString()); 
+                        distractors.add((a*b).toString()); 
+                        distractors.add((lcm(a,b) * 2).toString());
+                    }
+                }
+
+                // MODE 2: Perfect Squares & Cubes
+                else if (currentMode === 2) {
+                    promptText = "Classify the number:";
+                    isTextOnly = true; 
+
+                    let type = getRandomInt(1, 4); 
+                    let n;
+                    if (type === 1) { 
+                        n = getRandomEl([4, 9, 16, 25, 36, 49, 81, 100, 121, 144]);
+                        correctAns = "Perfect Square";
+                    } else if (type === 2) { 
+                        n = getRandomEl([8, 27, 125, 216, 343]);
+                        correctAns = "Perfect Cube";
+                    } else if (type === 3) { 
+                        n = getRandomEl([1, 64, 729]);
+                        correctAns = "Both";
+                    } else { 
+                        n = getRandomEl([10, 20, 30, 42, 50, 60, 72, 90]);
+                        correctAns = "Neither";
+                    }
+
+                    promptHTML = `\\( ${n} \\)`;
+                }
+
+                // MODE 3: Polynomial Vocabulary
+                else if (currentMode === 3) {
+                    let subType = getRandomInt(1, 3);
+                    
+                    let poly, polyStr, actualDegree, actualTerms;
+                    
+                    // Generate a valid polynomial (1 to 3 terms) using multiple variables
+                    do {
+                        let termCount = getRandomInt(1, 3);
+                        let terms = [];
+                        for(let i=0; i<termCount; i++) {
+                            let c = getRandomNonZero(-8, 8);
+                            let termVars = {};
+                            ['x', 'y'].forEach(v => {
+                                if (Math.random() > 0.4) termVars[v] = getRandomInt(1, 4); 
+                            });
+                            terms.push(new Term(c, termVars));
+                        }
+                        poly = simplifyPoly(terms);
+                        actualTerms = poly.length;
+                        actualDegree = poly[0].degree;
+                        polyStr = polyToStr(poly);
+                    } while(actualTerms < 1 || actualTerms > 3 || poly[0].c === 0);
+                    
+                    promptHTML = `\\( ${polyStr} \\)`;
+
+                    if (subType === 1) { // Degree
+                        promptText = "Identify the degree of the polynomial:";
+                        
+                        correctAns = actualDegree.toString();
+                        distractors.add((actualDegree + 1).toString());
+                        distractors.add((actualDegree === 0 ? 2 : actualDegree - 1).toString());
+                        
+                        let maxIndividualExp = 0;
+                        poly.forEach(t => {
+                            Object.values(t.vars).forEach(exp => {
+                                if (exp > maxIndividualExp) maxIndividualExp = exp;
+                            });
+                        });
+                        distractors.add(maxIndividualExp.toString());
+                    } 
+                    else if (subType === 2) { // Classify (Strictly Mono/Bi/Tri)
+                        promptText = "Classify the polynomial by its terms:";
+                        isTextOnly = true;
+                        targetOptionsSize = 3; 
+                        
+                        if (actualTerms === 1) correctAns = "Monomial";
+                        else if (actualTerms === 2) correctAns = "Binomial";
+                        else correctAns = "Trinomial";
+                    }
+                    else { // Leading Coefficient
+                        promptText = "Identify the leading coefficient:";
+                        
+                        let leadC = poly[0].c;
+                        correctAns = leadC.toString();
+                        distractors.add((-leadC).toString());
+                        distractors.add(actualDegree.toString()); 
+                        distractors.add(poly[poly.length-1].c.toString()); 
+                    }
+                }
+
+                // MODE 4: Multiply & Expand
+                else if (currentMode === 4) {
+                    promptText = "Multiply and simplify:";
+                    let subType = getRandomInt(1, 2);
+                    let v = Math.random() > 0.5 ? 'x' : 'y';
+
+                    if (subType === 1) { // Distribute 1x2 or 1x3
+                        let p1 = [new Term(getRandomNonZero(-4, 4), {[v]: getRandomInt(0, 1)})];
+                        let p2 = simplifyPoly([new Term(getRandomNonZero(-5, 5), {[v]: 2}), new Term(getRandomNonZero(-5, 5), {[v]: 1}), new Term(getRandomNonZero(-5, 5))]);
+                        
+                        promptHTML = `\\( ${polyToStr(p1, true)}\\left(${polyToStr(p2)}\\right) \\)`;
+                        
+                        let correct = multiplyPolys(p1, p2);
+                        correctAns = polyToStr(correct);
+                        
+                        let d1 = multiplyPolys(p1, [p2[0], p2[1]]);
+                        d1.push(p2[2].clone());
+                        distractors.add(polyToStr(simplifyPoly(d1)));
+                        
+                        let d2 = correct.map(t => new Term(t.c * -1, {...t.vars}));
+                        distractors.add(polyToStr(d2));
+                    } else { // FOIL Binomials
+                        let p1 = simplifyPoly([new Term(getRandomNonZero(1, 3), {[v]: 1}), new Term(getRandomNonZero(-5, 5))]);
+                        let p2 = simplifyPoly([new Term(getRandomNonZero(1, 3), {[v]: 1}), new Term(getRandomNonZero(-5, 5))]);
+                        
+                        promptHTML = `\\( \\left(${polyToStr(p1)}\\right)\\left(${polyToStr(p2)}\\right) \\)`;
+                        
+                        let correct = multiplyPolys(p1, p2);
+                        correctAns = polyToStr(correct);
+                        
+                        let d1 = [multiplyTerms(p1[0], p2[0]), multiplyTerms(p1[1], p2[1])];
+                        distractors.add(polyToStr(simplifyPoly(d1)));
+                        
+                        let d2 = [multiplyTerms(p1[0], p2[0]), new Term(p1[0].c*p2[1].c + p1[1].c*p2[0].c, {[v]: 1}), new Term(p1[1].c + p2[1].c)];
+                        distractors.add(polyToStr(simplifyPoly(d2)));
+                    }
+                }
+
+                // MODE 5: Factor using GCF & Grouping
+                else if (currentMode === 5) {
+                    let subType = getRandomInt(1, 2);
+
+                    if (subType === 1) { // GCF Only
+                        promptText = "Factor out the GCF:";
+                        let k = getRandomNonZero(2, 6);
+                        let a = getRandomNonZero(-3, 3);
+                        let b = getRandomNonZero(-6, 6);
+                        let c = getRandomNonZero(-6, 6);
+                        
+                        let A = k * a; let B = k * b; let C = k * c;
+                        promptHTML = `\\( ${formatQuadratic(A, B, C)} \\)`;
+                        
+                        correctAns = `${k}(${formatQuadratic(a, b, c)})`;
+                        distractors.add(`${k}(${formatQuadratic(a, b, c+1)})`); 
+                        distractors.add(`${k}x(${formatQuadratic(a, b, 0)} ${termFmt(C, '', false)})`); 
+                    } else { // Factor by Grouping 
+                        promptText = "Factor by grouping:";
+                        let a = getRandomNonZero(1, 3);
+                        let c = getRandomNonZero(-4, 4);
+                        let b = getRandomNonZero(-5, 5);
+
+                        let A = a; let B = a * c; let C = b; let D = b * c;
+                        promptHTML = `\\( ${formatCubic(A, B, C, D)} \\)`;
+                        
+                        correctAns = `${formatBinomial(a, b, 'x^2')}${formatBinomial(1, c, 'x')}`;
+                        distractors.add(`${formatBinomial(a, -b, 'x^2')}${formatBinomial(1, c, 'x')}`);
+                        distractors.add(`${formatBinomial(a, b, 'x')}${formatBinomial(1, c, 'x')}`);
+                        distractors.add(`${formatBinomial(a, b, 'x^2')}${formatBinomial(1, -c, 'x')}`);
+                    }
+                }
+
+                // MODE 6: Factor x^2 + bx + c
+                else if (currentMode === 6) {
+                    promptText = "Factor the trinomial completely:";
+                    
+                    let r1 = getRandomNonZero(-9, 9);
+                    let r2; do { r2 = getRandomNonZero(-9, 9); } while (r1 === -r2);
+
+                    let b = r1 + r2;
+                    let c = r1 * r2;
+
+                    promptHTML = `\\( ${formatQuadratic(1, b, c)} \\)`;
+                    
+                    correctAns = `${formatBinomial(1, r1)}${formatBinomial(1, r2)}`;
+                    distractors.add(`${formatBinomial(1, -r1)}${formatBinomial(1, -r2)}`); 
+                    distractors.add(`${formatBinomial(1, r1)}${formatBinomial(1, -r2)}`); 
+                    distractors.add(`${formatBinomial(1, r1+1)}${formatBinomial(1, r2-1)}`); 
+                }
+
+                problemSignature = promptText + promptHTML + correctAns;
+                loopCount++;
+
+            } while (problemSignature === lastPrompt && loopCount < 10); 
+            
+            lastPrompt = problemSignature;
+
+            // --- Safe DOM Updates ---
+            document.getElementById('promptTitle').innerText = promptText; 
+            
+            let displayBox = document.getElementById('problemDisplay');
+            displayBox.innerHTML = promptHTML;
+            displayBox.style.display = 'flex'; // Fix: Always show display box to render equations properly
+
+            // Options Pipeline
+            let options;
+            
+            if (currentMode === 2) {
+                // Fixed static array for Mode 2 to prevent "hunting" for the correct button
+                options = ["Perfect Square", "Perfect Cube", "Both", "Neither"];
+            } else if (currentMode === 3 && isTextOnly) {
+                // Fixed static array for Classification to prevent "hunting"
+                options = ["Monomial", "Binomial", "Trinomial"];
+            } else {
+                let finalOptions = new Set();
+                finalOptions.add(correctAns);
+                let distArray = Array.from(distractors);
+                let i = 0;
+
+                while(finalOptions.size < targetOptionsSize && i < distArray.length) {
+                    finalOptions.add(distArray[i]); i++;
+                }
+                
+                // Pad safely
+                let pad = 1;
+                while(finalOptions.size < targetOptionsSize) { 
+                    let parsed = parseInt(correctAns);
+                    if (isNaN(parsed)) parsed = getRandomInt(10, 20);
+                    finalOptions.add((parsed + pad).toString()); 
+                    pad++;
+                }
+                options = shuffle(Array.from(finalOptions));
+            }
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = ''; 
+
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'option-btn';
+                if (options.length === 3) btn.classList.add('three-col');
+                
+                if (isTextOnly) {
+                    btn.innerHTML = opt;
+                    btn.style.fontSize = "18px";
+                } else {
+                    btn.innerHTML = `\\(${opt}\\)`;
+                }
+
+                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                grid.appendChild(btn);
+            });
+
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: true}] });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            if (display.style.display !== 'none') {
+                display.classList.add('error');
+                setTimeout(() => display.classList.remove('error'), 400);
+            }
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
