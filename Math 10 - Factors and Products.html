@@ -508,7 +508,7 @@
         return `${p1}${p2}${p3}${p4}`;
     }
 
-    // --- Navigation ---
+    // --- Strict Navigation ---
     function startGame(mode) {
         try {
             document.getElementById('errorAlert').style.display = 'none';
@@ -732,21 +732,23 @@
                     }
                 }
 
-                // MODE 5: Factor using GCF (Strictly Coprime Inner Polynomials)
+                // MODE 5: Factor using GCF (Strictly Coprime Inner Polynomials, Negative Lead support)
                 else if (currentMode === 5) {
                     promptText = "Factor out the Greatest Common Factor (GCF) completely:";
                     let isThreeTerms = Math.random() > 0.5;
-                    let k = getRandomInt(2, 6);
+                    
+                    // Allow negative GCF. Loop to ensure we don't just factor out 1 or -1.
+                    let k; do { k = getRandomNonZero(-6, 6); } while(Math.abs(k) === 1);
                     let p = getRandomInt(0, 2); 
                     
                     let a, b, c;
                     
                     if (isThreeTerms) {
                         do {
-                            a = getRandomNonZero(-4, 4);
+                            a = getRandomInt(1, 4); // Force inner leading term to be positive
                             b = getRandomNonZero(-6, 6);
                             c = getRandomNonZero(-6, 6);
-                        } while (gcd3(a, b, c) > 1 || (a===0 || b===0 || c===0));
+                        } while (gcd3(a, b, c) > 1 || (b===0 || c===0));
                         
                         let t1 = new Term(a, {'x': 2});
                         let t2 = new Term(b, {'x': 1});
@@ -771,28 +773,35 @@
                             distractors.add(d1);
                         }
                         
-                        // Distractor 2: Sign error inside
-                        let innerSignErr = [new Term(a, {'x': 2}), new Term(-b, {'x': 1}), new Term(c, {})];
+                        // Distractor 2: Sign error inside (common when factoring out negatives)
+                        let innerSignErr = [new Term(a, {'x': 2}), new Term(k<0 ? b : -b, {'x': 1}), new Term(k<0 ? c : -c, {})];
                         distractors.add(`${polyToStr([gcfTerm], true)}\\left(${polyToStr(innerSignErr)}\\right)`);
                         
-                        // Distractor 3: Partial numerical GCF or another sign error
-                        let partialK = k % 2 === 0 ? 2 : 1;
-                        if (k === partialK) partialK = 1;
-                        if (partialK !== k && partialK > 1) {
-                            let badGcf = new Term(partialK, p > 0 ? {'x': p} : {});
-                            let badInner = multiplyPolys([new Term(k/partialK, {})], inner);
-                            let d3 = `${polyToStr([badGcf], true)}\\left(${polyToStr(badInner)}\\right)`;
-                            distractors.add(d3);
+                        // Distractor 3: Partial numerical GCF or wrong leading sign extracted
+                        if (k < 0) {
+                            // If k is negative, a common mistake is factoring out positive k instead
+                            let badGcf = new Term(Math.abs(k), p > 0 ? {'x': p} : {});
+                            let badInner = [new Term(-a, {'x': 2}), new Term(-b, {'x': 1}), new Term(-c, {})];
+                            distractors.add(`${polyToStr([badGcf], true)}\\left(${polyToStr(badInner)}\\right)`);
                         } else {
-                            let innerSignErr2 = [new Term(a, {'x': 2}), new Term(b, {'x': 1}), new Term(-c, {})];
-                            distractors.add(`${polyToStr([gcfTerm], true)}\\left(${polyToStr(innerSignErr2)}\\right)`);
+                            let partialK = k % 2 === 0 ? 2 : 1;
+                            if (k === partialK) partialK = 1;
+                            if (partialK !== k && partialK > 1) {
+                                let badGcf = new Term(partialK, p > 0 ? {'x': p} : {});
+                                let badInner = multiplyPolys([new Term(k/partialK, {})], inner);
+                                let d3 = `${polyToStr([badGcf], true)}\\left(${polyToStr(badInner)}\\right)`;
+                                distractors.add(d3);
+                            } else {
+                                let innerSignErr2 = [new Term(a, {'x': 2}), new Term(-b, {'x': 1}), new Term(c, {})];
+                                distractors.add(`${polyToStr([gcfTerm], true)}\\left(${polyToStr(innerSignErr2)}\\right)`);
+                            }
                         }
                         
                     } else { // 2 terms
                         do {
-                            a = getRandomNonZero(-5, 5);
+                            a = getRandomInt(1, 5); // Force inner leading term positive
                             b = getRandomNonZero(-8, 8);
-                        } while (gcd(a, b) > 1 || a === 0 || b === 0);
+                        } while (gcd(a, b) > 1 || b === 0);
                         
                         let exp = getRandomInt(1, 3);
                         let t1 = new Term(a, {'x': exp});
@@ -813,12 +822,17 @@
                             distractors.add(`${polyToStr([gcfTerm], true)}\\left(${polyToStr(innerSignErr)}\\right)`);
                         }
                         
-                        let innerSignErr2 = [new Term(-a, {'x': exp}), new Term(b, {})];
-                        distractors.add(`${polyToStr([gcfTerm], true)}\\left(${polyToStr(innerSignErr2)}\\right)`);
-                        
-                        let badK = k + 1;
-                        let fakeInner = [new Term(a, {'x': exp}), new Term(b+1, {})];
-                        distractors.add(`${polyToStr([new Term(badK, p > 0 ? {'x': p} : {})], true)}\\left(${polyToStr(fakeInner)}\\right)`);
+                        if (k < 0) {
+                            let badGcf = new Term(Math.abs(k), p > 0 ? {'x': p} : {});
+                            let badInner = [new Term(-a, {'x': exp}), new Term(-b, {})];
+                            distractors.add(`${polyToStr([badGcf], true)}\\left(${polyToStr(badInner)}\\right)`);
+                        } else {
+                            let innerSignErr2 = [new Term(a, {'x': exp}), new Term(-b, {})];
+                            distractors.add(`${polyToStr([new Term(-k, p > 0 ? {'x': p} : {})], true)}\\left(${polyToStr(innerSignErr2)}\\right)`);
+                            let badK = k + 1;
+                            let fakeInner = [new Term(a, {'x': exp}), new Term(b+1, {})];
+                            distractors.add(`${polyToStr([new Term(badK, p > 0 ? {'x': p} : {})], true)}\\left(${polyToStr(fakeInner)}\\right)`);
+                        }
                     }
                 }
                 
@@ -871,7 +885,7 @@
             
             let displayBox = document.getElementById('problemDisplay');
             displayBox.innerHTML = promptHTML;
-            displayBox.style.display = 'flex'; // Fix: Always show display box to render equations properly
+            displayBox.style.display = 'flex';
 
             // Options Pipeline
             let options;
