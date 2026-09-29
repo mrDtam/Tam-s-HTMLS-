@@ -323,8 +323,9 @@
             <div class="level-title">Level 3 to Level 4</div>
             <div class="menu-grid">
                 <button class="menu-btn" onclick="startGame(4)"><span>4</span> Multiply & Expand Polynomials</button>
-                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Factor using GCF & Grouping</button>
-                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Factor Trinomials (x² + bx + c)</button>
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Factor using GCF</button>
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Factor by Grouping</button>
+                <button class="menu-btn" onclick="startGame(7)"><span>7</span> Factor Trinomials (x² + bx + c)</button>
             </div>
         </div>
     </div>
@@ -399,6 +400,7 @@
         while(y) { let t = y; y = x % y; x = t; }
         return x;
     }
+    function gcd3(a, b, c) { return gcd(gcd(a, b), c); }
     function lcm(x, y) { return (!x || !y) ? 0 : Math.abs((x * y) / gcd(x, y)); }
 
     function getPrimeFactors(n) {
@@ -730,41 +732,117 @@
                     }
                 }
 
-                // MODE 5: Factor using GCF & Grouping
+                // MODE 5: Factor using GCF (Strictly Coprime Inner Polynomials)
                 else if (currentMode === 5) {
-                    let subType = getRandomInt(1, 2);
-
-                    if (subType === 1) { // GCF Only
-                        promptText = "Factor out the GCF:";
-                        let k = getRandomNonZero(2, 6);
-                        let a = getRandomNonZero(-3, 3);
-                        let b = getRandomNonZero(-6, 6);
-                        let c = getRandomNonZero(-6, 6);
+                    promptText = "Factor out the Greatest Common Factor (GCF) completely:";
+                    let isThreeTerms = Math.random() > 0.5;
+                    let k = getRandomInt(2, 6);
+                    let p = getRandomInt(0, 2); 
+                    
+                    let a, b, c;
+                    
+                    if (isThreeTerms) {
+                        do {
+                            a = getRandomNonZero(-4, 4);
+                            b = getRandomNonZero(-6, 6);
+                            c = getRandomNonZero(-6, 6);
+                        } while (gcd3(a, b, c) > 1 || (a===0 || b===0 || c===0));
                         
-                        let A = k * a; let B = k * b; let C = k * c;
-                        promptHTML = `\\( ${formatQuadratic(A, B, C)} \\)`;
+                        let t1 = new Term(a, {'x': 2});
+                        let t2 = new Term(b, {'x': 1});
+                        let t3 = new Term(c, {});
+                        let inner = [t1, t2, t3];
                         
-                        correctAns = `${k}(${formatQuadratic(a, b, c)})`;
-                        distractors.add(`${k}(${formatQuadratic(a, b, c+1)})`); 
-                        distractors.add(`${k}x(${formatQuadratic(a, b, 0)} ${termFmt(C, '', false)})`); 
-                    } else { // Factor by Grouping 
-                        promptText = "Factor by grouping:";
-                        let a = getRandomNonZero(1, 3);
-                        let c = getRandomNonZero(-4, 4);
-                        let b = getRandomNonZero(-5, 5);
-
-                        let A = a; let B = a * c; let C = b; let D = b * c;
-                        promptHTML = `\\( ${formatCubic(A, B, C, D)} \\)`;
+                        let gcfTerm = new Term(k, p > 0 ? {'x': p} : {});
+                        let fullPoly = multiplyPolys([gcfTerm], inner);
                         
-                        correctAns = `${formatBinomial(a, b, 'x^2')}${formatBinomial(1, c, 'x')}`;
-                        distractors.add(`${formatBinomial(a, -b, 'x^2')}${formatBinomial(1, c, 'x')}`);
-                        distractors.add(`${formatBinomial(a, b, 'x')}${formatBinomial(1, c, 'x')}`);
-                        distractors.add(`${formatBinomial(a, b, 'x^2')}${formatBinomial(1, -c, 'x')}`);
+                        promptHTML = `\\( ${polyToStr(fullPoly)} \\)`;
+                        correctAns = `${polyToStr([gcfTerm], true)}\\left(${polyToStr(inner)}\\right)`;
+                        
+                        // Distractor 1: Missed a variable/coefficient logic
+                        if (p > 0) {
+                            let badGcf = new Term(k, p > 1 ? {'x': p-1} : {});
+                            let badInner = multiplyPolys([new Term(1, {'x': 1})], inner);
+                            distractors.add(`${polyToStr([badGcf], true)}\\left(${polyToStr(badInner)}\\right)`);
+                        } else {
+                            let badInner = multiplyPolys([new Term(k, {})], inner);
+                            let d1 = `1\\left(${polyToStr(badInner)}\\right)`;
+                            if (d1.startsWith("1\\left")) d1 = d1.replace("1\\left", "\\left");
+                            distractors.add(d1);
+                        }
+                        
+                        // Distractor 2: Sign error inside
+                        let innerSignErr = [new Term(a, {'x': 2}), new Term(-b, {'x': 1}), new Term(c, {})];
+                        distractors.add(`${polyToStr([gcfTerm], true)}\\left(${polyToStr(innerSignErr)}\\right)`);
+                        
+                        // Distractor 3: Partial numerical GCF or another sign error
+                        let partialK = k % 2 === 0 ? 2 : 1;
+                        if (k === partialK) partialK = 1;
+                        if (partialK !== k && partialK > 1) {
+                            let badGcf = new Term(partialK, p > 0 ? {'x': p} : {});
+                            let badInner = multiplyPolys([new Term(k/partialK, {})], inner);
+                            let d3 = `${polyToStr([badGcf], true)}\\left(${polyToStr(badInner)}\\right)`;
+                            distractors.add(d3);
+                        } else {
+                            let innerSignErr2 = [new Term(a, {'x': 2}), new Term(b, {'x': 1}), new Term(-c, {})];
+                            distractors.add(`${polyToStr([gcfTerm], true)}\\left(${polyToStr(innerSignErr2)}\\right)`);
+                        }
+                        
+                    } else { // 2 terms
+                        do {
+                            a = getRandomNonZero(-5, 5);
+                            b = getRandomNonZero(-8, 8);
+                        } while (gcd(a, b) > 1 || a === 0 || b === 0);
+                        
+                        let exp = getRandomInt(1, 3);
+                        let t1 = new Term(a, {'x': exp});
+                        let t2 = new Term(b, {});
+                        let inner = [t1, t2];
+                        let gcfTerm = new Term(k, p > 0 ? {'x': p} : {});
+                        let fullPoly = multiplyPolys([gcfTerm], inner);
+                        
+                        promptHTML = `\\( ${polyToStr(fullPoly)} \\)`;
+                        correctAns = `${polyToStr([gcfTerm], true)}\\left(${polyToStr(inner)}\\right)`;
+                        
+                        if (p > 0) {
+                            let badGcf = new Term(k, p > 1 ? {'x': p-1} : {});
+                            let badInner = multiplyPolys([new Term(1, {'x': 1})], inner);
+                            distractors.add(`${polyToStr([badGcf], true)}\\left(${polyToStr(badInner)}\\right)`);
+                        } else {
+                            let innerSignErr = [new Term(a, {'x': exp}), new Term(-b, {})];
+                            distractors.add(`${polyToStr([gcfTerm], true)}\\left(${polyToStr(innerSignErr)}\\right)`);
+                        }
+                        
+                        let innerSignErr2 = [new Term(-a, {'x': exp}), new Term(b, {})];
+                        distractors.add(`${polyToStr([gcfTerm], true)}\\left(${polyToStr(innerSignErr2)}\\right)`);
+                        
+                        let badK = k + 1;
+                        let fakeInner = [new Term(a, {'x': exp}), new Term(b+1, {})];
+                        distractors.add(`${polyToStr([new Term(badK, p > 0 ? {'x': p} : {})], true)}\\left(${polyToStr(fakeInner)}\\right)`);
                     }
                 }
-
-                // MODE 6: Factor x^2 + bx + c
+                
+                // MODE 6: Factor by Grouping (Strict 4-term extraction)
                 else if (currentMode === 6) {
+                    promptText = "Factor by grouping:";
+                    let a, b, c;
+                    do {
+                        a = getRandomNonZero(1, 4);
+                        c = getRandomNonZero(-5, 5);
+                        b = getRandomNonZero(-5, 5);
+                    } while(a === b || Math.abs(b) === Math.abs(c));
+
+                    let A = a; let B = a * c; let C = b; let D = b * c;
+                    promptHTML = `\\( ${formatCubic(A, B, C, D)} \\)`;
+                    
+                    correctAns = `${formatBinomial(a, b, 'x^2')}${formatBinomial(1, c, 'x')}`;
+                    distractors.add(`${formatBinomial(a, -b, 'x^2')}${formatBinomial(1, c, 'x')}`);
+                    distractors.add(`${formatBinomial(a, b, 'x')}${formatBinomial(1, c, 'x')}`);
+                    distractors.add(`${formatBinomial(a, b, 'x^2')}${formatBinomial(1, -c, 'x')}`);
+                }
+
+                // MODE 7: Factor x^2 + bx + c
+                else if (currentMode === 7) {
                     promptText = "Factor the trinomial completely:";
                     
                     let r1 = getRandomNonZero(-9, 9);
