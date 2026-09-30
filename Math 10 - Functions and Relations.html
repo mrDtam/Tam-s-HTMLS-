@@ -340,18 +340,18 @@
         <div class="level-section">
             <div class="level-title">Level 1 to Level 2</div>
             <div class="menu-grid">
-                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Function or Relation? (All Reps)</button>
-                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Find Domain & Range (Discrete)</button>
-                <button class="menu-btn" onclick="startGame(3)"><span>3</span> Arithmetic Sequences (Basic)</button>
-                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Evaluate Function Notation f(x)</button>
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Function or Relation?</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Domain & Range (Discrete)</button>
+                <button class="menu-btn" onclick="startGame(3)"><span>3</span> Arithmetic Sequences</button>
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Evaluate f(x)</button>
             </div>
         </div>
 
         <div class="level-section lvl-3">
             <div class="level-title">Level 3 to Level 4</div>
             <div class="menu-grid">
-                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Domain & Range from Graphs</button>
-                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Arithmetic Formulas (Solve)</button>
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Domain & Range (Graphs)</button>
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Arithmetic Formulas</button>
                 <button class="menu-btn" onclick="startGame(7)"><span>7</span> Interval & Inequality Notation</button>
                 <button class="menu-btn" onclick="startGame(8)"><span>8</span> Read Functions from Graphs</button>
             </div>
@@ -386,7 +386,7 @@
     let isTransitioning = false;
     let lastPrompt = "";
 
-    // --- Audio System (Safely Decoupled) ---
+    // --- Audio System ---
     let audioCtx;
     function lazyInitAudio() { 
         if (audioCtx) return;
@@ -451,12 +451,10 @@
         ctx.clearRect(0, 0, W, H);
 
         if (config.type === 'mapping') {
-            // Draw Ovals
             ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.ellipse(90, 175, 45, 120, 0, 0, 2*Math.PI); ctx.stroke();
             ctx.beginPath(); ctx.ellipse(260, 175, 45, 120, 0, 0, 2*Math.PI); ctx.stroke();
             
-            // Labels
             ctx.fillStyle = '#2c3e50'; ctx.font = 'bold 16px sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText("Domain", 90, 30); ctx.fillText("Range", 260, 30);
@@ -474,7 +472,6 @@
                 ctx.beginPath(); ctx.arc(240, rYs[i], 4, 0, 2*Math.PI); ctx.fill();
             });
             
-            // Draw arrows
             ctx.strokeStyle = '#3498db'; ctx.fillStyle = '#3498db'; ctx.lineWidth = 2;
             config.arrows.forEach(arr => {
                 let startY = dYs[arr.from];
@@ -483,7 +480,6 @@
                 ctx.moveTo(110, startY);
                 ctx.bezierCurveTo(150, startY, 200, endY, 235, endY);
                 ctx.stroke();
-                // Arrowhead
                 ctx.beginPath();
                 ctx.moveTo(235, endY);
                 ctx.lineTo(225, endY - 4);
@@ -499,7 +495,6 @@
         
         const toPix = (x, y) => ({ px: midX + x*gridScale, py: midY - y*gridScale });
 
-        // Draw Grid
         ctx.lineWidth = 1;
         ctx.strokeStyle = '#ecf0f1';
         for(let i = 0; i <= W; i+=gridScale) {
@@ -507,7 +502,6 @@
             ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke();
         }
 
-        // Draw Axes
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#2c3e50';
         ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke(); 
@@ -517,7 +511,6 @@
         ctx.strokeStyle = '#3498db';
         ctx.lineWidth = 3;
 
-        // Arrow drawing helper
         const drawArrow = (p1, p2) => {
             let angle = Math.atan2(p2.py - p1.py, p2.px - p1.px);
             ctx.beginPath();
@@ -627,10 +620,6 @@
             drawEndpoint(ptsPix[0], false, true, refStart);
             drawEndpoint(ptsPix[ptsPix.length-1], false, true, refEnd);
         }
-        else if (config.type === 'circle') {
-            let cp = toPix(config.cx, config.cy);
-            ctx.beginPath(); ctx.arc(cp.px, cp.py, config.r * gridScale, 0, 2*Math.PI); ctx.stroke();
-        }
     }
 
     // --- Navigation ---
@@ -702,12 +691,12 @@
                         xVals.add(x);
                         pts.push(`(${x}, ${getRandomInt(-5, 5)})`);
                     }
-                    infoLines.push(`\\{ ${pts.join(', ')} \\}`);
+                    infoLines.push(`\\( \\{ ${pts.join(', ')} \\} \\)`);
                     document.getElementById('graphCanvas').style.display = 'none';
                 } 
                 else if (repType === 2) { // Table
-                    let xHTML = "<tr><th>x</th>";
-                    let yHTML = "<tr><th>y</th>";
+                    let xHTML = "<tr><th>\\(x\\)</th>";
+                    let yHTML = "<tr><th>\\(y\\)</th>";
                     let xVals = new Set();
                     let dupX = getRandomInt(-5, 5);
                     
@@ -773,7 +762,7 @@
                     pts.push(`(${x}, ${y})`);
                 }
                 
-                infoLines.push(`\\{ ${pts.join(', ')} \\}`);
+                infoLines.push(`\\( \\{ ${pts.join(', ')} \\} \\)`);
                 
                 let dSet = `\\{${getSortedUnique(dVals).join(', ')}\\}`;
                 let rSet = `\\{${getSortedUnique(rVals).join(', ')}\\}`;
@@ -795,13 +784,13 @@
                 let askDiff = Math.random() > 0.5;
                 if (askDiff) {
                     promptText = "What is the common difference \\( d \\)?";
-                    infoLines.push(`${seq.join(', ')}, \\dots`);
+                    infoLines.push(`\\( ${seq.join(', ')}, \\dots \\)`);
                     correctAns = d.toString();
                     distractors.add((-d).toString()); 
                     distractors.add((seq[1]+seq[0]).toString()); 
                 } else {
                     promptText = "Find the next term in the sequence:";
-                    infoLines.push(`${seq.join(', ')}, \\_\\_`);
+                    infoLines.push(`\\( ${seq.join(', ')}, \\_\\_ \\)`);
                     let ans = t1+3*d;
                     correctAns = ans.toString();
                     distractors.add((ans + d).toString()); 
@@ -820,11 +809,11 @@
                 
                 let ans;
                 if (isQuad) {
-                    infoLines.push(`f(x) = x^2 ${b>0?'+':'-'} ${Math.abs(b)}x`);
+                    infoLines.push(`\\( f(x) = x^2 ${b>0?'+':'-'} ${Math.abs(b)}x \\)`);
                     ans = (x*x) + (b*x);
                     distractors.add(( -(x*x) + (b*x) ).toString());
                 } else {
-                    infoLines.push(`f(x) = ${a}x ${b>0?'+':'-'} ${Math.abs(b)}`);
+                    infoLines.push(`\\( f(x) = ${a}x ${b>0?'+':'-'} ${Math.abs(b)} \\)`);
                     ans = (a*x) + b;
                     distractors.add( ((-a)*x + b).toString() ); 
                 }
@@ -833,7 +822,7 @@
                 distractors.add((ans + a).toString()); 
             }
 
-            // MODE 5: Domain & Range from Graph (All Reals Added)
+            // MODE 5: Domain & Range from Graph
             else if (currentMode === 5) {
                 let askDomain = Math.random() > 0.5;
                 let useIneq = Math.random() > 0.5;
@@ -979,8 +968,8 @@
                 
                 if (type === 1) {
                     infoLines.push("Given the arithmetic sequence:");
-                    infoLines.push(`t_1 = ${t1}, \\quad d = ${d}`);
-                    infoLines.push(`\\text{Find } t_{${n}}`);
+                    infoLines.push(`\\( t_1 = ${t1}, \\quad d = ${d} \\)`);
+                    infoLines.push(`\\( \\text{Find } t_{${n}} \\)`);
                     
                     correctAns = tn.toString();
                     distractors.add((t1 + n*d).toString()); 
@@ -988,8 +977,8 @@
                 } else {
                     let sn = (n/2) * (2*t1 + (n-1)*d);
                     infoLines.push("Given the arithmetic series:");
-                    infoLines.push(`t_1 = ${t1}, \\quad d = ${d}`);
-                    infoLines.push(`\\text{Find the sum } S_{${n}}`);
+                    infoLines.push(`\\( t_1 = ${t1}, \\quad d = ${d} \\)`);
+                    infoLines.push(`\\( \\text{Find the sum } S_{${n}} \\)`);
                     
                     correctAns = sn.toString();
                     distractors.add(((n/2) * (2*t1 + n*d)).toString()); 
@@ -1005,24 +994,24 @@
                 let type = getRandomInt(1, 3);
                 
                 if (type === 1) { 
-                    infoLines.push(`${a} \\le x < ${b}`);
+                    infoLines.push(`\\( ${a} \\le x < ${b} \\)`);
                     correctAns = `[${a}, ${b})`;
                     distractors.add(`(${a}, ${b}]`); 
                     distractors.add(`[${a}, ${b}]`);
                 } else if (type === 2) { 
-                    infoLines.push(`x \\ge ${a}`);
+                    infoLines.push(`\\( x \\ge ${a} \\)`);
                     correctAns = `[${a}, \\infty)`;
                     distractors.add(`(${a}, \\infty)`);
                     distractors.add(`(-\\infty, ${a}]`); 
                 } else { 
-                    infoLines.push(`x < ${b}`);
+                    infoLines.push(`\\( x < ${b} \\)`);
                     correctAns = `(-\\infty, ${b})`;
                     distractors.add(`(-\\infty, ${b}]`);
                     distractors.add(`(${b}, \\infty)`); 
                 }
             }
 
-            // MODE 8: Read from Graph (Multiple answers supported using V-shape / Parabolas)
+            // MODE 8: Read from Graph
             else if (currentMode === 8) {
                 let isParabola = Math.random() > 0.5;
                 let a = Math.random() > 0.5 ? 1 : -1;
@@ -1036,7 +1025,7 @@
                         let y = a*dx*dx + k;
                         if(y >= -5 && y <= 5) pts.push([h+dx, y]);
                     }
-                } else { // V-shape Piecewise (Absolute Value)
+                } else { 
                     let k = getRandomInt(-2, 2);
                     canvasConfig = { type: 'piecewise', pts: [[h-4, k+4*a], [h, k], [h+4, k+4*a]], c1: true, c2: true, showPts: true, arrows: [false, false] };
                     for(let dx=-4; dx<=4; dx++) {
@@ -1054,7 +1043,7 @@
                     distractors.add(`y = ${targetPt[0]}`); 
                     distractors.add(`y = ${targetPt[1] + 1}`);
                     distractors.add(`y = ${targetPt[1] - 1}`);
-                    distractors.add(`x = ${targetPt[1]}`); // extra axis trap
+                    distractors.add(`x = ${targetPt[1]}`); 
                 } else {
                     promptText = `Solve \\( f(x) = ${targetPt[1]} \\)`;
                     let x_sols = getSortedUnique(pts.filter(p => p[1] === targetPt[1]).map(p => p[0]));
@@ -1093,11 +1082,8 @@
             document.getElementById('infoBox').innerHTML = infoHtml;
             document.getElementById('infoBox').style.display = 'flex';
         } else if (infoLines.length > 0) {
-            let boxHtml = infoLines.map(line => {
-                if (line.includes("\\text{") || line.includes("\\(")) return `<p style="margin:5px 0;">${line}</p>`;
-                if (line.match(/^[a-zA-Z]/)) return `<p style="margin:5px 0;">${line}</p>`;
-                return `<p style="margin:5px 0;">\\( ${line} \\)</p>`;
-            }).join('');
+            // Explicitly bypass heuristic and wrap safely
+            let boxHtml = infoLines.map(line => `<p style="margin:5px 0;">${line}</p>`).join('');
             document.getElementById('infoBox').innerHTML = boxHtml;
             document.getElementById('infoBox').style.display = 'flex';
         } else {
@@ -1116,7 +1102,6 @@
             finalOptions.add(distArray[i]); i++;
         }
         
-        // Strict, format-aware padding to prevent NaN crashes
         let pad = 1;
         while(finalOptions.size < targetOptionsSize) { 
             if (currentMode === 2) {
@@ -1164,8 +1149,9 @@
             grid.appendChild(btn);
         });
 
+        // Use display: false so inline math renders cleanly within the paragraph bounds
         if (window.renderMathInElement) {
-            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: true}] });
+            renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: false}] });
         }
     }
 
