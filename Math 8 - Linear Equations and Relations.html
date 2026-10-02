@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 8: Linear Equations & Relations</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #f39c12;
+            --level3: #27ae60;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-2 { border-color: var(--level2); }
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-2 .level-title { background: var(--level2); }
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-2 .menu-btn span { background-color: var(--level2); }
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-2 .menu-btn:hover { background-color: var(--level2); border-color: var(--level2); }
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .problem-display {
+            font-size: 30px; /* Reduced from 36px to prevent overflow */
+            margin: 0 auto 25px auto;
+            padding: 20px 30px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+            line-height: 1.5;
+            max-width: 600px;
+        }
+        
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        #errorAlert {
+            display: none;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+
+        /* Fixed Canvas Container */
+        #graphCanvas {
+            background-color: #ffffff;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            margin: 0 auto 25px auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+            display: none; 
+        }
+
+        /* Abstract Tables */
+        .rel-table {
+            border-collapse: collapse;
+            font-size: 22px;
+            margin: 5px;
+            background: white;
+        }
+        .rel-table th, .rel-table td {
+            border: 2px solid #bdc3c7;
+            padding: 8px 25px;
+            text-align: center;
+        }
+        .rel-table th { background-color: #ecf0f1; color: var(--dark); }
+        .rel-table td.missing { color: #e67e22; font-weight: bold; font-size: 26px; }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            flex: 1 1 calc(50% - 15px); 
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 18px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .option-btn { flex: 1 1 100%; } 
+            .problem-display { font-size: 22px; padding: 15px 20px; } /* Scaled down for mobile */
+            .prompt-text { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Linear Relations</h1>
+        <p class="subtitle">Math 8 Core Skills</p>
+        
+        <div class="level-section">
+            <div class="level-title">Emerging Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Expressions from Words</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> One-Step Equations & Subs</button>
+                <button class="menu-btn" onclick="startGame(3)" style="grid-column: 1 / -1;"><span>3</span> Identify Grid Coordinates</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-2">
+            <div class="level-title">Developing Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Two-Step Equations</button>
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Equations with Expansions</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Proficient Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Multiple Instances of x</button>
+                <button class="menu-btn" onclick="startGame(7)"><span>7</span> Find Missing Values</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="errorAlert"></div>
+
+        <div class="prompt-text" id="promptTitle">Question:</div>
+        
+        <canvas id="graphCanvas" width="350" height="350"></canvas>
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandomNonZero(min, max) {
+        let val; do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0); return val;
+    }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    
+    // Formatting linear expressions like mx + b
+    function fmtLin(m, b, v='x') {
+        let mStr = "";
+        if (m === 1) mStr = v;
+        else if (m === -1) mStr = "-" + v;
+        else if (m !== 0) mStr = m + v;
+
+        if (m === 0) return b.toString();
+        if (b === 0) return mStr;
+        if (b > 0) return `${mStr} + ${b}`;
+        return `${mStr} - ${Math.abs(b)}`;
+    }
+
+    // Number to words converter
+    const numWords = { 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten" };
+    function toWord(n) { return numWords[n] || n.toString(); }
+
+    // --- Graphing Engine ---
+    function drawCartesianGraph(config) {
+        const canvas = document.getElementById('graphCanvas');
+        canvas.style.display = 'block';
+        const ctx = canvas.getContext('2d');
+        
+        const W = 350; const H = 350;
+        canvas.width = W; canvas.height = H;
+        ctx.clearRect(0, 0, W, H);
+
+        const gridScale = 30; // 1 unit = 30px
+        const midX = W / 2;
+        const midY = H / 2;
+        
+        const toPix = (x, y) => ({ px: midX + x*gridScale, py: midY - y*gridScale });
+
+        // Draw Grid
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#ecf0f1';
+        for(let i = 0; i <= W; i+=gridScale) {
+            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke();
+        }
+
+        // Draw Axes
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#2c3e50';
+        ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke(); // X axis
+        ctx.beginPath(); ctx.moveTo(midX, 0); ctx.lineTo(midX, H); ctx.stroke(); // Y axis
+        
+        // Axis Labels
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText('x', W - 15, midY - 10);
+        ctx.fillText('y', midX + 10, 15);
+
+        // Draw Point
+        if (config.type === 'point') {
+            let p = toPix(config.x, config.y);
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath(); ctx.arc(p.px, p.py, 6, 0, Math.PI*2); ctx.fill();
+            
+            // Label Point A
+            ctx.fillStyle = '#c0392b';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.fillText('A', p.px + 10, p.py - 10);
+        }
+    }
+
+    // --- Navigation ---
+    function startGame(mode) {
+        try {
+            document.getElementById('errorAlert').style.display = 'none';
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            let colorVar = mode <= 3 ? "var(--level1)" : (mode <= 5 ? "var(--level2)" : "var(--level3)");
+            document.getElementById('gameScreen').style.borderColor = colorVar;
+            document.getElementById('problemDisplay').style.borderColor = colorVar;
+
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) {
+            console.error(e);
+            alert("App initialization failed. Please refresh the page.");
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Bulletproof Generation Engine ---
+    function generateProblem() {
+        try {
+            isTransitioning = false;
+            
+            let correctAns = "";
+            let distractors = new Set();
+            let promptHTML = "";
+            let promptText = "";
+            
+            // wrapMath determines if promptHTML is strictly a math equation that needs \( \) 
+            // or if it's mixed HTML (like text sentences or tables) that manages its own delimiters.
+            let wrapMath = true; 
+
+            let problemSignature = "";
+            let loopCount = 0;
+            let showGraph = false;
+            let canvasConfig = null;
+
+            do {
+                distractors.clear();
+                showGraph = false;
+                wrapMath = true;
+
+                // MODE 1: Words to Algebra
+                if (currentMode === 1) {
+                    promptText = "Write the algebraic expression:";
+                    wrapMath = false; // Plain text rendering
+                    
+                    let subType = getRandomInt(1, 8);
+                    let a = getRandomInt(4, 9);
+                    let b = getRandomInt(2, 9);
+                    
+                    if (subType === 1) {
+                        promptHTML = `The sum of double a number x and ${b}`;
+                        correctAns = `2x + ${b}`;
+                        distractors.add(`2x - ${b}`); distractors.add(`${b}x + 2`); distractors.add(`x + ${2*b}`);
+                    } else if (subType === 2) {
+                        promptHTML = `${toWord(b)} less than triple a number x`;
+                        correctAns = `3x - ${b}`;
+                        distractors.add(`${b} - 3x`); distractors.add(`3x + ${b}`); distractors.add(`3(x - ${b})`);
+                    } else if (subType === 3) {
+                        promptHTML = `Half of a number x, increased by ${b}`;
+                        correctAns = `\\frac{x}{2} + ${b}`;
+                        distractors.add(`\\frac{x}{2} - ${b}`); distractors.add(`\\frac{x + ${b}}{2}`); distractors.add(`2x + ${b}`);
+                    } else if (subType === 4) {
+                        promptHTML = `The product of ${toWord(a)} and a number x, decreased by ${b}`;
+                        correctAns = `${a}x - ${b}`;
+                        distractors.add(`${b} - ${a}x`); distractors.add(`${a}x + ${b}`); distractors.add(`${a}(x - ${b})`);
+                    } else if (subType === 5) {
+                        promptHTML = `A third of a number x, minus ${b}`;
+                        correctAns = `\\frac{x}{3} - ${b}`;
+                        distractors.add(`\\frac{x}{3} + ${b}`); distractors.add(`\\frac{x - ${b}}{3}`); distractors.add(`3x - ${b}`);
+                    } else if (subType === 6) {
+                        promptHTML = `${toWord(b)} more than the quotient of a number x and ${a}`;
+                        correctAns = `\\frac{x}{${a}} + ${b}`;
+                        distractors.add(`\\frac{x}{${a}} - ${b}`); distractors.add(`\\frac{x + ${b}}{${a}}`); distractors.add(`${a}x + ${b}`);
+                    } else if (subType === 7) {
+                        promptHTML = `Twice the sum of a number x and ${b}`;
+                        correctAns = `2(x + ${b})`;
+                        distractors.add(`2x + ${b}`); distractors.add(`x + ${2*b}`); distractors.add(`2(x - ${b})`);
+                    } else {
+                        promptHTML = `The difference between triple a number x and ${b}`;
+                        correctAns = `3x - ${b}`;
+                        distractors.add(`${b} - 3x`); distractors.add(`3(x - ${b})`); distractors.add(`3x + ${b}`);
+                    }
+                }
+
+                // MODE 2: One-Step Equations & Substitutions
+                else if (currentMode === 2) {
+                    let subType = getRandomInt(1, 3);
+                    
+                    if (subType === 1) { // Add/Sub
+                        promptText = "Solve for x:";
+                        let a = getRandomNonZero(-10, 10);
+                        let x = getRandomInt(-10, 10);
+                        let c = x + a;
+                        
+                        promptHTML = `x ${a > 0 ? '+' : '-'} ${Math.abs(a)} = ${c}`;
+                        correctAns = `x = ${x}`;
+                        distractors.add(`x = ${c + a}`); 
+                        distractors.add(`x = ${-x}`);
+                    } else if (subType === 2) { // Mult/Div
+                        promptText = "Solve for x:";
+                        let isDiv = Math.random() > 0.5;
+                        let a = getRandomNonZero(2, 8) * (Math.random() > 0.5 ? 1 : -1);
+                        let x = getRandomInt(-9, 9);
+                        
+                        if (isDiv) {
+                            let c = x;
+                            if (a < 0) promptHTML = `-\\frac{x}{${Math.abs(a)}} = ${c}`;
+                            else promptHTML = `\\frac{x}{${a}} = ${c}`;
+                            
+                            correctAns = `x = ${a * x}`;
+                            distractors.add(`x = ${Math.floor(x/a)}`);
+                            distractors.add(`x = ${-(a * x)}`);
+                        } else {
+                            let c = a * x;
+                            promptHTML = `${a}x = ${c}`;
+                            correctAns = `x = ${x}`;
+                            distractors.add(`x = ${c * a}`);
+                            distractors.add(`x = ${-x}`);
+                        }
+                    } else { // Substitution
+                        promptText = "Evaluate the expression:";
+                        wrapMath = false; // We will handle HTML formatting manually
+                        let a = getRandomNonZero(2, 5) * (Math.random() > 0.5 ? 1 : -1);
+                        let b = getRandomNonZero(-8, 8);
+                        let x = getRandomInt(-5, 5);
+                        
+                        // Explicitly break onto two lines for readability on all screens
+                        promptHTML = `Evaluate \\( ${fmtLin(a, b)} \\) <br> when \\( x = ${x} \\)`;
+                        let ans = a * x + b;
+                        correctAns = ans.toString();
+                        distractors.add((a * -x + b).toString()); 
+                        distractors.add((a * x - b).toString()); 
+                        distractors.add((a * x).toString()); 
+                    }
+                }
+
+                // MODE 3: Identify Coordinates
+                else if (currentMode === 3) {
+                    promptText = "Identify the coordinates of point A:";
+                    showGraph = true;
+                    wrapMath = false; 
+                    promptHTML = ""; 
+                    
+                    let x = getRandomNonZero(-5, 5);
+                    let y = getRandomNonZero(-5, 5);
+                    canvasConfig = { type: 'point', x: x, y: y };
+                    
+                    correctAns = `(${x}, ${y})`;
+                    distractors.add(`(${y}, ${x})`); 
+                    distractors.add(`(${-x}, ${y})`); 
+                    distractors.add(`(${x}, ${-y})`); 
+                }
+
+                // MODE 4: Two-Step Equations
+                else if (currentMode === 4) {
+                    promptText = "Solve the equation for x:";
+                    let a = getRandomNonZero(2, 6) * (Math.random() > 0.5 ? 1 : -1);
+                    let x = getRandomInt(-8, 8);
+                    let b = getRandomNonZero(-12, 12);
+                    let c = a * x + b;
+                    
+                    promptHTML = `${fmtLin(a, b)} = ${c}`;
+                    correctAns = `x = ${x}`;
+                    
+                    let wrongX1 = (c + b) / a;
+                    if (Number.isInteger(wrongX1)) distractors.add(`x = ${wrongX1}`);
+                    distractors.add(`x = ${-x === 0 ? 2 : -x}`);
+                    distractors.add(`x = ${x + 1}`);
+                }
+
+                // MODE 5: Equations with Expansions
+                else if (currentMode === 5) {
+                    promptText = "Solve the equation for x:";
+                    let a = getRandomNonZero(2, 5) * (Math.random() > 0.5 ? 1 : -1);
+                    let x = getRandomInt(-6, 6);
+                    let b = getRandomNonZero(-8, 8);
+                    let c = a * (x + b);
+                    
+                    promptHTML = `${a}(x ${b > 0 ? '+' : '-'} ${Math.abs(b)}) = ${c}`;
+                    correctAns = `x = ${x}`;
+                    
+                    let wrongX1 = (c - b) / a;
+                    if (Number.isInteger(wrongX1) && wrongX1 !== x) distractors.add(`x = ${wrongX1}`);
+                    
+                    distractors.add(`x = ${-x === 0 ? 3 : -x}`);
+                    
+                    let wrongX2 = (c / a) + b; 
+                    if (wrongX2 !== x) distractors.add(`x = ${wrongX2}`);
+                }
+
+                // MODE 6: Multiple Instances of x
+                else if (currentMode === 6) {
+                    promptText = "Solve the equation for x:";
+                    
+                    let a, c, x, b, d;
+                    do {
+                        a = getRandomNonZero(2, 6);
+                        c = getRandomNonZero(-4, 4);
+                        x = getRandomInt(-5, 5);
+                        b = getRandomNonZero(-10, 10);
+                        d = a*x + b - c*x;
+                    } while (a === c || d === 0);
+                    
+                    promptHTML = `${fmtLin(a, b)} = ${fmtLin(c, d)}`;
+                    correctAns = `x = ${x}`;
+                    
+                    let wrongSignDiff = (d + b) / (a - c);
+                    if (Number.isInteger(wrongSignDiff) && wrongSignDiff !== x) distractors.add(`x = ${wrongSignDiff}`);
+                    
+                    distractors.add(`x = ${-x === 0 ? 1 : -x}`);
+                    distractors.add(`x = ${x - 2}`);
+                }
+
+                // MODE 7: Find Missing Values (Tables & Coordinates)
+                else if (currentMode === 7) {
+                    promptText = "Find the missing coordinate:";
+                    wrapMath = false; // Manually formatting mixed HTML content
+                    let subType = getRandomInt(1, 2);
+                    let m = getRandomNonZero(-4, 4);
+                    let b = getRandomInt(-8, 8);
+                    let hideX = Math.random() > 0.5;
+
+                    if (subType === 1) {
+                        // Non-incremental Table
+                        let xVals = [];
+                        let currentX = getRandomInt(-5, -2);
+                        for(let i=0; i<4; i++) {
+                            xVals.push(currentX);
+                            currentX += getRandomInt(2, 4); // Jumps to break counting pattern
+                        }
+                        let yVals = xVals.map(x => m * x + b);
+                        let hideIdx = getRandomInt(0, 3);
+                        
+                        let tableHTML = `<table class="rel-table"><tr><th>x</th><th>y</th></tr>`;
+                        for(let i=0; i<4; i++){
+                            let xDisp = (hideX && i === hideIdx) ? "?" : xVals[i];
+                            let yDisp = (!hideX && i === hideIdx) ? "?" : yVals[i];
+                            let xCls = (hideX && i === hideIdx) ? 'missing' : '';
+                            let yCls = (!hideX && i === hideIdx) ? 'missing' : '';
+                            tableHTML += `<tr><td class="${xCls}">${xDisp}</td><td class="${yCls}">${yDisp}</td></tr>`;
+                        }
+                        tableHTML += `</table>`;
+                        
+                        promptHTML = `
+                            <div style="font-size:24px; margin-bottom:15px;">\\( y = ${fmtLin(m, b)} \\)</div>
+                            ${tableHTML}
+                        `;
+                        
+                        if (hideX) {
+                            correctAns = `x = ${xVals[hideIdx]}`;
+                            distractors.add(`x = ${xVals[hideIdx] + 1}`);
+                            distractors.add(`x = ${xVals[hideIdx] - 1}`);
+                            let wrongDiv = Math.floor(yVals[hideIdx] / m);
+                            if (wrongDiv !== xVals[hideIdx]) distractors.add(`x = ${wrongDiv}`);
+                        } else {
+                            correctAns = `y = ${yVals[hideIdx]}`;
+                            distractors.add(`y = ${yVals[hideIdx] + m}`);
+                            distractors.add(`y = ${yVals[hideIdx] - m}`);
+                            distractors.add(`y = ${yVals[hideIdx] + 1}`);
+                        }
+                    } else {
+                        // Coordinate Point with explicit line break
+                        let x = getRandomInt(-6, 6);
+                        let y = m * x + b;
+                        
+                        if (hideX) {
+                            promptHTML = `The point \\( (x, ${y}) \\) is on the line <br> \\( y = ${fmtLin(m, b)} \\)`;
+                            correctAns = `x = ${x}`;
+                            distractors.add(`x = ${y}`);
+                            distractors.add(`x = ${x + 2}`);
+                            distractors.add(`x = ${-x === 0 ? 1 : -x}`);
+                        } else {
+                            promptHTML = `The point \\( (${x}, y) \\) is on the line <br> \\( y = ${fmtLin(m, b)} \\)`;
+                            correctAns = `y = ${y}`;
+                            distractors.add(`y = ${x}`);
+                            distractors.add(`y = ${y + m}`);
+                            distractors.add(`y = ${-y === 0 ? 1 : -y}`);
+                        }
+                    }
+                }
+
+                problemSignature = promptText + promptHTML + correctAns;
+                loopCount++;
+
+            } while (problemSignature === lastPrompt && loopCount < 10); 
+            
+            lastPrompt = problemSignature;
+
+            // --- Safe DOM Updates ---
+            document.getElementById('promptTitle').innerText = promptText; 
+            
+            let displayBox = document.getElementById('problemDisplay');
+            let graphCanvas = document.getElementById('graphCanvas');
+            
+            if (showGraph) {
+                displayBox.style.display = 'none';
+                drawCartesianGraph(canvasConfig);
+            } else {
+                graphCanvas.style.display = 'none';
+                displayBox.style.display = 'flex';
+                
+                // Wrap in Katex only if it's a pure math prompt
+                if (wrapMath) {
+                    displayBox.innerHTML = `\\( ${promptHTML} \\)`;
+                } else {
+                    displayBox.innerHTML = promptHTML;
+                }
+            }
+
+            let finalOptions = new Set();
+            finalOptions.add(correctAns);
+            let distArray = Array.from(distractors);
+            let i = 0;
+
+            while(finalOptions.size < 4 && i < distArray.length) {
+                finalOptions.add(distArray[i]); i++;
+            }
+            
+            // Pad safely based on mode
+            let pad = 1;
+            while(finalOptions.size < 4) { 
+                if (currentMode === 1) { 
+                    finalOptions.add(`${pad}x + 1`);
+                } else if (currentMode === 3) { 
+                    finalOptions.add(`(${pad}, ${pad+1})`);
+                } else if (correctAns.includes("x =") || correctAns.includes("y =")) {
+                    let prefix = correctAns.split("=")[0].trim();
+                    finalOptions.add(`${prefix} = ${pad}`);
+                } else {
+                    let parsed = parseInt(correctAns);
+                    if (isNaN(parsed)) parsed = getRandomInt(5, 15);
+                    finalOptions.add((parsed + pad).toString()); 
+                }
+                pad++;
+            }
+
+            let options = shuffle(Array.from(finalOptions));
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = ''; 
+
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'option-btn';
+                
+                if (currentMode === 3) {
+                    btn.innerHTML = opt; // Coordinates
+                } else {
+                    btn.innerHTML = `\\(${opt}\\)`; // Everything else uses Katex for formatting
+                }
+
+                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                grid.appendChild(btn);
+            });
+
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { delimiters: [{left: "\\(", right: "\\)", display: true}] });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            if (display.style.display !== 'none') {
+                display.classList.add('error');
+                setTimeout(() => display.classList.remove('error'), 400);
+            }
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
