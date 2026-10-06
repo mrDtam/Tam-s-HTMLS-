@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 9: Linear Equations</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #f39c12;
+            --level3: #27ae60;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 26px;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-2 { border-color: var(--level2); }
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-2 .level-title { background: var(--level2); }
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-2 .menu-btn span { background-color: var(--level2); }
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-2 .menu-btn:hover { background-color: var(--level2); border-color: var(--level2); }
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 18px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .problem-display {
+            font-size: 28px; 
+            margin: 0 auto 20px auto;
+            padding: 15px 25px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: block; 
+            text-align: center;
+            transition: all 0.3s;
+            line-height: 1.6;
+            max-width: 650px;
+            word-wrap: break-word;
+        }
+        
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        #errorAlert {
+            display: none;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            flex: 1 1 calc(50% - 12px); 
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 10px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 55px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .option-btn.full-width {
+            flex: 1 1 100%;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .option-btn { flex: 1 1 100%; font-size: 18px; padding: 12px 5px;} 
+            .problem-display { font-size: 22px; padding: 15px 10px; } 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Linear Equations</h1>
+        <p class="subtitle">Math 9 Core Skills</p>
+        
+        <div class="level-section">
+            <div class="level-title">Emerging Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Expressions from Words</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> One & Two-Step Equations</button>
+                <button class="menu-btn" onclick="startGame(3)" style="grid-column: 1 / -1;"><span>3</span> Evaluate & Validate Solutions</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-2">
+            <div class="level-title">Developing Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(4)" style="grid-column: 1 / -1;"><span>4</span> Multi-Step & Distributive Law</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Proficient Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Fractional Equations (Expand & Solve)</button>
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Decimal Equations (Expand & Solve)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="errorAlert"></div>
+
+        <div class="prompt-text" id="promptTitle">Question:</div>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandomNonZero(min, max) {
+        let val; do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0); return val;
+    }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while(b) { let t = b; b = a % b; a = t; } return a || 1; }
+
+    function simplifyFrac(n, d) {
+        let g = gcd(n, d);
+        n /= g; d /= g;
+        if (d < 0) { n = -n; d = -d; }
+        return [n, d];
+    }
+
+    function formatFrac(n, d) {
+        let [nn, dd] = simplifyFrac(n, d);
+        if (dd === 1) return nn.toString();
+        if (nn === 0) return "0";
+        if (nn < 0) return `-\\frac{${Math.abs(nn)}}{${dd}}`;
+        return `\\frac{${nn}}{${dd}}`;
+    }
+
+    function fmtDec(num) {
+        // Formats to 1 or 2 decimal places properly without trailing zeros
+        return parseFloat(num.toFixed(2)).toString();
+    }
+
+    function startGame(mode) {
+        try {
+            document.getElementById('errorAlert').style.display = 'none';
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            let colorVar = mode <= 3 ? "var(--level1)" : (mode <= 4 ? "var(--level2)" : "var(--level3)");
+            document.getElementById('gameScreen').style.borderColor = colorVar;
+            document.getElementById('problemDisplay').style.borderColor = colorVar;
+
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) {
+            console.error(e);
+            alert("App initialization failed. Please refresh the page.");
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Bulletproof Generation Engine ---
+    function generateProblem() {
+        try {
+            isTransitioning = false;
+            
+            let correctAns = "";
+            let distractors = new Set();
+            let promptHTML = "";
+            let promptText = "";
+            let optionsAreText = false; 
+            let forceFullWidth = false; 
+            let targetOptionsSize = 4;
+
+            let problemSignature = "";
+            let loopCount = 0;
+
+            do {
+                distractors.clear();
+                optionsAreText = false;
+                forceFullWidth = false;
+                targetOptionsSize = 4;
+
+                // MODE 1: Words to Algebra (2 Variables/Expressions)
+                if (currentMode === 1) {
+                    promptText = "Write the algebraic expression or equation:";
+                    optionsAreText = false;
+                    forceFullWidth = true;
+                    
+                    let subType = getRandomInt(1, 5);
+                    let a = getRandomInt(2, 6);
+                    let b = getRandomInt(3, 9);
+                    
+                    if (subType === 1) {
+                        promptHTML = `The sum of twice \\( x \\) and \\( y \\)`;
+                        correctAns = `2x + y`;
+                        distractors.add(`2(x + y)`); distractors.add(`x + 2y`); distractors.add(`2x - y`);
+                    } else if (subType === 2) {
+                        promptHTML = `\\( H \\) is the difference of \\( x \\) and half \\( y \\)`;
+                        correctAns = `H = x - \\frac{y}{2}`;
+                        distractors.add(`H = \\frac{x}{2} - y`); distractors.add(`H = x + \\frac{y}{2}`); distractors.add(`H = 2x - y`);
+                    } else if (subType === 3) {
+                        promptHTML = `\\( y \\) is ${b} less than ${a} times \\( x \\)`;
+                        correctAns = `y = ${a}x - ${b}`;
+                        distractors.add(`y = ${b} - ${a}x`); distractors.add(`y = ${a}x + ${b}`); distractors.add(`y = ${a}(x - ${b})`);
+                    } else if (subType === 4) {
+                        promptHTML = `The product of \\( x \\) and \\( y \\), increased by ${a}`;
+                        correctAns = `xy + ${a}`;
+                        distractors.add(`x(y + ${a})`); distractors.add(`xy - ${a}`); distractors.add(`x + y + ${a}`);
+                    } else {
+                        promptHTML = `Twice the sum of \\( x \\) and \\( y \\)`;
+                        correctAns = `2(x + y)`;
+                        distractors.add(`2x + y`); distractors.add(`x + 2y`); distractors.add(`2xy`);
+                    }
+                }
+
+                // MODE 2: One & Two-Step Equations
+                else if (currentMode === 2) {
+                    promptText = "Solve for x:";
+                    let subType = getRandomInt(1, 3);
+                    
+                    if (subType === 1) { // 1-step Add/Sub
+                        let a = getRandomNonZero(-15, 15);
+                        let x = getRandomInt(-15, 15);
+                        let c = x + a;
+                        promptHTML = `x ${a > 0 ? '+' : '-'} ${Math.abs(a)} = ${c}`;
+                        correctAns = `x = ${x}`;
+                        distractors.add(`x = ${c + a}`); distractors.add(`x = ${-x === 0 ? 2 : -x}`);
+                    } else if (subType === 2) { // 1-step Mult/Div
+                        let isDiv = Math.random() > 0.5;
+                        let a = getRandomNonZero(2, 9) * (Math.random() > 0.5 ? 1 : -1);
+                        let x = getRandomInt(-12, 12);
+                        
+                        if (isDiv) {
+                            let c = x;
+                            if (a < 0) promptHTML = `-\\frac{x}{${Math.abs(a)}} = ${c}`;
+                            else promptHTML = `\\frac{x}{${a}} = ${c}`;
+                            correctAns = `x = ${a * x}`;
+                            distractors.add(`x = ${Math.floor(x/a)}`); distractors.add(`x = ${-(a * x)}`);
+                        } else {
+                            let c = a * x;
+                            promptHTML = `${a}x = ${c}`;
+                            correctAns = `x = ${x}`;
+                            distractors.add(`x = ${c * a}`); distractors.add(`x = ${-x === 0 ? 3 : -x}`);
+                        }
+                    } else { // 2-step
+                        let a = getRandomNonZero(2, 6) * (Math.random() > 0.5 ? 1 : -1);
+                        let x = getRandomInt(-8, 8);
+                        let b = getRandomNonZero(-12, 12);
+                        let c = a * x + b;
+                        
+                        promptHTML = `${a}x ${b > 0 ? '+' : '-'} ${Math.abs(b)} = ${c}`;
+                        correctAns = `x = ${x}`;
+                        
+                        let wrong1 = (c + b) / a;
+                        if (Number.isInteger(wrong1) && wrong1 !== x) distractors.add(`x = ${wrong1}`);
+                        distractors.add(`x = ${-x === 0 ? 4 : -x}`);
+                        distractors.add(`x = ${x + 2}`);
+                    }
+                }
+
+                // MODE 3: Evaluate & Validate Solutions
+                else if (currentMode === 3) {
+                    let isValidate = Math.random() > 0.5;
+                    
+                    if (isValidate) {
+                        promptText = "Validate the solution:";
+                        optionsAreText = true;
+                        targetOptionsSize = 2; // Only Yes/No
+                        
+                        let a = getRandomNonZero(2, 5);
+                        let b = getRandomNonZero(-8, 8);
+                        let trueX = getRandomInt(-5, 5);
+                        let c = a * trueX + b;
+                        
+                        let isCorrectAns = Math.random() > 0.5;
+                        let testX = isCorrectAns ? trueX : trueX + getRandomNonZero(-3, 3);
+                        if(testX === trueX) isCorrectAns = true; 
+                        
+                        promptHTML = `Is \\( x = ${testX} \\) a valid solution for:<br>\\( ${a}x ${b>0?'+':'-'} ${Math.abs(b)} = ${c} \\)?`;
+                        
+                        if (isCorrectAns) {
+                            correctAns = "Yes"; distractors.add("No");
+                        } else {
+                            correctAns = "No"; distractors.add("Yes");
+                        }
+                    } else {
+                        promptText = "Evaluate the expression:";
+                        
+                        let a = getRandomNonZero(2, 5);
+                        let b = getRandomNonZero(2, 5) * (Math.random()>0.5?1:-1);
+                        let x = getRandomInt(-4, 4);
+                        let y = getRandomInt(-4, 4);
+                        
+                        promptHTML = `Evaluate \\( ${a}x ${b>0?'+':'-'} ${Math.abs(b)}y \\) <br> when \\( x = ${x} \\) and \\( y = ${y} \\)`;
+                        
+                        let ans = a*x + b*y;
+                        correctAns = ans.toString();
+                        
+                        distractors.add((a*x - b*y).toString()); // Sign error on y
+                        distractors.add((a*y + b*x).toString()); // Swapped sub
+                        distractors.add((a*x + b).toString()); // Forgot y
+                    }
+                }
+
+                // MODE 4: Multi-Step & Distributive Law
+                else if (currentMode === 4) {
+                    promptText = "Solve the equation for x:";
+                    let subType = getRandomInt(1, 2);
+                    
+                    if (subType === 1) { // Variables on both sides
+                        let a, c, x, b, d;
+                        do {
+                            a = getRandomNonZero(2, 6);
+                            c = getRandomNonZero(-4, 4);
+                            x = getRandomInt(-6, 6);
+                            b = getRandomNonZero(-10, 10);
+                            d = a*x + b - c*x;
+                        } while (a === c || d === 0);
+                        
+                        promptHTML = `${a}x ${b>0?'+':'-'} ${Math.abs(b)} = ${c===1?"":c===-1?"-":c}x ${d>0?'+':'-'} ${Math.abs(d)}`;
+                        correctAns = `x = ${x}`;
+                        
+                        let wrongSignDiff = (d + b) / (a - c);
+                        if (Number.isInteger(wrongSignDiff) && wrongSignDiff !== x) distractors.add(`x = ${wrongSignDiff}`);
+                        distractors.add(`x = ${-x === 0 ? 1 : -x}`);
+                        distractors.add(`x = ${x - 2}`);
+                    } else { // Distributive Law
+                        let a = getRandomNonZero(2, 4) * (Math.random()>0.5?1:-1);
+                        let x = getRandomInt(-5, 5);
+                        let b = getRandomNonZero(-6, 6);
+                        
+                        // a(x + b) = c
+                        let c = a * (x + b);
+                        promptHTML = `${a}(x ${b>0?'+':'-'} ${Math.abs(b)}) = ${c}`;
+                        correctAns = `x = ${x}`;
+                        
+                        let wrong1 = (c - b) / a; // Forgot to distribute to b
+                        if (Number.isInteger(wrong1) && wrong1 !== x) distractors.add(`x = ${wrong1}`);
+                        
+                        let wrong2 = (c / a) + b; // Sign error when moving b
+                        if (wrong2 !== x) distractors.add(`x = ${wrong2}`);
+                        
+                        distractors.add(`x = ${-x === 0 ? 3 : -x}`);
+                    }
+                }
+
+                // MODE 5: Fractional Equations
+                else if (currentMode === 5) {
+                    promptText = "Solve the equation for x:";
+                    let subType = getRandomInt(1, 3);
+                    let x;
+                    
+                    if (subType === 1) { // Cross multiply: (x+B)/C = (x+E)/D
+                        let C, D, B, E;
+                        let found = false;
+                        while(!found) {
+                            x = getRandomInt(-8, 8);
+                            C = getRandomInt(2, 6);
+                            D = getRandomInt(2, 6);
+                            if (C === D) continue;
+                            B = getRandomInt(-8, 8);
+                            let CE_val = D*(x+B) - C*x;
+                            if (CE_val % C === 0) {
+                                E = CE_val / C;
+                                if (E !== B) found = true;
+                            }
+                        }
+                        promptHTML = `\\frac{x ${B>=0?'+':'-'} ${Math.abs(B)}}{${C}} = \\frac{x ${E>=0?'+':'-'} ${Math.abs(E)}}{${D}}`;
+                        correctAns = `x = ${x}`;
+                        
+                        let wrong1 = (E*C + B*D)/(D-C);
+                        if (Number.isInteger(wrong1) && wrong1 !== x) distractors.add(`x = ${wrong1}`);
+                        distractors.add(`x = ${-x === 0 ? 2 : -x}`);
+                        distractors.add(`x = ${x + getRandomEl([-2, 2, 3])}`);
+                        
+                    } else if (subType === 2) { // Distributive frac: (A/B)(x + C) = D
+                        let A, B, C, D, k;
+                        x = getRandomInt(-8, 8);
+                        do {
+                            B = getRandomInt(2, 5);
+                            A = getRandomInt(1, 5) * (Math.random()>0.5?1:-1);
+                        } while (gcd(Math.abs(A), B) !== 1 || A === B);
+                        
+                        k = getRandomNonZero(-4, 4);
+                        C = k * B - x; 
+                        D = A * k;
+                        
+                        promptHTML = `${A<0?'-':''}\\frac{${Math.abs(A)}}{${B}}(x ${C>=0?'+':'-'} ${Math.abs(C)}) = ${D}`;
+                        correctAns = `x = ${x}`;
+                        
+                        let wrong1 = (D - C) * B / A; // forgot distribute to C
+                        if (Number.isInteger(wrong1) && wrong1 !== x) distractors.add(`x = ${wrong1}`);
+                        distractors.add(`x = ${-x === 0 ? 3 : -x}`);
+                        distractors.add(`x = ${x + B}`);
+                        
+                    } else { // Fractional vars both sides: (x+B)/A = Cx + D
+                        let A, B, C, D, k;
+                        x = getRandomInt(-6, 6);
+                        A = getRandomInt(2, 5);
+                        k = getRandomNonZero(-3, 3);
+                        B = k * A - x; 
+                        do { C = getRandomNonZero(-3, 3); } while (C === 1/A || C === 0);
+                        D = k - C * x;
+                        
+                        promptHTML = `\\frac{x ${B>=0?'+':'-'} ${Math.abs(B)}}{${A}} = ${C===1?"":C===-1?"-":C}x ${D===0?"":D>0?"+ "+D:"- "+Math.abs(D)}`;
+                        correctAns = `x = ${x}`;
+                        
+                        let num = D*A - B; let den = 1 - C*A;
+                        if (den !== 0) {
+                            let w1 = num/den;
+                            if (Number.isInteger(w1) && w1 !== x) distractors.add(`x = ${w1}`);
+                        }
+                        distractors.add(`x = ${-x === 0 ? 1 : -x}`);
+                        distractors.add(`x = ${x + A}`);
+                    }
+                }
+
+                // MODE 6: Decimal Equations
+                else if (currentMode === 6) {
+                    promptText = "Solve the equation for x:";
+                    
+                    let subType = getRandomInt(1, 2);
+                    
+                    if (subType === 1) { // a x + b = c (1 decimal place)
+                        let aRaw = getRandomInt(1, 9) * 0.5 * (Math.random()>0.5?1:-1); // +/- 0.5, 1.0, 1.5...
+                        if (Math.abs(aRaw) === 1) aRaw = 1.5; // Avoid 1x
+                        let x = getRandomInt(-10, 10);
+                        let bRaw = getRandomInt(-20, 20) * 0.1; // +/- 1.2
+                        if (bRaw === 0) bRaw = 1.2;
+                        
+                        let a = parseFloat(aRaw.toFixed(2));
+                        let b = parseFloat(bRaw.toFixed(2));
+                        let c = parseFloat((a * x + b).toFixed(2));
+                        
+                        promptHTML = `${a}x ${b>0?'+':'-'} ${Math.abs(b)} = ${c}`;
+                        correctAns = `x = ${x}`;
+                        
+                        let wrong1 = parseFloat(((c + b)/a).toFixed(2));
+                        if(wrong1 !== x) distractors.add(`x = ${wrong1}`);
+                        distractors.add(`x = ${-x === 0 ? 2 : -x}`);
+                        distractors.add(`x = ${x + 1}`);
+                    } else { // Distributive with decimals
+                        let aRaw = getRandomInt(2, 5) * 0.1; // 0.2, 0.3, 0.4, 0.5
+                        let x = getRandomInt(-8, 8);
+                        let b = getRandomNonZero(-9, 9);
+                        
+                        let a = parseFloat(aRaw.toFixed(2));
+                        let c = parseFloat((a * (x + b)).toFixed(2));
+                        
+                        promptHTML = `${a}(x ${b>0?'+':'-'} ${Math.abs(b)}) = ${c}`;
+                        correctAns = `x = ${x}`;
+                        
+                        let wrong1 = parseFloat(((c / a) + b).toFixed(2));
+                        if (wrong1 !== x) distractors.add(`x = ${wrong1}`);
+                        
+                        let wrong2 = parseFloat(((c - b) / a).toFixed(2)); // forgot distribute
+                        if (wrong2 !== x && Number.isInteger(wrong2)) distractors.add(`x = ${wrong2}`);
+                        
+                        distractors.add(`x = ${-x === 0 ? 4 : -x}`);
+                    }
+                }
+
+                problemSignature = promptText + promptHTML + correctAns;
+                loopCount++;
+
+            } while (problemSignature === lastPrompt && loopCount < 10); 
+            
+            lastPrompt = problemSignature;
+
+            // --- Safe DOM Updates ---
+            document.getElementById('promptTitle').innerText = promptText; 
+            
+            let displayBox = document.getElementById('problemDisplay');
+            
+            // Explicitly inject the completely pre-formatted HTML (No auto-wrapping block display)
+            // If it's pure text, no brackets. If it's an equation, add brackets for KaTeX.
+            if (optionsAreText || promptHTML.includes("<br>") || promptHTML.includes("\\text{") || promptHTML.includes("\\(")) {
+                displayBox.innerHTML = promptHTML;
+            } else {
+                displayBox.innerHTML = `\\( ${promptHTML} \\)`;
+            }
+
+            // Process Options
+            let options;
+            
+            if (currentMode === 3 && targetOptionsSize === 2) {
+                // Fixed Yes/No
+                options = ["Yes", "No"];
+                // ensure we correctly match standard test layout (Yes usually left, No right)
+                if (Math.random() > 0.5) options = ["No", "Yes"]; 
+            } else {
+                let finalOptions = new Set();
+                finalOptions.add(correctAns);
+                let distArray = Array.from(distractors);
+                let i = 0;
+
+                while(finalOptions.size < targetOptionsSize && i < distArray.length) {
+                    finalOptions.add(distArray[i]); i++;
+                }
+                
+                // Fallback padding
+                let pad = 1;
+                while(finalOptions.size < targetOptionsSize) { 
+                    if (correctAns.includes("H =") || correctAns.includes("y =") || correctAns.includes("x =") || correctAns.includes("xy")) {
+                        // Pad algebraic strings
+                        if (correctAns.includes("x =")) finalOptions.add(`x = ${pad}`);
+                        else if (correctAns.includes("H =")) finalOptions.add(`H = x + ${pad}`);
+                        else finalOptions.add(`y = ${pad}x + 1`);
+                    } else {
+                        // Pad numbers
+                        let parsed = parseInt(correctAns);
+                        if (isNaN(parsed)) parsed = getRandomInt(5, 15);
+                        finalOptions.add((parsed + pad).toString()); 
+                    }
+                    pad++;
+                }
+                options = shuffle(Array.from(finalOptions));
+            }
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = ''; 
+
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'option-btn';
+                if (forceFullWidth || opt.length > 25) btn.classList.add('full-width');
+                
+                if (optionsAreText || opt === "Yes" || opt === "No") {
+                    btn.innerHTML = opt; 
+                } else {
+                    btn.innerHTML = `\\(${opt}\\)`; 
+                }
+
+                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                grid.appendChild(btn);
+            });
+
+            // Configure KaTeX to ONLY render in inline mode (display: false)
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { 
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "\\(", right: "\\)", display: false}
+                    ] 
+                });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            setTimeout(() => display.classList.remove('error'), 400);
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
