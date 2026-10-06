@@ -402,6 +402,7 @@
     function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while(b) { let t = b; b = a % b; a = t; } return a || 1; }
 
     function simplifyFrac(n, d) {
+        if (d === 0) return [0, 1]; // Fail-safe
         let g = gcd(n, d);
         n /= g; d /= g;
         if (d < 0) { n = -n; d = -d; }
@@ -417,7 +418,6 @@
     }
 
     function fmtDec(num) {
-        // Formats to 1 or 2 decimal places properly without trailing zeros
         return parseFloat(num.toFixed(2)).toString();
     }
 
@@ -504,7 +504,7 @@
                     }
                 }
 
-                // MODE 2: One & Two-Step Equations
+                // MODE 2: One & Two-Step Equations (Integers only)
                 else if (currentMode === 2) {
                     promptText = "Solve for x:";
                     let subType = getRandomInt(1, 3);
@@ -549,7 +549,7 @@
                     }
                 }
 
-                // MODE 3: Evaluate & Validate Solutions
+                // MODE 3: Evaluate & Validate Solutions (Integers only)
                 else if (currentMode === 3) {
                     let isValidate = Math.random() > 0.5;
                     
@@ -587,167 +587,185 @@
                         let ans = a*x + b*y;
                         correctAns = ans.toString();
                         
-                        distractors.add((a*x - b*y).toString()); // Sign error on y
-                        distractors.add((a*y + b*x).toString()); // Swapped sub
-                        distractors.add((a*x + b).toString()); // Forgot y
+                        distractors.add((a*x - b*y).toString()); 
+                        distractors.add((a*y + b*x).toString()); 
+                        distractors.add((a*x + b).toString()); 
                     }
                 }
 
-                // MODE 4: Multi-Step & Distributive Law
+                // MODE 4: Multi-Step & Distributive Law (Rational Outputs Allowed)
                 else if (currentMode === 4) {
                     promptText = "Solve the equation for x:";
                     let subType = getRandomInt(1, 2);
                     
                     if (subType === 1) { // Variables on both sides
-                        let a, c, x, b, d;
+                        let a, c, b, d;
                         do {
                             a = getRandomNonZero(2, 6);
                             c = getRandomNonZero(-4, 4);
-                            x = getRandomInt(-6, 6);
                             b = getRandomNonZero(-10, 10);
-                            d = a*x + b - c*x;
-                        } while (a === c || d === 0);
+                            d = getRandomNonZero(-10, 10);
+                        } while (a === c);
                         
                         promptHTML = `${a}x ${b>0?'+':'-'} ${Math.abs(b)} = ${c===1?"":c===-1?"-":c}x ${d>0?'+':'-'} ${Math.abs(d)}`;
-                        correctAns = `x = ${x}`;
                         
-                        let wrongSignDiff = (d + b) / (a - c);
-                        if (Number.isInteger(wrongSignDiff) && wrongSignDiff !== x) distractors.add(`x = ${wrongSignDiff}`);
-                        distractors.add(`x = ${-x === 0 ? 1 : -x}`);
-                        distractors.add(`x = ${x - 2}`);
+                        let num = d - b; let den = a - c;
+                        correctAns = `x = ${formatFrac(num, den)}`;
+                        
+                        distractors.add(`x = ${formatFrac(d + b, a - c)}`); // Add instead of sub
+                        distractors.add(`x = ${formatFrac(d - b, a + c)}`); // Add instead of sub X
+                        distractors.add(`x = ${formatFrac(-num, den)}`); // Sign err
+                        
+                        while(distractors.size < 3) {
+                            distractors.add(`x = ${formatFrac(num + getRandomInt(1,4)*den, den)}`);
+                        }
                     } else { // Distributive Law
                         let a = getRandomNonZero(2, 4) * (Math.random()>0.5?1:-1);
-                        let x = getRandomInt(-5, 5);
                         let b = getRandomNonZero(-6, 6);
+                        let c = getRandomNonZero(-15, 15);
                         
-                        // a(x + b) = c
-                        let c = a * (x + b);
                         promptHTML = `${a}(x ${b>0?'+':'-'} ${Math.abs(b)}) = ${c}`;
-                        correctAns = `x = ${x}`;
                         
-                        let wrong1 = (c - b) / a; // Forgot to distribute to b
-                        if (Number.isInteger(wrong1) && wrong1 !== x) distractors.add(`x = ${wrong1}`);
+                        let num = c - a * b; let den = a;
+                        correctAns = `x = ${formatFrac(num, den)}`;
                         
-                        let wrong2 = (c / a) + b; // Sign error when moving b
-                        if (wrong2 !== x) distractors.add(`x = ${wrong2}`);
+                        distractors.add(`x = ${formatFrac(c - b, a)}`); // Forgot to distribute
+                        distractors.add(`x = ${formatFrac(c + a*b, a)}`); // Sign error moving
+                        distractors.add(`x = ${formatFrac(-num, den)}`); // Sign error global
                         
-                        distractors.add(`x = ${-x === 0 ? 3 : -x}`);
+                        while(distractors.size < 3) {
+                            distractors.add(`x = ${formatFrac(num + getRandomInt(1,4)*den, den)}`);
+                        }
                     }
                 }
 
-                // MODE 5: Fractional Equations
+                // MODE 5: Fractional Equations (Cross Multiply & Distribution)
                 else if (currentMode === 5) {
                     promptText = "Solve the equation for x:";
                     let subType = getRandomInt(1, 3);
-                    let x;
                     
                     if (subType === 1) { // Cross multiply: (x+B)/C = (x+E)/D
                         let C, D, B, E;
-                        let found = false;
-                        while(!found) {
-                            x = getRandomInt(-8, 8);
+                        do {
                             C = getRandomInt(2, 6);
                             D = getRandomInt(2, 6);
-                            if (C === D) continue;
-                            B = getRandomInt(-8, 8);
-                            let CE_val = D*(x+B) - C*x;
-                            if (CE_val % C === 0) {
-                                E = CE_val / C;
-                                if (E !== B) found = true;
-                            }
-                        }
-                        promptHTML = `\\frac{x ${B>=0?'+':'-'} ${Math.abs(B)}}{${C}} = \\frac{x ${E>=0?'+':'-'} ${Math.abs(E)}}{${D}}`;
-                        correctAns = `x = ${x}`;
+                        } while (C === D);
+                        B = getRandomInt(-8, 8);
+                        E = getRandomInt(-8, 8);
                         
-                        let wrong1 = (E*C + B*D)/(D-C);
-                        if (Number.isInteger(wrong1) && wrong1 !== x) distractors.add(`x = ${wrong1}`);
-                        distractors.add(`x = ${-x === 0 ? 2 : -x}`);
-                        distractors.add(`x = ${x + getRandomEl([-2, 2, 3])}`);
+                        promptHTML = `\\frac{x ${B>=0?'+':'-'} ${Math.abs(B)}}{${C}} = \\frac{x ${E>=0?'+':'-'} ${Math.abs(E)}}{${D}}`;
+                        
+                        let num = C*E - D*B; let den = D - C;
+                        correctAns = `x = ${formatFrac(num, den)}`;
+                        
+                        distractors.add(`x = ${formatFrac(E*C + B*D, D - C)}`); // Sign error
+                        distractors.add(`x = ${formatFrac(-num, den)}`); // Global sign err
+                        distractors.add(`x = ${formatFrac(E - B, D - C)}`); // Forgot cross mult on numbers
+                        
+                        while(distractors.size < 3) { 
+                            distractors.add(`x = ${formatFrac(num + getRandomInt(1,3)*den, den)}`); 
+                        }
                         
                     } else if (subType === 2) { // Distributive frac: (A/B)(x + C) = D
-                        let A, B, C, D, k;
-                        x = getRandomInt(-8, 8);
+                        let A, B, C, D;
                         do {
                             B = getRandomInt(2, 5);
                             A = getRandomInt(1, 5) * (Math.random()>0.5?1:-1);
                         } while (gcd(Math.abs(A), B) !== 1 || A === B);
                         
-                        k = getRandomNonZero(-4, 4);
-                        C = k * B - x; 
-                        D = A * k;
+                        C = getRandomNonZero(-6, 6);
+                        D = getRandomNonZero(-10, 10);
                         
                         promptHTML = `${A<0?'-':''}\\frac{${Math.abs(A)}}{${B}}(x ${C>=0?'+':'-'} ${Math.abs(C)}) = ${D}`;
-                        correctAns = `x = ${x}`;
                         
-                        let wrong1 = (D - C) * B / A; // forgot distribute to C
-                        if (Number.isInteger(wrong1) && wrong1 !== x) distractors.add(`x = ${wrong1}`);
-                        distractors.add(`x = ${-x === 0 ? 3 : -x}`);
-                        distractors.add(`x = ${x + B}`);
+                        let num = D*B - A*C; let den = A;
+                        correctAns = `x = ${formatFrac(num, den)}`;
+                        
+                        distractors.add(`x = ${formatFrac(D*B - C, A)}`); // forgot distribute A/B to C
+                        distractors.add(`x = ${formatFrac(D*B + A*C, A)}`); // sign error moving C
+                        distractors.add(`x = ${formatFrac(-num, den)}`);
+                        
+                        while(distractors.size < 3) { 
+                            distractors.add(`x = ${formatFrac(num + getRandomInt(1,3)*den, den)}`); 
+                        }
                         
                     } else { // Fractional vars both sides: (x+B)/A = Cx + D
-                        let A, B, C, D, k;
-                        x = getRandomInt(-6, 6);
-                        A = getRandomInt(2, 5);
-                        k = getRandomNonZero(-3, 3);
-                        B = k * A - x; 
-                        do { C = getRandomNonZero(-3, 3); } while (C === 1/A || C === 0);
-                        D = k - C * x;
+                        let A, B, C, D;
+                        do {
+                            A = getRandomInt(2, 5);
+                            C = getRandomNonZero(-3, 3);
+                        } while (1 - C*A === 0);
+                        B = getRandomNonZero(-6, 6);
+                        D = getRandomNonZero(-6, 6);
                         
                         promptHTML = `\\frac{x ${B>=0?'+':'-'} ${Math.abs(B)}}{${A}} = ${C===1?"":C===-1?"-":C}x ${D===0?"":D>0?"+ "+D:"- "+Math.abs(D)}`;
-                        correctAns = `x = ${x}`;
                         
-                        let num = D*A - B; let den = 1 - C*A;
-                        if (den !== 0) {
-                            let w1 = num/den;
-                            if (Number.isInteger(w1) && w1 !== x) distractors.add(`x = ${w1}`);
+                        let num = A*D - B; let den = 1 - C*A;
+                        correctAns = `x = ${formatFrac(num, den)}`;
+                        
+                        distractors.add(`x = ${formatFrac(A*D + B, 1 - C*A)}`); // sign error moving B
+                        distractors.add(`x = ${formatFrac(D - B, 1 - C*A)}`); // forgot to mult D by A
+                        distractors.add(`x = ${formatFrac(-num, den)}`);
+                        
+                        while(distractors.size < 3) { 
+                            distractors.add(`x = ${formatFrac(num + getRandomInt(1,3)*den, den)}`); 
                         }
-                        distractors.add(`x = ${-x === 0 ? 1 : -x}`);
-                        distractors.add(`x = ${x + A}`);
                     }
                 }
 
-                // MODE 6: Decimal Equations
+                // MODE 6: Decimal Equations (Expansions converted to Rationals)
                 else if (currentMode === 6) {
                     promptText = "Solve the equation for x:";
-                    
                     let subType = getRandomInt(1, 2);
                     
-                    if (subType === 1) { // a x + b = c (1 decimal place)
-                        let aRaw = getRandomInt(1, 9) * 0.5 * (Math.random()>0.5?1:-1); // +/- 0.5, 1.0, 1.5...
-                        if (Math.abs(aRaw) === 1) aRaw = 1.5; // Avoid 1x
-                        let x = getRandomInt(-10, 10);
-                        let bRaw = getRandomInt(-20, 20) * 0.1; // +/- 1.2
+                    if (subType === 1) { // a x + b = c 
+                        let aRaw = getRandomInt(1, 9) * 0.5 * (Math.random()>0.5?1:-1); 
+                        if (Math.abs(aRaw) === 1) aRaw = 1.5; 
+                        let bRaw = getRandomInt(-20, 20) * 0.1; 
                         if (bRaw === 0) bRaw = 1.2;
+                        let cRaw = getRandomInt(-20, 20) * 0.1;
+                        if (cRaw === 0) cRaw = -1.4;
                         
                         let a = parseFloat(aRaw.toFixed(2));
                         let b = parseFloat(bRaw.toFixed(2));
-                        let c = parseFloat((a * x + b).toFixed(2));
+                        let c = parseFloat(cRaw.toFixed(2));
                         
                         promptHTML = `${a}x ${b>0?'+':'-'} ${Math.abs(b)} = ${c}`;
-                        correctAns = `x = ${x}`;
                         
-                        let wrong1 = parseFloat(((c + b)/a).toFixed(2));
-                        if(wrong1 !== x) distractors.add(`x = ${wrong1}`);
-                        distractors.add(`x = ${-x === 0 ? 2 : -x}`);
-                        distractors.add(`x = ${x + 1}`);
-                    } else { // Distributive with decimals
+                        let num = Math.round(10*c - 10*b); let den = Math.round(10*a);
+                        correctAns = `x = ${formatFrac(num, den)}`;
+                        
+                        distractors.add(`x = ${formatFrac(Math.round(10*c + 10*b), den)}`); // Add instead of sub
+                        distractors.add(`x = ${formatFrac(-num, den)}`); // Sign error
+                        
+                        while(distractors.size < 3) { 
+                            distractors.add(`x = ${formatFrac(num + getRandomInt(1,4)*den, den)}`); 
+                        }
+                    } else { // Distributive with decimals: a(x + b) = c(x + d)
                         let aRaw = getRandomInt(2, 5) * 0.1; // 0.2, 0.3, 0.4, 0.5
-                        let x = getRandomInt(-8, 8);
                         let b = getRandomNonZero(-9, 9);
+                        let cRaw; do { cRaw = getRandomInt(1, 9) * 0.1 * (Math.random()>0.5?1:-1); } while (Math.abs(aRaw - cRaw) < 0.05);
+                        let d = getRandomNonZero(-9, 9);
                         
                         let a = parseFloat(aRaw.toFixed(2));
-                        let c = parseFloat((a * (x + b)).toFixed(2));
+                        let c = parseFloat(cRaw.toFixed(2));
                         
-                        promptHTML = `${a}(x ${b>0?'+':'-'} ${Math.abs(b)}) = ${c}`;
-                        correctAns = `x = ${x}`;
+                        promptHTML = `${a}(x ${b>0?'+':'-'} ${Math.abs(b)}) = ${c===1?"":c===-1?"-":c}(x ${d>0?'+':'-'} ${Math.abs(d)})`;
                         
-                        let wrong1 = parseFloat(((c / a) + b).toFixed(2));
-                        if (wrong1 !== x) distractors.add(`x = ${wrong1}`);
+                        // ax + ab = cx + cd => x(a - c) = cd - ab
+                        let num = Math.round(10*c*d - 10*a*b);
+                        let den = Math.round(10*a - 10*c);
                         
-                        let wrong2 = parseFloat(((c - b) / a).toFixed(2)); // forgot distribute
-                        if (wrong2 !== x && Number.isInteger(wrong2)) distractors.add(`x = ${wrong2}`);
+                        correctAns = `x = ${formatFrac(num, den)}`;
                         
-                        distractors.add(`x = ${-x === 0 ? 4 : -x}`);
+                        let w1 = Math.round(10*d - 10*b); // forgot to distribute to consts
+                        distractors.add(`x = ${formatFrac(w1, den)}`);
+                        distractors.add(`x = ${formatFrac(-num, den)}`);
+                        distractors.add(`x = ${formatFrac(Math.round(10*c*d + 10*a*b), den)}`); // sign error
+                        
+                        while(distractors.size < 3) { 
+                            distractors.add(`x = ${formatFrac(num + getRandomInt(1,3)*den, den)}`); 
+                        }
                     }
                 }
 
@@ -764,8 +782,7 @@
             let displayBox = document.getElementById('problemDisplay');
             
             // Explicitly inject the completely pre-formatted HTML (No auto-wrapping block display)
-            // If it's pure text, no brackets. If it's an equation, add brackets for KaTeX.
-            if (optionsAreText || promptHTML.includes("<br>") || promptHTML.includes("\\text{") || promptHTML.includes("\\(")) {
+            if (optionsAreText || promptHTML.includes("<br>")) {
                 displayBox.innerHTML = promptHTML;
             } else {
                 displayBox.innerHTML = `\\( ${promptHTML} \\)`;
@@ -777,7 +794,6 @@
             if (currentMode === 3 && targetOptionsSize === 2) {
                 // Fixed Yes/No
                 options = ["Yes", "No"];
-                // ensure we correctly match standard test layout (Yes usually left, No right)
                 if (Math.random() > 0.5) options = ["No", "Yes"]; 
             } else {
                 let finalOptions = new Set();
@@ -789,16 +805,23 @@
                     finalOptions.add(distArray[i]); i++;
                 }
                 
-                // Fallback padding
+                // Fallback padding if unique distractors weren't enough
                 let pad = 1;
                 while(finalOptions.size < targetOptionsSize) { 
                     if (correctAns.includes("H =") || correctAns.includes("y =") || correctAns.includes("x =") || correctAns.includes("xy")) {
-                        // Pad algebraic strings
-                        if (correctAns.includes("x =")) finalOptions.add(`x = ${pad}`);
-                        else if (correctAns.includes("H =")) finalOptions.add(`H = x + ${pad}`);
-                        else finalOptions.add(`y = ${pad}x + 1`);
+                        let prefix = correctAns.split("=")[0].trim();
+                        if (correctAns.includes("\\frac")) {
+                            finalOptions.add(`${prefix} = \\frac{${pad}}{${pad+2}}`);
+                        } else {
+                            let valMatch = correctAns.match(/=\s*(-?\d+(\.\d+)?)/);
+                            if (valMatch) {
+                                let parsed = parseFloat(valMatch[1]);
+                                finalOptions.add(`${prefix} = ${fmtDec(parsed + pad)}`);
+                            } else {
+                                finalOptions.add(`${prefix} = ${pad}`);
+                            }
+                        }
                     } else {
-                        // Pad numbers
                         let parsed = parseInt(correctAns);
                         if (isNaN(parsed)) parsed = getRandomInt(5, 15);
                         finalOptions.add((parsed + pad).toString()); 
@@ -817,73 +840,4 @@
                 if (forceFullWidth || opt.length > 25) btn.classList.add('full-width');
                 
                 if (optionsAreText || opt === "Yes" || opt === "No") {
-                    btn.innerHTML = opt; 
-                } else {
-                    btn.innerHTML = `\\(${opt}\\)`; 
-                }
-
-                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
-                grid.appendChild(btn);
-            });
-
-            // Configure KaTeX to ONLY render in inline mode (display: false)
-            if (window.renderMathInElement) {
-                renderMathInElement(document.getElementById('gameScreen'), { 
-                    delimiters: [
-                        {left: "$$", right: "$$", display: true},
-                        {left: "\\(", right: "\\)", display: false}
-                    ] 
-                });
-            }
-
-        } catch (err) {
-            console.error(err);
-            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
-            document.getElementById('errorAlert').style.display = 'block';
-        }
-    }
-
-    function handleGuess(btn, isCorrect, event) {
-        if (isTransitioning || btn.classList.contains('wrong')) return;
-
-        if (isCorrect) {
-            isTransitioning = true;
-            btn.classList.add('correct');
-            playSuccess();
-            
-            currentStreak++;
-            document.getElementById('streakDisplay').innerText = currentStreak;
-
-            if (currentStreak > highestStreak) {
-                highestStreak = currentStreak;
-                document.getElementById('highStreakDisplay').innerText = highestStreak;
-            }
-
-            createSparkle(event.clientX, event.clientY);
-            setTimeout(generateProblem, 1000);
-        } else {
-            btn.classList.add('wrong');
-            playWrong();
-            currentStreak = 0; 
-            document.getElementById('streakDisplay').innerText = currentStreak;
-            
-            let display = document.getElementById('problemDisplay');
-            display.classList.add('error');
-            setTimeout(() => display.classList.remove('error'), 400);
-        }
-    }
-
-    function createSparkle(x, y) {
-        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
-        const sparkle = document.createElement('div');
-        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
-        sparkle.className = 'confetti';
-        sparkle.style.left = (x - 15) + 'px';
-        sparkle.style.top = (y - 15) + 'px';
-        document.body.appendChild(sparkle);
-        setTimeout(() => sparkle.remove(), 1000);
-    }
-</script>
-
-</body>
-</html>
+                    btn.innerHTML = opt;
