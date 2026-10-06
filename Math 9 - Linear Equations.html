@@ -182,7 +182,7 @@
         }
 
         .problem-display {
-            font-size: 28px; 
+            font-size: 26px; 
             margin: 0 auto 20px auto;
             padding: 15px 25px;
             background-color: #fdfbf7;
@@ -400,6 +400,8 @@
     }
     function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while(b) { let t = b; b = a % b; a = t; } return a || 1; }
+    function lcm(a, b) { return Math.abs(a * b) / gcd(a, b); }
+    function lcm3(a, b, c) { return lcm(a, lcm(b, c)); }
 
     function simplifyFrac(n, d) {
         if (d === 0) return [0, 1]; // Fail-safe
@@ -639,23 +641,21 @@
                     }
                 }
 
-                // MODE 5: Fractional Equations (Cross Multiply & Distribution)
+                // MODE 5: Fractional Equations (Cross Multiply, Distribution, 3-Fraction LCD)
                 else if (currentMode === 5) {
                     promptText = "Solve the equation for x:";
-                    let subType = getRandomInt(1, 3);
+                    let subType = getRandomInt(1, 4);
                     
                     if (subType === 1) { // Cross multiply: (x+B)/C = (x+E)/D
-                        let C, D, B, E;
-                        do {
-                            C = getRandomInt(2, 6);
-                            D = getRandomInt(2, 6);
-                        } while (C === D);
-                        B = getRandomInt(-8, 8);
-                        E = getRandomInt(-8, 8);
+                        let C = getRandomInt(2, 6);
+                        let D; do { D = getRandomInt(2, 6); } while (C === D);
+                        let B = getRandomInt(-8, 8);
+                        let E = getRandomInt(-8, 8);
                         
                         promptHTML = `\\frac{x ${B>=0?'+':'-'} ${Math.abs(B)}}{${C}} = \\frac{x ${E>=0?'+':'-'} ${Math.abs(E)}}{${D}}`;
                         
-                        let num = C*E - D*B; let den = D - C;
+                        let num = C*E - D*B; 
+                        let den = D - C;
                         correctAns = `x = ${formatFrac(num, den)}`;
                         
                         distractors.add(`x = ${formatFrac(E*C + B*D, D - C)}`); // Sign error
@@ -689,7 +689,7 @@
                             distractors.add(`x = ${formatFrac(num + getRandomInt(1,3)*den, den)}`); 
                         }
                         
-                    } else { // Fractional vars both sides: (x+B)/A = Cx + D
+                    } else if (subType === 3) { // Fractional vars both sides: (x+B)/A = Cx + D
                         let A, B, C, D;
                         do {
                             A = getRandomInt(2, 5);
@@ -710,13 +710,47 @@
                         while(distractors.size < 3) { 
                             distractors.add(`x = ${formatFrac(num + getRandomInt(1,3)*den, den)}`); 
                         }
+                    } else { // NEW: LCD of 3 fractions (x+A)/B + (x+C)/D = E/F
+                        let B, D, F;
+                        do {
+                            B = getRandomInt(2, 6);
+                            D = getRandomInt(2, 6);
+                            F = getRandomInt(2, 6);
+                        } while (B === D); // At least some variety
+                        let A = getRandomNonZero(-5, 5);
+                        let C = getRandomNonZero(-5, 5);
+                        let E = getRandomNonZero(-5, 5);
+
+                        promptHTML = `\\frac{x ${A>0?'+':'-'} ${Math.abs(A)}}{${B}} + \\frac{x ${C>0?'+':'-'} ${Math.abs(C)}}{${D}} = \\frac{${E}}{${F}}`;
+                        
+                        let L = lcm3(B, D, F);
+                        let cX = (L/B) + (L/D);
+                        let cConst = (L/F)*E - (L/B)*A - (L/D)*C;
+                        
+                        correctAns = `x = ${formatFrac(cConst, cX)}`;
+                        
+                        // Distractor: forgot to distribute LCD to constants A and C
+                        let w1_num = (L/F)*E - A - C;
+                        distractors.add(`x = ${formatFrac(w1_num, cX)}`);
+                        
+                        // Distractor: sign error moving constants
+                        let w2_num = (L/F)*E + (L/B)*A + (L/D)*C;
+                        distractors.add(`x = ${formatFrac(w2_num, cX)}`);
+                        
+                        // Distractor: forgot to multiply RHS E by LCD
+                        let w3_num = E - (L/B)*A - (L/D)*C;
+                        distractors.add(`x = ${formatFrac(w3_num, cX)}`);
+                        
+                        while(distractors.size < 3) { 
+                            distractors.add(`x = ${formatFrac(cConst + getRandomInt(1,3)*cX, cX)}`); 
+                        }
                     }
                 }
 
-                // MODE 6: Decimal Equations (Expansions converted to Rationals)
+                // MODE 6: Decimal Equations (Expansions & Multiple Terms)
                 else if (currentMode === 6) {
                     promptText = "Solve the equation for x:";
-                    let subType = getRandomInt(1, 2);
+                    let subType = getRandomInt(1, 3);
                     
                     if (subType === 1) { // a x + b = c 
                         let aRaw = getRandomInt(1, 9) * 0.5 * (Math.random()>0.5?1:-1); 
@@ -741,27 +775,60 @@
                         while(distractors.size < 3) { 
                             distractors.add(`x = ${formatFrac(num + getRandomInt(1,4)*den, den)}`); 
                         }
-                    } else { // Distributive with decimals: a(x + b) = c(x + d)
-                        let aRaw = getRandomInt(2, 5) * 0.1; // 0.2, 0.3, 0.4, 0.5
-                        let b = getRandomNonZero(-9, 9);
-                        let cRaw; do { cRaw = getRandomInt(1, 9) * 0.1 * (Math.random()>0.5?1:-1); } while (Math.abs(aRaw - cRaw) < 0.05);
-                        let d = getRandomNonZero(-9, 9);
+                    } else if (subType === 2) { // Distributive with decimals: a(x + b) = c(x + d)
+                        let A, C, b, d;
+                        do {
+                            A = getRandomNonZero(-9, 9);
+                            C = getRandomNonZero(-9, 9);
+                        } while (A === C);
+                        b = getRandomNonZero(-9, 9);
+                        d = getRandomNonZero(-9, 9);
                         
-                        let a = parseFloat(aRaw.toFixed(2));
-                        let c = parseFloat(cRaw.toFixed(2));
+                        let a = A / 10; let c = C / 10;
+                        promptHTML = `${fmtDec(a)}(x ${b>0?'+':'-'} ${Math.abs(b)}) = ${fmtDec(c)}(x ${d>0?'+':'-'} ${Math.abs(d)})`;
                         
-                        promptHTML = `${a}(x ${b>0?'+':'-'} ${Math.abs(b)}) = ${c===1?"":c===-1?"-":c}(x ${d>0?'+':'-'} ${Math.abs(d)})`;
-                        
-                        // ax + ab = cx + cd => x(a - c) = cd - ab
-                        let num = Math.round(10*c*d - 10*a*b);
-                        let den = Math.round(10*a - 10*c);
+                        let num = C*d - A*b;
+                        let den = A - C;
                         
                         correctAns = `x = ${formatFrac(num, den)}`;
                         
-                        let w1 = Math.round(10*d - 10*b); // forgot to distribute to consts
+                        let w1 = d - b; // forgot to distribute A and C to constants
                         distractors.add(`x = ${formatFrac(w1, den)}`);
                         distractors.add(`x = ${formatFrac(-num, den)}`);
-                        distractors.add(`x = ${formatFrac(Math.round(10*c*d + 10*a*b), den)}`); // sign error
+                        distractors.add(`x = ${formatFrac(C*d + A*b, den)}`); // sign error
+                        
+                        while(distractors.size < 3) { 
+                            distractors.add(`x = ${formatFrac(num + getRandomInt(1,3)*den, den)}`); 
+                        }
+                    } else { // NEW: 3 terms with decimals: a(x + b) + c = d(x + e)
+                        let A, C, D, b, e;
+                        do {
+                            A = getRandomNonZero(-9, 9); 
+                            C = getRandomNonZero(-9, 9); 
+                            D = getRandomNonZero(-9, 9); 
+                        } while (A === D);
+                        b = getRandomNonZero(-9, 9);
+                        e = getRandomNonZero(-9, 9);
+                        
+                        let aDec = A / 10;
+                        let cDec = C / 10;
+                        let dDec = D / 10;
+                        
+                        promptHTML = `${fmtDec(aDec)}(x ${b>0?'+':'-'} ${Math.abs(b)}) ${cDec>0?'+':'-'} ${Math.abs(cDec)} = ${fmtDec(dDec)}(x ${e>0?'+':'-'} ${Math.abs(e)})`;
+                        
+                        let num = D*e - A*b - C;
+                        let den = A - D;
+                        
+                        correctAns = `x = ${formatFrac(num, den)}`;
+                        
+                        let w1_num = 10*e - 10*b - C; // Forgot to distribute decimal entirely to consts
+                        distractors.add(`x = ${formatFrac(w1_num, den)}`);
+                        
+                        let w2_num = D*e - A*b + C; // Sign error moving C
+                        distractors.add(`x = ${formatFrac(w2_num, den)}`);
+                        
+                        let w3_num = -D*e + A*b - C; // Sign error moving the distributed terms
+                        distractors.add(`x = ${formatFrac(w3_num, den)}`);
                         
                         while(distractors.size < 3) { 
                             distractors.add(`x = ${formatFrac(num + getRandomInt(1,3)*den, den)}`); 
@@ -778,11 +845,10 @@
 
             // --- Safe DOM Updates ---
             document.getElementById('promptTitle').innerText = promptText; 
-            
             let displayBox = document.getElementById('problemDisplay');
             
-            // Explicitly inject the completely pre-formatted HTML (No auto-wrapping block display)
-            if (optionsAreText || promptHTML.includes("<br>")) {
+            // Explicitly inject the completely pre-formatted HTML
+            if (optionsAreText || promptHTML.includes("<br>") || promptHTML.includes("\\text{")) {
                 displayBox.innerHTML = promptHTML;
             } else {
                 displayBox.innerHTML = `\\( ${promptHTML} \\)`;
@@ -805,10 +871,10 @@
                     finalOptions.add(distArray[i]); i++;
                 }
                 
-                // Fallback padding if unique distractors weren't enough
+                // Fallback padding
                 let pad = 1;
                 while(finalOptions.size < targetOptionsSize) { 
-                    if (correctAns.includes("H =") || correctAns.includes("y =") || correctAns.includes("x =") || correctAns.includes("xy")) {
+                    if (correctAns.includes("x =") || correctAns.includes("H =") || correctAns.includes("y =")) {
                         let prefix = correctAns.split("=")[0].trim();
                         if (correctAns.includes("\\frac")) {
                             finalOptions.add(`${prefix} = \\frac{${pad}}{${pad+2}}`);
@@ -840,4 +906,73 @@
                 if (forceFullWidth || opt.length > 25) btn.classList.add('full-width');
                 
                 if (optionsAreText || opt === "Yes" || opt === "No") {
-                    btn.innerHTML = opt;
+                    btn.innerHTML = opt; 
+                } else {
+                    btn.innerHTML = `\\(${opt}\\)`; 
+                }
+
+                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                grid.appendChild(btn);
+            });
+
+            // Configure KaTeX to ONLY render in inline mode (display: false)
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { 
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "\\(", right: "\\)", display: false}
+                    ] 
+                });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            setTimeout(() => display.classList.remove('error'), 400);
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
