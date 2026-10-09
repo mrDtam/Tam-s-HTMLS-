@@ -320,8 +320,8 @@
 
         @media (max-width: 600px) {
             .menu-grid { grid-template-columns: 1fr; }
-            .option-btn { flex: 1 1 100%; font-size: 18px; padding: 12px 5px;} 
-            .problem-display { font-size: 22px; padding: 15px 10px; } 
+            .problem-display { font-size: 26px; }
+            .option-btn { font-size: 18px; padding: 12px 5px; }
         }
     </style>
 </head>
@@ -880,13 +880,12 @@
                         distractors.add(formatFrac(fp1, gp1)); 
                     } else { // Chain
                         promptHTML = `\\text{If } h(x) = f(g(x)), \\text{ find } h'(${x1})`;
-                        // h'(x1) = f'(g(x1)) * g'(x1) = f'(x2) * gp1
                         let ans = fp2 * gp1;
                         correctAns = ans.toString();
                         
-                        distractors.add((fp1 * gp1).toString()); // used f'(x1) instead of f'(g(x1))
-                        distractors.add((f2 * gp1).toString()); // used f(g(x1)) instead of f'
-                        distractors.add((fp2 + gp1).toString()); // Added instead of mult
+                        distractors.add((fp1 * gp1).toString()); 
+                        distractors.add((f2 * gp1).toString()); 
+                        distractors.add((fp2 + gp1).toString()); 
                     }
                 }
 
@@ -956,7 +955,9 @@
             document.getElementById('promptTitle').innerText = promptText; 
             
             let displayBox = document.getElementById('problemDisplay');
-            if (optionsAreText || promptHTML.includes("\\text{")) {
+            
+            // Explicitly wrap math strings in KaTeX delimiters unless they naturally bypass it
+            if (optionsAreText || promptHTML.includes("<br>") || promptHTML.includes("\\(")) {
                 displayBox.innerHTML = promptHTML;
             } else {
                 displayBox.innerHTML = `\\( ${promptHTML} \\)`;
@@ -988,6 +989,8 @@
                 } else if (currentMode === 8 && correctAns.includes("y =")) {
                     finalOptions.add(`y = ${pad}x + ${getRandomInt(-3, 3)}`);
                     pad++;
+                } else if (currentMode === 8) {
+                    finalOptions.add(`x = y + ${pad++}`); // safe fallback for standard eq
                 } else if (currentMode === 7 && correctAns.includes("\\frac")) {
                     finalOptions.add(`\\frac{${pad++}}{2}`);
                 } else {
