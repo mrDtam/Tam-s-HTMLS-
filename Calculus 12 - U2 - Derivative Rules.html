@@ -24,7 +24,7 @@
             background-color: #f4f6f7;
             color: var(--dark);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -34,7 +34,7 @@
 
         .container {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             max-width: 850px;
@@ -44,17 +44,17 @@
 
         h1 {
             color: var(--dark);
-            font-size: 28px;
+            font-size: 26px;
             margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .subtitle {
             color: #7f8c8d;
-            font-size: 16px;
-            margin-bottom: 25px;
+            font-size: 15px;
+            margin-bottom: 20px;
             font-weight: bold;
         }
 
@@ -95,8 +95,8 @@
             background-color: var(--light);
             color: var(--dark);
             border: 2px solid #bdc3c7;
-            padding: 15px 20px;
-            font-size: 16px;
+            padding: 12px 18px;
+            font-size: 15px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
@@ -110,13 +110,13 @@
             background-color: var(--secondary);
             color: white;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            margin-right: 15px;
-            font-size: 14px;
+            margin-right: 12px;
+            font-size: 13px;
             flex-shrink: 0;
         }
         
@@ -151,9 +151,9 @@
             background-color: #ecf0f1;
             color: #7f8c8d;
             border: none;
-            padding: 10px 15px;
+            padding: 8px 15px;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.2s;
@@ -161,38 +161,37 @@
         .icon-btn:hover { background-color: #e0e6ed; }
 
         .streak-counter {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             color: var(--secondary);
             background: #ebf5fb;
-            padding: 10px 15px;
+            padding: 8px 15px;
             border-radius: 10px;
             border: 2px solid var(--secondary);
         }
 
         .prompt-text {
-            font-size: 20px;
+            font-size: 18px;
             color: var(--dark);
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .problem-display {
-            font-size: 32px;
-            margin: 0 0 25px 0;
-            padding: 20px 30px;
+            font-size: 26px; 
+            margin: 0 auto 20px auto;
+            padding: 15px 25px;
             background-color: #fdfbf7;
             border-radius: 12px;
             border: 2px solid var(--level1);
             color: var(--dark);
             min-height: 80px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: block; 
+            text-align: center;
             transition: all 0.3s;
-            overflow-x: auto;
-            line-height: 1.4;
+            line-height: 1.6;
+            max-width: 650px;
+            word-wrap: break-word;
         }
         
         .problem-display.error {
@@ -211,6 +210,7 @@
             margin: 0 auto 20px auto;
             display: none;
             justify-content: center;
+            overflow-x: auto;
         }
 
         /* Abstract Tables */
@@ -238,23 +238,22 @@
         }
 
         .options-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
             width: 100%;
+            max-width: 750px;
             margin: 0 auto;
         }
 
-        @media (min-width: 700px) {
-            .options-grid { grid-template-columns: 1fr 1fr; }
-        }
-
         .option-btn {
+            flex: 1 1 calc(50% - 12px); 
             background-color: white;
             color: var(--dark);
             border: 2px solid #bdc3c7;
-            padding: 18px 10px;
-            font-size: 22px;
+            padding: 15px 10px;
+            font-size: 20px;
             font-weight: bold;
             border-radius: 10px;
             cursor: pointer;
@@ -263,8 +262,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 60px;
-            overflow-x: auto;
+            min-height: 55px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .option-btn.full-width {
+            flex: 1 1 100%;
         }
 
         .option-btn:hover {
@@ -316,8 +320,8 @@
 
         @media (max-width: 600px) {
             .menu-grid { grid-template-columns: 1fr; }
-            .problem-display { font-size: 26px; }
-            .option-btn { font-size: 18px; padding: 12px 5px; }
+            .option-btn { flex: 1 1 100%; font-size: 18px; padding: 12px 5px;} 
+            .problem-display { font-size: 22px; padding: 15px 10px; } 
         }
     </style>
 </head>
@@ -416,6 +420,8 @@
     function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while(b) { let t = b; b = a % b; a = t; } return a || 1; }
 
     function simplifyFrac(n, d) {
+        if (n === 0) return [0, 1];
+        if (d === 0) return [1, 0]; // Prevent infinite loops
         let g = gcd(n, d);
         n /= g; d /= g;
         if (d < 0) { n = -n; d = -d; }
@@ -430,7 +436,7 @@
         return `\\frac{${nn}}{${dd}}`;
     }
 
-    // --- Extended Rational Exponent Formatter (Modes 1 & 4) ---
+    // --- Extended Rational Exponent Formatter (Modes 1, 2, 3) ---
     function formatTermExt(cNum, cDen, pn, pd, isFirst) {
         if (cNum === 0) return "";
         let sign = cNum * cDen < 0 ? (isFirst ? "-" : " - ") : (isFirst ? "" : " + ");
@@ -451,6 +457,8 @@
             if (pd_s === 1) {
                 if (pn_s === 1) pStr = "x";
                 else pStr = `x^{${pn_s}}`;
+            } else if (pn_s === 1 && pd_s === 2) {
+                pStr = `\\sqrt{x}`; // Display radical elegantly
             } else {
                 pStr = `x^{${pn_s}/${pd_s}}`;
             }
@@ -470,7 +478,20 @@
         return res === "" ? "0" : res;
     }
 
-    // --- Standard Integer Polynomial Formatter (Modes 2, 3, 6, 8) ---
+    function polyDerivExt(terms) {
+        let d = [];
+        for(let t of terms) {
+            if (t.pn !== 0) {
+                let [nn, nd] = simplifyFrac(t.cn * t.pn, t.cd * t.pd);
+                let [npn, npd] = simplifyFrac(t.pn - t.pd, t.pd);
+                if (nn !== 0) d.push({cn: nn, cd: nd, pn: npn, pd: npd});
+            }
+        }
+        if (d.length === 0) return [{cn: 0, cd: 1, pn: 0, pd: 1}];
+        return d;
+    }
+
+    // --- Standard Integer Polynomial Formatter (Modes 4, 6, 8) ---
     function termFmt(c, p, v='x', isFirst=false) {
         if (c === 0) return "";
         let absC = Math.abs(c);
@@ -480,7 +501,9 @@
         if (p === 1) vPart = v;
         else if (p !== 0) vPart = `${v}^{${p}}`;
         
-        let cPart = (absC === 1 && p !== 0) ? "" : absC.toString();
+        let cPart = "";
+        // Only show 1 if power is 0 (constant term)
+        if (absC !== 1 || p === 0) cPart = absC.toString();
         
         return `${sign}${cPart}${vPart}`;
     }
@@ -501,13 +524,6 @@
         let d = terms.map(t => [t[0]*t[1], t[1]-1]).filter(t => t[0] !== 0);
         if (d.length === 0) return [[0,0]];
         return d;
-    }
-
-    function formatQuadratic(a, b, c, v = 'x') {
-        let p1 = termFmt(a, 2, v, true);
-        let p2 = termFmt(b, 1, v, p1 === "");
-        let p3 = termFmt(c, 0, v, p1 === "" && p2 === "");
-        return `${p1}${p2}${p3}`;
     }
 
     // --- Equation Formatters for Mode 8 ---
@@ -558,8 +574,9 @@
             document.getElementById('menuScreen').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'block';
             
-            document.getElementById('gameScreen').style.borderColor = mode <= 5 ? "var(--level1)" : "var(--level3)";
-            document.getElementById('problemDisplay').style.borderColor = mode <= 5 ? "var(--level1)" : "var(--level3)";
+            let colorVar = mode <= 5 ? "var(--level1)" : "var(--level3)";
+            document.getElementById('gameScreen').style.borderColor = colorVar;
+            document.getElementById('problemDisplay').style.borderColor = colorVar;
 
             setTimeout(() => { generateProblem(); }, 50);
         } catch (e) {
@@ -585,6 +602,8 @@
             let promptHTML = "";
             let promptText = "";
             let infoHTML = "";
+            let optionsAreText = false;
+            let forceFullWidth = false;
 
             let problemSignature = "";
             let loopCount = 0;
@@ -592,8 +611,10 @@
             do {
                 distractors.clear();
                 infoHTML = "";
+                optionsAreText = false;
+                forceFullWidth = false;
 
-                // MODE 1: Power Rule (Advanced)
+                // MODE 1: Power Rule (Advanced Extended)
                 if (currentMode === 1) {
                     promptText = "Find the derivative:";
                     
@@ -607,7 +628,7 @@
                     let p1 = shuffle([t1, t2, t3]);
                     promptHTML = `\\frac{d}{dx} \\left[ ${formatPolyExt(p1)} \\right]`;
                     
-                    let d_correct = p1.map(t => ({cn: t.cn * t.pn, cd: t.cd * t.pd, pn: t.pn - t.pd, pd: t.pd}));
+                    let d_correct = polyDerivExt(p1);
                     correctAns = formatPolyExt(d_correct);
                     
                     distractors.add(formatPolyExt(p1.map(t => ({cn: t.cn * t.pn, cd: t.cd * t.pd, pn: t.pn, pd: t.pd})))); // No sub
@@ -615,24 +636,27 @@
                     distractors.add(formatPolyExt(p1.map(t => ({cn: t.cn * t.pn, cd: t.cd * t.pd, pn: t.pn + t.pd, pd: t.pd})))); // Add power
                 }
 
-                // MODE 2: Product Rule
+                // MODE 2: Product Rule (Mixed Exponents)
                 else if (currentMode === 2) {
                     promptText = "Apply the Product Rule (Do not simplify):";
+                    forceFullWidth = true;
                     
-                    let a = getRandomNonZero(-4, 4); let p_a = getRandomInt(2, 4);
-                    let b = getRandomNonZero(-5, 5); 
-                    let u = [ [a, p_a], [b, 0] ];
-                    let du = polyDeriv(u);
+                    let u = [ 
+                        {cn: getRandomNonZero(-4, 4), cd: 1, pn: getRandomEl([2, 3]), pd: 1}, 
+                        {cn: getRandomNonZero(-5, 5), cd: 1, pn: 0, pd: 1} 
+                    ];
+                    let du = polyDerivExt(u);
                     
-                    let c = getRandomNonZero(-4, 4); let p_c = getRandomInt(1, 2);
-                    let d = getRandomNonZero(-5, 5);
-                    let v = [ [c, p_c], [d, 0] ];
-                    let dv = polyDeriv(v);
+                    let v = [ 
+                        {cn: getRandomNonZero(-4, 4), cd: 1, pn: getRandomEl([1, -1]), pd: getRandomEl([1, 2])}, 
+                        {cn: getRandomNonZero(-5, 5), cd: 1, pn: 0, pd: 1} 
+                    ];
+                    let dv = polyDerivExt(v);
 
-                    promptHTML = `\\frac{d}{dx} \\left[ (${polyFmt(u)})(${polyFmt(v)}) \\right]`;
+                    promptHTML = `\\frac{d}{dx} \\left[ (${formatPolyExt(u)})(${formatPolyExt(v)}) \\right]`;
                     
-                    let u_str = `(${polyFmt(u)})`; let du_str = `(${polyFmt(du)})`;
-                    let v_str = `(${polyFmt(v)})`; let dv_str = `(${polyFmt(dv)})`;
+                    let u_str = `(${formatPolyExt(u)})`; let du_str = `(${formatPolyExt(du)})`;
+                    let v_str = `(${formatPolyExt(v)})`; let dv_str = `(${formatPolyExt(dv)})`;
 
                     correctAns = `${du_str}${v_str} + ${u_str}${dv_str}`;
                     
@@ -641,24 +665,25 @@
                     distractors.add(`${u_str}${v_str} + ${du_str}${dv_str}`); 
                 }
 
-                // MODE 3: Quotient Rule
+                // MODE 3: Quotient Rule (Mixed Exponents)
                 else if (currentMode === 3) {
                     promptText = "Apply the Quotient Rule (Do not simplify):";
+                    forceFullWidth = true;
                     
-                    let a = getRandomNonZero(-4, 4); let p_a = getRandomInt(2, 3);
-                    let u = [ [a, p_a] ];
-                    let du = polyDeriv(u);
+                    let u = [ {cn: getRandomNonZero(-4, 4), cd: 1, pn: getRandomInt(2, 3), pd: 1} ];
+                    let du = polyDerivExt(u);
                     
-                    let c = getRandomNonZero(1, 4); let p_c = 1;
-                    let d = getRandomNonZero(-5, 5);
-                    let v = [ [c, p_c], [d, 0] ];
-                    let dv = polyDeriv(v);
+                    let v = [ 
+                        {cn: getRandomNonZero(1, 4), cd: 1, pn: getRandomEl([1, -1]), pd: getRandomEl([1, 2])}, 
+                        {cn: getRandomNonZero(-5, 5), cd: 1, pn: 0, pd: 1} 
+                    ];
+                    let dv = polyDerivExt(v);
 
-                    promptHTML = `\\frac{d}{dx} \\left[ \\frac{${polyFmt(u)}}{${polyFmt(v)}} \\right]`;
+                    promptHTML = `\\frac{d}{dx} \\left[ \\frac{${formatPolyExt(u)}}{${formatPolyExt(v)}} \\right]`;
                     
-                    let u_str = `(${polyFmt(u)})`; let du_str = `(${polyFmt(du)})`;
-                    let v_str = `(${polyFmt(v)})`; let dv_str = `(${polyFmt(dv)})`;
-                    let v2_str = `(${polyFmt(v)})^2`;
+                    let u_str = `(${formatPolyExt(u)})`; let du_str = `(${formatPolyExt(du)})`;
+                    let v_str = `(${formatPolyExt(v)})`; let dv_str = `(${formatPolyExt(dv)})`;
+                    let v2_str = `(${formatPolyExt(v)})^2`;
 
                     correctAns = `\\frac{${du_str}${v_str} - ${u_str}${dv_str}}{${v2_str}}`;
                     
@@ -667,41 +692,51 @@
                     distractors.add(`\\frac{${du_str}}{${dv_str}}`); 
                 }
 
-                // MODE 4: Chain Rule (No Trig, only Rational/Negative Powers)
+                // MODE 4: Chain Rule (Advanced Power, Sqrt, Cube Root)
                 else if (currentMode === 4) {
                     promptText = "Apply the Chain Rule:";
+                    forceFullWidth = true;
                     
                     let a = getRandomNonZero(-3, 3);
                     let b = getRandomNonZero(-5, 5);
-                    let innerStr = `${a===1?"":a===-1?"-":a}x^2 ${b>0?'+':'-'} ${Math.abs(b)}x`;
-                    let derivInnerStr = `${2*a}x ${b>0?'+':'-'} ${Math.abs(b)}`;
+                    let c = getRandomInt(-5, 5);
+                    let u = [ [a, 2], [b, 1], [c, 0] ];
+                    let du = polyDeriv(u);
                     
-                    let pd = getRandomEl([1, 2, 3]);
-                    let pn = getRandomEl([2, 3, 4, -1, -2, -3]);
-                    if (pd === pn || pn === 0) pn = 5;
+                    let uStr = polyFmt(u);
+                    let duStr = `(${polyFmt(du)})`;
                     
-                    let powStr = pd === 1 ? `${pn}` : `${pn}/${pd}`;
-                    let newPn = pn - pd;
-                    let newPowStr = pd === 1 ? `${newPn}` : `${newPn}/${pd}`;
+                    let type = getRandomInt(1, 3); // 1: Power, 2: Sqrt, 3: Cube Root
                     
-                    let coefStr = pd === 1 ? `${pn}` : `\\frac{${Math.abs(pn)}}{${pd}}`;
-                    if (pn < 0 && pd !== 1) coefStr = "-" + coefStr;
-                    
-                    promptHTML = `\\frac{d}{dx} \\left[ (${innerStr})^{${powStr}} \\right]`;
-                    correctAns = `${coefStr}(${innerStr})^{${newPowStr}}(${derivInnerStr})`;
-                    
-                    distractors.add(`${coefStr}(${innerStr})^{${newPowStr}}`); // Forgot chain
-                    distractors.add(`(${innerStr})^{${newPowStr}}(${derivInnerStr})`); // Forgot coef
-                    distractors.add(`${coefStr}(${derivInnerStr})^{${newPowStr}}`); // Derived inside
-                    
-                    let badNewPn = pn + pd;
-                    let badNewPowStr = pd === 1 ? `${badNewPn}` : `${badNewPn}/${pd}`;
-                    distractors.add(`${coefStr}(${innerStr})^{${badNewPowStr}}(${derivInnerStr})`); // Added power
+                    if (type === 1) { 
+                        let n = getRandomEl([-4, -3, -2, 3, 4, 5]);
+                        promptHTML = `\\frac{d}{dx} \\left[ (${uStr})^{${n}} \\right]`;
+                        correctAns = `${n}(${uStr})^{${n-1}}${duStr}`;
+                        
+                        distractors.add(`${n}(${uStr})^{${n}}${duStr}`); // Didn't subtract power
+                        distractors.add(`(${uStr})^{${n-1}}${duStr}`); // Forgot coef
+                        distractors.add(`${n}(${uStr})^{${n-1}}`); // Forgot chain
+                        distractors.add(`${n}(${polyFmt(du)})^{${n-1}}`); // Derived inside
+                    } else if (type === 2) { 
+                        promptHTML = `\\frac{d}{dx} \\left[ \\sqrt{${uStr}} \\right]`;
+                        correctAns = `\\frac{${polyFmt(du)}}{2\\sqrt{${uStr}}}`;
+                        
+                        distractors.add(`\\frac{1}{2\\sqrt{${uStr}}}`); // Forgot chain
+                        distractors.add(`\\frac{${polyFmt(du)}}{\\sqrt{${uStr}}}`); // Forgot 2
+                        distractors.add(`\\frac{2(${polyFmt(du)})}{\\sqrt{${uStr}}}`); // Multiplied 2
+                    } else { 
+                        promptHTML = `\\frac{d}{dx} \\left[ \\sqrt[3]{${uStr}} \\right]`;
+                        correctAns = `\\frac{${polyFmt(du)}}{3(${uStr})^{2/3}}`;
+                        
+                        distractors.add(`\\frac{1}{3(${uStr})^{2/3}}`); // Forgot chain
+                        distractors.add(`\\frac{${polyFmt(du)}}{3(${uStr})^{-2/3}}`); // Wrong sign denom
+                        distractors.add(`\\frac{${polyFmt(du)}}{3\\sqrt[3]{${uStr}}}`); // Kept power 1/3
+                    }
                 }
 
                 // MODE 5: Implicit Differentiation (Diverse Variables)
                 else if (currentMode === 5) {
-                    promptText = "Find \\(\\frac{dy}{dx} \\) using implicit differentiation:";
+                    promptText = "Find \\(\\frac{dy}{dx}\\) using implicit differentiation:";
                     
                     let t1 = {c: getRandomNonZero(-4, 4), v: 'x', p: getRandomInt(2, 4)};
                     let t2 = {c: getRandomNonZero(-4, 4), v: 'y', p: getRandomInt(2, 4)};
@@ -759,95 +794,99 @@
                     distractors.add(`-\\frac{${botStr}}{${wrongTopStr}}`);
                 }
 
-                // MODE 6: Multiple Rules (Chain + Product/Quotient)
+                // MODE 6: Multiple Rules (4 Types)
                 else if (currentMode === 6) {
                     promptText = "Apply multiple rules (Do not simplify):";
+                    forceFullWidth = true;
                     
+                    let type = getRandomInt(1, 4);
                     let a = getRandomNonZero(2, 4);
-                    let u = [ [a, 2] ]; // ax^2
-                    let du = polyDeriv(u);
-                    
-                    let b = getRandomNonZero(2, 5);
-                    let inner = [ [b, 1], [getRandomNonZero(1,4), 0] ]; // bx + c
-                    let d_inner = polyDeriv(inner);
+                    let b = getRandomNonZero(-5, 5);
+                    let c = getRandomNonZero(1, 4);
+                    let d = getRandomNonZero(-3, 3);
                     let n = getRandomInt(3, 5);
                     
-                    promptHTML = `\\frac{d}{dx} \\left[ (${polyFmt(u)})(${polyFmt(inner)})^{${n}} \\right]`;
+                    let u = [ [a, 2], [b, 0] ]; // ax^2+b
+                    let v = [ [c, 1], [d, 0] ]; // cx+d
+                    let du = polyDeriv(u);
+                    let dv = polyDeriv(v);
                     
-                    let u_str = `(${polyFmt(u)})`; let du_str = `(${polyFmt(du)})`;
-                    let v_str = `(${polyFmt(inner)})^{${n}}`; 
-                    let dv_str = `${n}(${polyFmt(inner)})^{${n-1}}(${polyFmt(d_inner)})`;
-
-                    correctAns = `${du_str}${v_str} + ${u_str}\\left[${dv_str}\\right]`;
+                    let uStr = `(${polyFmt(u)})`; let duStr = `(${polyFmt(du)})`;
+                    let vStr = `(${polyFmt(v)})`; let dvStr = `(${polyFmt(dv)})`;
                     
-                    distractors.add(`${du_str}${v_str} - ${u_str}\\left[${dv_str}\\right]`); 
-                    distractors.add(`${du_str}\\left[${dv_str}\\right]`); 
-                    let bad_dv = `${n}(${polyFmt(inner)})^{${n-1}}`;
-                    distractors.add(`${du_str}${v_str} + ${u_str}\\left[${bad_dv}\\right]`); 
+                    if (type === 1) { // Product + Chain: y = u * v^n
+                        promptHTML = `\\frac{d}{dx} \\left[ ${uStr}${vStr}^{${n}} \\right]`;
+                        let chain_v = `${n}${vStr}^{${n-1}}${dvStr}`;
+                        correctAns = `${duStr}${vStr}^{${n}} + ${uStr}\\left[${chain_v}\\right]`;
+                        distractors.add(`${duStr}${vStr}^{${n}} - ${uStr}\\left[${chain_v}\\right]`); 
+                        distractors.add(`${duStr}\\left[${chain_v}\\right]`); 
+                    } else if (type === 2) { // Quotient + Chain: y = u^n / v
+                        promptHTML = `\\frac{d}{dx} \\left[ \\frac{${uStr}^{${n}}}{${vStr}} \\right]`;
+                        let chain_u = `${n}${uStr}^{${n-1}}${duStr}`;
+                        correctAns = `\\frac{\\left[${chain_u}\\right]${vStr} - ${uStr}^{${n}}${dvStr}}{${vStr}^2}`;
+                        distractors.add(`\\frac{\\left[${chain_u}\\right]${vStr} + ${uStr}^{${n}}${dvStr}}{${vStr}^2}`);
+                        distractors.add(`\\frac{${uStr}^{${n}}${dvStr} - \\left[${chain_u}\\right]${vStr}}{${vStr}^2}`);
+                    } else if (type === 3) { // Chain + Quotient: y = (u/v)^n
+                        promptHTML = `\\frac{d}{dx} \\left[ \\left( \\frac{${polyFmt(u)}}{${polyFmt(v)}} \\right)^{${n}} \\right]`;
+                        let inner_deriv = `\\frac{${duStr}${vStr} - ${uStr}${dvStr}}{${vStr}^2}`;
+                        let outer_deriv = `${n}\\left( \\frac{${polyFmt(u)}}{${polyFmt(v)}} \\right)^{${n-1}}`;
+                        correctAns = `${outer_deriv} \\left[ ${inner_deriv} \\right]`;
+                        distractors.add(`${outer_deriv} \\left[ \\frac{${uStr}${dvStr} - ${duStr}${vStr}}{${vStr}^2} \\right]`);
+                        distractors.add(`${outer_deriv} \\left[ \\frac{${duStr}${vStr} + ${uStr}${dvStr}}{${vStr}^2} \\right]`);
+                    } else { // Power + Chain: y = (u)^n
+                        promptHTML = `\\frac{d}{dx} \\left[ ${uStr}^{${n}} \\right]`;
+                        correctAns = `${n}${uStr}^{${n-1}}${duStr}`;
+                        distractors.add(`${n}${uStr}^{${n}}${duStr}`);
+                        distractors.add(`${uStr}^{${n-1}}${duStr}`);
+                    }
                 }
 
-                // MODE 7: Abstract Rules (Tables & Substitution)
+                // MODE 7: Abstract Rules (Advanced 2-Row Table)
                 else if (currentMode === 7) {
-                    let x_val = getRandomInt(1, 4);
-                    let f = getRandomNonZero(-4, 4);
-                    let fp = getRandomNonZero(-4, 4);
-                    let g = getRandomNonZero(-4, 4);
-                    let gp = getRandomNonZero(-4, 4);
+                    let type = getRandomInt(1, 3); // 1: Prod, 2: Quot, 3: Chain
+                    
+                    let x1 = getRandomInt(1, 3);
+                    let x2; do { x2 = getRandomInt(1, 5); } while(x2 === x1);
+                    
+                    let f1 = getRandomNonZero(-3, 3); let fp1 = getRandomNonZero(-3, 3);
+                    let f2 = getRandomNonZero(-3, 3); let fp2 = getRandomNonZero(-3, 3);
+                    
+                    let g1 = x2; // Forces g(x1) = x2 for Chain rule
+                    let gp1 = getRandomNonZero(-3, 3);
+                    let g2 = getRandomNonZero(-3, 3); let gp2 = getRandomNonZero(-3, 3);
 
-                    let isSolve = Math.random() > 0.5;
+                    promptText = "Evaluate the derivative using the table of values:";
+                    infoHTML = `
+                        <table class="calc-table">
+                            <tr><th>\\( x \\)</th><th>\\( f(x) \\)</th><th>\\( f'(x) \\)</th><th>\\( g(x) \\)</th><th>\\( g'(x) \\)</th></tr>
+                            <tr><td>${x1}</td><td>${f1}</td><td>${fp1}</td><td>${g1}</td><td>${gp1}</td></tr>
+                            <tr><td>${x2}</td><td>${f2}</td><td>${fp2}</td><td>${g2}</td><td>${gp2}</td></tr>
+                        </table>
+                    `;
 
-                    if (isSolve) {
-                        promptText = "Find the missing value in the table:";
-                        let hideVar = getRandomInt(1, 4); // 1:f, 2:fp, 3:g, 4:gp
+                    if (type === 1) { // Product
+                        promptHTML = `\\text{If } h(x) = f(x)g(x), \\text{ find } h'(${x1})`;
+                        let ans = (fp1 * g1) + (f1 * gp1);
+                        correctAns = ans.toString();
+                        distractors.add((fp1 * gp1).toString()); 
+                        distractors.add(((fp1 * g1) - (f1 * gp1)).toString()); 
+                    } else if (type === 2) { // Quotient
+                        promptHTML = `\\text{If } h(x) = \\frac{f(x)}{g(x)}, \\text{ find } h'(${x1})`;
+                        let top = (fp1 * g1) - (f1 * gp1);
+                        let bot = g1 * g1;
+                        correctAns = formatFrac(top, bot);
+                        distractors.add(formatFrac((fp1*g1) + (f1*gp1), bot)); 
+                        distractors.add(formatFrac((f1*gp1) - (fp1*g1), bot)); 
+                        distractors.add(formatFrac(fp1, gp1)); 
+                    } else { // Chain
+                        promptHTML = `\\text{If } h(x) = f(g(x)), \\text{ find } h'(${x1})`;
+                        // h'(x1) = f'(g(x1)) * g'(x1) = f'(x2) * gp1
+                        let ans = fp2 * gp1;
+                        correctAns = ans.toString();
                         
-                        let f_disp = hideVar === 1 ? "?" : f;
-                        let fp_disp = hideVar === 2 ? "?" : fp;
-                        let g_disp = hideVar === 3 ? "?" : g;
-                        let gp_disp = hideVar === 4 ? "?" : gp;
-
-                        infoHTML = `
-                            <table class="calc-table">
-                                <tr><th>\\( x \\)</th><th>\\( f(x) \\)</th><th>\\( f'(x) \\)</th><th>\\( g(x) \\)</th><th>\\( g'(x) \\)</th></tr>
-                                <tr><td>${x_val}</td><td>${f_disp}</td><td>${fp_disp}</td><td>${g_disp}</td><td>${gp_disp}</td></tr>
-                            </table>
-                        `;
-
-                        let ans_k = (fp * g) + (f * gp);
-                        promptHTML = `\\text{If } h(x) = f(x)g(x) \\text{ and } h'(${x_val}) = ${ans_k}`;
-                        
-                        let targetAns = hideVar === 1 ? f : hideVar === 2 ? fp : hideVar === 3 ? g : gp;
-                        correctAns = targetAns.toString();
-                        
-                        distractors.add((targetAns * -1).toString());
-                        distractors.add((targetAns + 2).toString());
-                        distractors.add((targetAns - 2).toString());
-                    } else {
-                        promptText = "Evaluate the derivative using the table of values:";
-                        infoHTML = `
-                            <table class="calc-table">
-                                <tr><th>\\( x \\)</th><th>\\( f(x) \\)</th><th>\\( f'(x) \\)</th><th>\\( g(x) \\)</th><th>\\( g'(x) \\)</th></tr>
-                                <tr><td>${x_val}</td><td>${f}</td><td>${fp}</td><td>${g}</td><td>${gp}</td></tr>
-                            </table>
-                        `;
-
-                        let isProduct = Math.random() > 0.5;
-                        if (isProduct) {
-                            promptHTML = `\\text{If } h(x) = f(x)g(x), \\text{ find } h'(${x_val})`;
-                            let ans = (fp * g) + (f * gp);
-                            correctAns = ans.toString();
-                            
-                            distractors.add((fp * gp).toString()); 
-                            distractors.add(((fp * g) - (f * gp)).toString()); 
-                        } else {
-                            promptHTML = `\\text{If } h(x) = \\frac{f(x)}{g(x)}, \\text{ find } h'(${x_val})`;
-                            let top = (fp * g) - (f * gp);
-                            let bot = g * g;
-                            correctAns = formatFrac(top, bot);
-                            
-                            distractors.add(formatFrac((fp*g) + (f*gp), bot)); 
-                            distractors.add(formatFrac((f*gp) - (fp*g), bot)); 
-                            distractors.add(formatFrac(fp, gp)); 
-                        }
+                        distractors.add((fp1 * gp1).toString()); // used f'(x1) instead of f'(g(x1))
+                        distractors.add((f2 * gp1).toString()); // used f(g(x1)) instead of f'
+                        distractors.add((fp2 + gp1).toString()); // Added instead of mult
                     }
                 }
 
@@ -917,7 +956,11 @@
             document.getElementById('promptTitle').innerText = promptText; 
             
             let displayBox = document.getElementById('problemDisplay');
-            displayBox.innerHTML = `\\( ${promptHTML} \\)`;
+            if (optionsAreText || promptHTML.includes("\\text{")) {
+                displayBox.innerHTML = promptHTML;
+            } else {
+                displayBox.innerHTML = `\\( ${promptHTML} \\)`;
+            }
             
             let infoBox = document.getElementById('infoBox');
             if (infoHTML !== "") {
@@ -963,7 +1006,14 @@
             options.forEach(opt => {
                 let btn = document.createElement('button');
                 btn.className = 'option-btn';
-                btn.innerHTML = `\\(${opt}\\)`;
+                if (forceFullWidth || opt.length > 30) btn.classList.add('full-width');
+                
+                if (optionsAreText) {
+                    btn.innerHTML = opt; 
+                } else {
+                    btn.innerHTML = `\\(${opt}\\)`; 
+                }
+
                 btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
                 grid.appendChild(btn);
             });
