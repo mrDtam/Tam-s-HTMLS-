@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Calculus 11: Exponents & Radicals</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #3498db;
+            --level3: #9b59b6;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 26px;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 18px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .problem-display {
+            font-size: 28px; 
+            margin: 0 auto 20px auto;
+            padding: 15px 25px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: block; 
+            text-align: center;
+            transition: all 0.3s;
+            line-height: 1.6;
+            max-width: 650px;
+            word-wrap: break-word;
+        }
+        
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        #errorAlert {
+            display: none;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            flex: 1 1 calc(50% - 12px); 
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 10px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 55px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .option-btn.full-width {
+            flex: 1 1 100%;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .option-btn { flex: 1 1 100%; font-size: 18px; padding: 12px 5px;} 
+            .problem-display { font-size: 22px; padding: 15px 10px; } 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="menuScreen">
+        <h1>Exponents & Radicals</h1>
+        <p class="subtitle">Pre-Calculus 11 Skills</p>
+        
+        <div class="level-section">
+            <div class="level-title">Level 1 to Level 2</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Rational vs Irrational</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Mixed & Entire Radicals</button>
+                <button class="menu-btn" onclick="startGame(3)"><span>3</span> Convert Forms</button>
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Add & Subtract Radicals</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Level 3 to Level 4</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Multiply Radicals</button>
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Divide & Rationalize</button>
+                <button class="menu-btn" onclick="startGame(7)"><span>7</span> Variable Restrictions</button>
+                <button class="menu-btn" onclick="startGame(8)"><span>8</span> Solve Radical Equations</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="errorAlert"></div>
+
+        <div class="prompt-text" id="promptTitle">Question:</div>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandomNonZero(min, max) {
+        let val; do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0); return val;
+    }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    
+    // Enhanced radical simplification with index support
+    function simplifyRadical(n, index=2) {
+        let out = 1;
+        for (let i = 12; i >= 2; i--) {
+            let p = Math.pow(i, index);
+            while (n % p === 0) {
+                out *= i;
+                n /= p;
+            }
+        }
+        return [out, n];
+    }
+
+    function formatRadical(o, i, n=2) {
+        if (i === 1) return o.toString();
+        if (i === 0 || o === 0) return "0";
+        let oStr = o === 1 ? "" : (o === -1 ? "-" : o.toString());
+        let nStr = n === 2 ? "" : `[${n}]`;
+        return `${oStr}\\sqrt${nStr}{${i}}`;
+    }
+
+    function formatRadicalStr(index, radicand) {
+        if (index === 2) return `\\sqrt{${radicand}}`;
+        return `\\sqrt[${index}]{${radicand}}`;
+    }
+
+    // Engine for multiplying and simplifying radicals with variables: c * sqrt[n]{r * x^p}
+    function multRadTerms(c1, r1, p1, c2, r2, p2, n) {
+        let out_c = c1 * c2;
+        let in_r = r1 * r2;
+        let in_p = p1 + p2;
+        
+        let [o_num, i_num] = simplifyRadical(in_r, n);
+        out_c *= o_num;
+        
+        let o_var = Math.floor(in_p / n);
+        let i_var = in_p % n;
+        
+        return { c: out_c, vp: o_var, ir: i_num, ivp: i_var };
+    }
+
+    function formatRadTerm(t, n, v='x', isFirst=true) {
+        if (t.c === 0) return "0";
+        let sign = t.c < 0 ? (isFirst ? "-" : " - ") : (isFirst ? "" : " + ");
+        let absC = Math.abs(t.c);
+        let cStr = (absC === 1 && (t.vp > 0 || t.ir > 1 || t.ivp > 0)) ? "" : absC.toString();
+        let vStr = t.vp === 0 ? "" : (t.vp === 1 ? v : `${v}^{${t.vp}}`);
+        let outStr = `${sign}${cStr}${vStr}`;
+        
+        if (t.ir === 1 && t.ivp === 0) {
+            if (outStr === "" || outStr === "-" || outStr === " + " || outStr === " - ") outStr += "1";
+            return outStr;
+        }
+        
+        let inNum = (t.ir === 1 && t.ivp > 0) ? "" : t.ir.toString();
+        let inVar = t.ivp === 0 ? "" : (t.ivp === 1 ? v : `${v}^{${t.ivp}}`);
+        let inStr = `${inNum}${inVar}`;
+        let radStr = `\\sqrt${n===2 ? '' : '['+n+']'}{${inStr}}`;
+        
+        return `${outStr}${radStr}`;
+    }
+
+    // --- Navigation ---
+    function startGame(mode) {
+        try {
+            document.getElementById('errorAlert').style.display = 'none';
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            let colorVar = mode <= 4 ? "var(--level1)" : "var(--level3)";
+            document.getElementById('gameScreen').style.borderColor = colorVar;
+            document.getElementById('problemDisplay').style.borderColor = colorVar;
+
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) {
+            console.error(e);
+            alert("App initialization failed. Please refresh the page.");
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Bulletproof Generation Engine ---
+    function generateProblem() {
+        try {
+            isTransitioning = false;
+            
+            let correctAns = "";
+            let distractors = new Set();
+            let promptHTML = "";
+            let promptText = "";
+            let optionsAreText = false; 
+            let forceFullWidth = false; 
+            let targetOptionsSize = 4;
+
+            let problemSignature = "";
+            let loopCount = 0;
+
+            do {
+                distractors.clear();
+                optionsAreText = false;
+                forceFullWidth = false;
+                targetOptionsSize = 4;
+
+                // MODE 1: Rational vs Irrational
+                if (currentMode === 1) {
+                    promptText = "State if rational or irrational. If rational, evaluate:";
+                    optionsAreText = true;
+                    forceFullWidth = true;
+                    
+                    let subType = getRandomInt(1, 4);
+                    
+                    if (subType === 1) { // Cube root decimal
+                        let v = getRandomEl([0.1, 0.2, 0.3, 0.4, 0.5]);
+                        let inside = (v * v * v).toFixed(3);
+                        promptHTML = `\\(\\sqrt[3]{${inside}}\\)`; // Explicitly wrap in KaTeX inside the string
+                        correctAns = `Rational, ${v}`;
+                        distractors.add(`Irrational`);
+                        distractors.add(`Rational, ${(v*10).toFixed(1)}`);
+                        distractors.add(`Rational, ${(v*v).toFixed(2)}`);
+                    } else if (subType === 2) { // Fraction simplify
+                        let a = getRandomInt(2, 6); 
+                        let m = getRandomEl([2, 3, 5]); 
+                        let top = (a * a) * m;
+                        let bot = m;
+                        promptHTML = `\\(\\sqrt{\\frac{${top}}{${bot}}}\\)`;
+                        correctAns = `Rational, ${a}`;
+                        distractors.add(`Irrational`);
+                        distractors.add(`Rational, ${a*a}`);
+                        distractors.add(`Rational, ${a*m}`);
+                    } else if (subType === 3) { // Perfect Square Fraction
+                        let a = getRandomInt(2, 6);
+                        let b; do { b = getRandomInt(2, 6); } while(a===b);
+                        promptHTML = `\\(\\sqrt{\\frac{${a*a}}{${b*b}}}\\)`;
+                        correctAns = `Rational, ${a}/${b}`;
+                        distractors.add(`Irrational`);
+                        distractors.add(`Rational, ${a*a}/${b*b}`);
+                        distractors.add(`Rational, ${b}/${a}`);
+                    } else { // Irrational
+                        let n = getRandomEl([2, 3]);
+                        let a = getRandomInt(2, 5);
+                        let inside = Math.pow(a, n) + getRandomInt(1, 3);
+                        promptHTML = `\\(${formatRadicalStr(n, inside)}\\)`;
+                        correctAns = `Irrational`;
+                        distractors.add(`Rational, ${a}`);
+                        distractors.add(`Rational, ${a+1}`);
+                        distractors.add(`Rational, ${(inside/n).toFixed(1)}`);
+                    }
+                }
+
+                // MODE 2: Mixed & Entire Radicals (Variables included)
+                else if (currentMode === 2) {
+                    let isSimplify = Math.random() > 0.5;
+                    
+                    if (isSimplify) {
+                        promptText = "Simplify the mixed radical:";
+                        let n = getRandomEl([2, 3]); 
+                        
+                        let out_c = getRandomInt(2, 4);
+                        let in_c = getRandomEl([2, 3, 5]);
+                        let total_c = Math.pow(out_c, n) * in_c;
+                        
+                        let out_xp = getRandomInt(1, 2);
+                        let in_xp = getRandomInt(1, n-1);
+                        let total_xp = (out_xp * n) + in_xp;
+                        
+                        let out_yp = getRandomInt(1, 2);
+                        let in_yp = getRandomInt(0, n-1);
+                        let total_yp = (out_yp * n) + in_yp;
+                        
+                        let inStr = `${total_c}${total_xp===1 ? 'x' : 'x^{'+total_xp+'}'}`;
+                        if (total_yp === 1) inStr += "y";
+                        else if (total_yp > 1) inStr += `y^{${total_yp}}`;
+                        
+                        promptHTML = formatRadicalStr(n, inStr);
+                        
+                        let ansOut = `${out_c}${out_xp===1 ? 'x' : 'x^{'+out_xp+'}'}`;
+                        if (out_yp === 1) ansOut += "y";
+                        else if (out_yp > 1) ansOut += `y^{${out_yp}}`;
+                        
+                        let ansIn = `${in_c}${in_xp===1 ? 'x' : 'x^{'+in_xp+'}'}`;
+                        if (in_yp === 1) ansIn += "y";
+                        else if (in_yp > 1) ansIn += `y^{${in_yp}}`;
+                        
+                        correctAns = `${ansOut}${formatRadicalStr(n, ansIn)}`;
+                        
+                        // Distractor: Forgot to root the coefficient
+                        let d1Out = `${Math.pow(out_c, n)}${out_xp===1 ? 'x' : 'x^{'+out_xp+'}'}`;
+                        if (out_yp === 1) d1Out += "y";
+                        else if (out_yp > 1) d1Out += `y^{${out_yp}}`;
+                        distractors.add(`${d1Out}${formatRadicalStr(n, ansIn)}`);
+                        
+                        // Distractor: Swapped x and y powers outside
+                        let d2Out = `${out_c}${out_yp===1 ? 'x' : (out_yp===0 ? '' : 'x^{'+out_yp+'}')}${out_xp===1 ? 'y' : 'y^{'+out_xp+'}'}`;
+                        distractors.add(`${d2Out}${formatRadicalStr(n, ansIn)}`);
+                        
+                        // Distractor: Left too much inside
+                        let bad_in_xp = total_xp - n + 1;
+                        let d3In = `${in_c}${bad_in_xp===1 ? 'x' : 'x^{'+bad_in_xp+'}'}${in_yp===1 ? 'y' : (in_yp===0 ? '' : 'y^{'+in_yp+'}')}`;
+                        distractors.add(`${out_c}x${out_yp===1 ? 'y' : (out_yp===0 ? '' : 'y^{'+out_yp+'}')}${formatRadicalStr(n, d3In)}`);
+                        
+                    } else {
+                        promptText = "Write as an entire radical:";
+                        let n = getRandomEl([2, 3]);
+                        
+                        let out_c = getRandomInt(2, 4);
+                        let out_xp = getRandomInt(1, 2);
+                        let out_yp = getRandomInt(0, 2);
+                        
+                        let in_c = getRandomEl([2, 3, 5]);
+                        let in_xp = getRandomInt(1, 2);
+                        let in_yp = getRandomInt(1, 2);
+                        
+                        let outStr = `${out_c}${out_xp===1 ? 'x' : 'x^{'+out_xp+'}'}`;
+                        if (out_yp === 1) outStr += "y";
+                        else if (out_yp > 1) outStr += `y^{${out_yp}}`;
+                        
+                        let inStr = `${in_c}${in_xp===1 ? 'x' : 'x^{'+in_xp+'}'}${in_yp===1 ? 'y' : 'y^{'+in_yp+'}'}`;
+                        
+                        promptHTML = `${outStr}${formatRadicalStr(n, inStr)}`;
+                        
+                        let total_c = Math.pow(out_c, n) * in_c;
+                        let total_xp = (out_xp * n) + in_xp;
+                        let total_yp = (out_yp * n) + in_yp;
+                        
+                        let ansIn = `${total_c}${total_xp===1 ? 'x' : 'x^{'+total_xp+'}'}${total_yp===1 ? 'y' : 'y^{'+total_yp+'}'}`;
+                        correctAns = formatRadicalStr(n, ansIn);
+                        
+                        // Distractor: Multiplied instead of power
+                        let bad_c = (out_c * n) * in_c;
+                        distractors.add(formatRadicalStr(n, `${bad_c}${total_xp===1 ? 'x' : 'x^{'+total_xp+'}'}${total_yp===1 ? 'y' : 'y^{'+total_yp+'}'}`));
+                        
+                        // Distractor: Added powers instead of multiplying by n
+                        let bad_xp = out_xp + in_xp;
+                        let bad_yp = out_yp + in_yp;
+                        distractors.add(formatRadicalStr(n, `${total_c}${bad_xp===1 ? 'x' : 'x^{'+bad_xp+'}'}${bad_yp===1 ? 'y' : 'y^{'+bad_yp+'}'}`));
+                        
+                        // Distractor: Put inside out and outside in
+                        let badInvC = Math.pow(in_c, n)*out_c;
+                        let badInvX = in_xp*n+out_xp;
+                        let badInvY = in_yp*n+out_yp;
+                        distractors.add(formatRadicalStr(n, `${badInvC}${badInvX===1 ? 'x' : 'x^{'+badInvX+'}'}${badInvY===1 ? 'y' : 'y^{'+badInvY+'}'}`));
+                    }
+                }
+
+                // MODE 3: Convert Exp/Radical Form
+                else if (currentMode === 3) {
+                    let isExpToRad = Math.random() > 0.5;
+                    let type = getRandomInt(1, 2); // 1: c x^(p/r), 2: (cx)^(p/r)
+                    let c = getRandomInt(2, 6);
+                    let p, r;
+                    do {
+                        p = getRandomInt(2, 6);
+                        r = getRandomInt(2, 5);
+                    } while (p % r === 0);
+                    
+                    let rStr = r === 2 ? '' : `[${r}]`;
+
+                    if (isExpToRad) {
+                        promptText = "Write in radical form:";
+                        if (type === 1) { 
+                            promptHTML = `${c}x^{${p}/${r}}`;
+                            correctAns = `${c}${formatRadicalStr(r, `x^{${p}}`)}`;
+                            distractors.add(formatRadicalStr(r, `${c}x^{${p}}`)); // Brought coeff inside
+                            distractors.add(`${c}${formatRadicalStr(p, `x^{${r}}`)}`); // Swapped num/den
+                            distractors.add(formatRadicalStr(r, `(${c}x)^{${p}}`)); 
+                        } else { 
+                            promptHTML = `(${c}x)^{${p}/${r}}`;
+                            correctAns = formatRadicalStr(r, `(${c}x)^{${p}}`);
+                            distractors.add(`${c}${formatRadicalStr(r, `x^{${p}}`)}`); // Left coeff outside
+                            distractors.add(formatRadicalStr(p, `(${c}x)^{${r}}`)); // Swapped num/den
+                            distractors.add(formatRadicalStr(r, `${c}x^{${p}}`)); // Forgot parenthesis inside
+                        }
+                    } else {
+                        promptText = "Write in exponential form:";
+                        if (type === 1) { 
+                            promptHTML = `${c}${formatRadicalStr(r, `x^{${p}}`)}`;
+                            correctAns = `${c}x^{${p}/${r}}`;
+                            distractors.add(`(${c}x)^{${p}/${r}}`); // Grouped coeff inside
+                            distractors.add(`${c}x^{${r}/${p}}`); // Swapped num/den
+                            distractors.add(`(${c}x)^{${r}/${p}}`);
+                        } else { 
+                            promptHTML = formatRadicalStr(r, `(${c}x)^{${p}}`);
+                            correctAns = `(${c}x)^{${p}/${r}}`;
+                            distractors.add(`${c}x^{${p}/${r}}`); // Removed grouping
+                            distractors.add(`(${c}x)^{${r}/${p}}`); // Swapped num/den
+                            distractors.add(`${c}x^{${r}/${p}}`);
+                        }
+                    }
+                }
+
+                // MODE 4: Add & Subtract Radicals (Complex)
+                else if (currentMode === 4) {
+                    promptText = "Simplify the expression:";
+                    
+                    let k = getRandomEl([2, 3, 5]); // Base radicand
+                    let m1 = getRandomInt(2, 4);
+                    let m2 = getRandomInt(2, 5); if(m1===m2) m2++;
+                    let m3 = getRandomInt(2, 4); if(m1===m3) m3++;
+                    
+                    let a = getRandomInt(2, 6);
+                    let b = getRandomInt(2, 6);
+                    let c = getRandomInt(2, 6);
+                    
+                    let n1 = (m1*m1) * k;
+                    let n2 = (m2*m2) * k;
+                    let n3 = (m3*m3) * k;
+                    
+                    let term1 = `${a}\\sqrt{${n1}a}`;
+                    let term2 = `${b}\\sqrt{${n2}a}`;
+                    let term3 = `${c}\\sqrt{${n3}a}`;
+                    
+                    promptHTML = `${term1} + ${term2} - ${term3}`;
+                    
+                    let out_val = (a * m1) + (b * m2) - (c * m3);
+                    correctAns = `${out_val}\\sqrt{${k}a}`;
+                    
+                    distractors.add(`${(a*m1) - (b*m2) + (c*m3)}\\sqrt{${k}a}`); // Sign errors
+                    distractors.add(`${a + b - c}\\sqrt{${k}a}`); // Ignored internal perfect squares
+                    distractors.add(`${out_val}\\sqrt{${n1+n2-n3}a}`); // Added radicands directly
+                    
+                    while(distractors.size < 3) { distractors.add(`${out_val + getRandomEl([-2, 2])}\\sqrt{${k}a}`); }
+                }
+
+                // MODE 5: Multiply Radicals (Distributive Engine with variables and roots)
+                else if (currentMode === 5) {
+                    promptText = "Expand and simplify:";
+                    let subType = getRandomInt(1, 2);
+                    
+                    if (subType === 1) { 
+                        // c1*sqrt[n]{r1 * x^p1} * (c2*sqrt[n]{r2 * x^p2} + c3*sqrt[n]{r3 * x^p3})
+                        let n = getRandomEl([2, 3]); // Square or cube root
+                        
+                        let c1 = getRandomNonZero(1, 3);
+                        let r1 = getRandomEl([2, 3]);
+                        let p1 = getRandomInt(1, 2);
+                        
+                        let c2 = getRandomNonZero(1, 4) * (Math.random()>0.5?1:-1);
+                        let r2 = getRandomEl([2, 3]);
+                        let p2 = getRandomInt(1, 2);
+                        
+                        let c3 = getRandomNonZero(1, 3) * (Math.random()>0.5?1:-1);
+                        let r3 = getRandomEl([2, 3]);
+                        let p3 = getRandomInt(1, 2);
+                        
+                        let termA = formatRadTerm({c:c1, vp:0, ir:r1, ivp:p1}, n, 'x', true);
+                        let termB = formatRadTerm({c:c2, vp:0, ir:r2, ivp:p2}, n, 'x', true);
+                        let termC = formatRadTerm({c:c3, vp:0, ir:r3, ivp:p3}, n, 'x', false);
+                        
+                        promptHTML = `${termA}(${termB} ${termC})`;
+                        
+                        let t1_out = multRadTerms(c1, r1, p1, c2, r2, p2, n);
+                        let t2_out = multRadTerms(c1, r1, p1, c3, r3, p3, n);
+                        
+                        let ansP1 = formatRadTerm(t1_out, n, 'x', true);
+                        let ansP2 = formatRadTerm(t2_out, n, 'x', false);
+                        if (ansP1 === "0") correctAns = formatRadTerm(t2_out, n, 'x', true);
+                        else if (ansP2 === "0") correctAns = ansP1;
+                        else correctAns = `${ansP1}${ansP2}`;
+                        
+                        // Distractor: Multiplied correctly, didn't extract
+                        let d1T1 = {c: c1*c2, vp:0, ir: r1*r2, ivp: p1+p2};
+                        let d1T2 = {c: c1*c3, vp:0, ir: r1*r3, ivp: p1+p3};
+                        distractors.add(`${formatRadTerm(d1T1, n, 'x', true)}${formatRadTerm(d1T2, n, 'x', false)}`);
+                        
+                        // Distractor: Forgot to distribute to second term
+                        let d2T2 = {c: c3, vp:0, ir: r3, ivp: p3};
+                        distractors.add(`${ansP1}${formatRadTerm(d2T2, n, 'x', false)}`);
+                        
+                        // Ensure we have 3 distractors
+                        let d3T1 = {c: t1_out.c, vp:0, ir: t1_out.ir, ivp: p1+p2}; // Forgot to pull out x
+                        let d3T2 = {c: t2_out.c, vp:0, ir: t2_out.ir, ivp: p1+p3};
+                        distractors.add(`${formatRadTerm(d3T1, n, 'x', true)}${formatRadTerm(d3T2, n, 'x', false)}`);
+                        
+                    } else { // FOIL: (x\sqrt{2} - 3\sqrt{x})(2\sqrt{2} + \sqrt{x})
+                        let A = getRandomEl([2, 3, 5]);
+                        let B = getRandomInt(-4, -1); // Keep inner signs distinct
+                        let C = getRandomInt(2, 4);
+                        
+                        // (x\sqrt{A} + B\sqrt{x})(C\sqrt{A} + \sqrt{x})
+                        promptHTML = `(x\\sqrt{${A}} ${B<0?'-':'+'} ${Math.abs(B)}\\sqrt{x})(${C}\\sqrt{${A}} + \\sqrt{x})`;
+                        
+                        // FOIL:
+                        // F: x*C*A = ACx
+                        // O: x*sqrt(Ax)
+                        // I: B*C*sqrt(Ax)
+                        // L: B*x
+                        // Collect: (AC + B)x + (1 + BC)x*sqrt(Ax)
+                        
+                        let xCoef = A*C + B;
+                        let radCoef = 1 + B*C;
+                        
+                        correctAns = `${xCoef}x ${radCoef>0?'+':'-'} ${Math.abs(radCoef)}x\\sqrt{${A}x}`;
+                        if (radCoef === 1) correctAns = `${xCoef}x + x\\sqrt{${A}x}`;
+                        if (radCoef === -1) correctAns = `${xCoef}x - x\\sqrt{${A}x}`;
+                        
+                        distractors.add(`${A*C}x ${B>0?'+':'-'} ${Math.abs(B)}x ${radCoef>0?'+':'-'} ${Math.abs(radCoef)}x\\sqrt{${A}x}`); // Didn't combine like terms
+                        distractors.add(`${xCoef}x^2 ${radCoef>0?'+':'-'} ${Math.abs(radCoef)}\\sqrt{${A}x}`); // Variable exponent error
+                        distractors.add(`${xCoef}x ${radCoef>0?'+':'-'} ${Math.abs(radCoef)}x\\sqrt{${A}}`); // Lost x in root
+                    }
+                }
+
+                // MODE 6: Simplify Quotients
+                else if (currentMode === 6) {
+                    promptText = "Simplify by rationalizing the denominator:";
+                    let subType = getRandomInt(1, 2);
+                    
+                    if (subType === 1) { // (A x^p \sqrt{B y}) / (C x^q \sqrt{D})
+                        let D = getRandomEl([2, 3, 5]);
+                        let k = getRandomInt(3, 6);
+                        let B = D * k * k; 
+                        
+                        let C = getRandomInt(2, 6);
+                        let A_base = getRandomInt(2, 5);
+                        let A = C * A_base; 
+                        
+                        let p = getRandomInt(3, 5);
+                        let q = getRandomInt(1, 2); 
+                        
+                        promptHTML = `\\frac{${A}x^{${p}}\\sqrt{${B}y}}{${C}x^{${q}}\\sqrt{${D}}}`;
+                        
+                        let coef = A_base * k;
+                        let xPow = p - q;
+                        let xStr = xPow === 1 ? "x" : `x^{${xPow}}`;
+                        
+                        correctAns = `${coef}${xStr}\\sqrt{y}`;
+                        
+                        distractors.add(`${A_base}${xStr}\\sqrt{${k*k}y}`); // Forgot to root k^2
+                        distractors.add(`${coef}x^{${p+q}}\\sqrt{y}`); // Added exponents
+                        distractors.add(`${A_base * k * k}${xStr}\\sqrt{y}`); // Didn't square root the K inside
+                        
+                    } else { // (A\sqrt{B} + C) / \sqrt{B}
+                        let B = getRandomEl([2, 3, 5, 7]);
+                        let A = getRandomInt(2, 6);
+                        let C = getRandomInt(2, 8);
+                        
+                        promptHTML = `\\frac{${A}\\sqrt{${B}} + ${C}}{\\sqrt{${B}}}`;
+                        
+                        correctAns = `\\frac{${A*B} + ${C}\\sqrt{${B}}}{${B}}`;
+                        
+                        distractors.add(`\\frac{${A} + ${C}\\sqrt{${B}}}{${B}}`); // Forgot A*B
+                        distractors.add(`${A} + \\frac{${C}}{\\sqrt{${B}}}`); // Cancelled weirdly
+                        distractors.add(`\\frac{${A*B} + ${C*B}}{${B}}`); // Rationalized C wrong
+                    }
+                }
+
+                // MODE 7: Variable Restrictions
+                else if (currentMode === 7) {
+                    promptText = "Determine the restriction on the variables:";
+                    optionsAreText = false;
+                    
+                    let subType = getRandomInt(1, 3);
+                    
+                    if (subType === 1) { // Even root binomial: sqrt[6]{x - A}
+                        let n = getRandomEl([2, 4, 6]);
+                        let a = getRandomNonZero(-8, 8);
+                        let sign = a > 0 ? "-" : "+";
+                        promptHTML = formatRadicalStr(n, `x ${sign} ${Math.abs(a)}`);
+                        
+                        correctAns = `x \\ge ${a}`;
+                        distractors.add(`x \\le ${a}`);
+                        distractors.add(`x > ${a}`);
+                        distractors.add(`x \\in \\mathbb{R}`);
+                    } else if (subType === 2) { // Odd root: sqrt[7]{x^3 y^2}
+                        let n = getRandomEl([3, 5, 7]);
+                        let p1 = getRandomInt(2, 5);
+                        let p2 = getRandomInt(2, 5);
+                        promptHTML = formatRadicalStr(n, `x^{${p1}}y^{${p2}}`);
+                        
+                        correctAns = `x, y \\in \\mathbb{R}`;
+                        distractors.add(`x \\ge 0, y \\ge 0`);
+                        distractors.add(`x \\in \\mathbb{R}, y \\ge 0`);
+                        if (p1 % 2 !== 0) distractors.add(`x > 0, y > 0`);
+                        else distractors.add(`x \\ge 0, y \\in \\mathbb{R}`);
+                    } else { // Advanced Even Root: sqrt[4]{x^2 y^3}
+                        let n = getRandomEl([2, 4, 6]);
+                        let p1 = getRandomInt(1, 3) * 2; // Always Even
+                        let p2 = getRandomInt(0, 2) * 2 + 1; // Always Odd
+                        
+                        promptHTML = formatRadicalStr(n, `x^{${p1}}y^{${p2}}`);
+                        
+                        correctAns = `x \\in \\mathbb{R}, y \\ge 0`;
+                        distractors.add(`x \\ge 0, y \\ge 0`);
+                        distractors.add(`x \\ge 0, y \\in \\mathbb{R}`);
+                        distractors.add(`x, y \\in \\mathbb{R}`);
+                    }
+                }
+
+                // MODE 8: Solving Radical Equations (Quadratics & Extraneous Roots)
+                else if (currentMode === 8) {
+                    let subType = getRandomInt(1, 2);
+                    
+                    if (subType === 1) { // Type 1: sqrt[3]{x - a} = b
+                        promptText = "Solve for x:";
+                        let a = getRandomNonZero(-5, 5);
+                        let b = getRandomNonZero(-3, 3);
+                        let sign = a > 0 ? "-" : "+";
+                        
+                        promptHTML = `\\sqrt[3]{x ${sign} ${Math.abs(a)}} = ${b}`;
+                        
+                        let x = Math.pow(b, 3) + a;
+                        correctAns = `x = ${x}`;
+                        
+                        distractors.add(`x = ${Math.pow(b, 3) - a}`); // Sign error
+                        distractors.add(`x = ${b + a}`); // Forgot to cube
+                        distractors.add(`x = ${Math.pow(b, 2) + a}`); // Squared instead of cubed
+                    } else { // Type 2: sqrt(ax + b) = x + d
+                        promptText = "Solve for x. (Check for extraneous roots!)";
+                        
+                        let d, r1, r2, a, b;
+                        do {
+                            d = getRandomInt(-4, 4);
+                            r1 = getRandomInt(-5, 9);
+                            while (r1 + d < 0) { r1++; } // Ensure r1 is valid
+                            
+                            r2 = getRandomInt(-9, 5);
+                            while (r2 + d >= 0) { r2--; } // Ensure r2 is extraneous
+                            
+                            a = 2*d + r1 + r2;
+                            b = d*d - r1*r2;
+                        } while (a === 0); // Guaranteed binomial
+                        
+                        let signA = a < 0 ? "-" : "";
+                        let absA = Math.abs(a);
+                        let aStr = absA === 1 ? signA + "x" : a + "x";
+                        
+                        let bStr = b === 0 ? "" : (b > 0 ? "+ " + b : "- " + Math.abs(b));
+                        let radInside = aStr + " " + bStr;
+                        
+                        let rhsStr = "x" + (d === 0 ? "" : (d > 0 ? " + " + d : " - " + Math.abs(d)));
+                        
+                        promptHTML = `\\sqrt{${radInside}} = ${rhsStr}`;
+                        
+                        correctAns = `x = ${r1}`; 
+                        
+                        let minR = Math.min(r1, r2);
+                        let maxR = Math.max(r1, r2);
+                        distractors.add(`x = ${minR}, ${maxR}`); // Included extraneous
+                        distractors.add(`x = ${r2}`); // Chose extraneous
+                        distractors.add(`x = ${-r1}`); // Sign error on valid
+                        
+                        while(distractors.size < 3) { distractors.add(`x = ${r1 + getRandomEl([-2, 2, 3])}`); }
+                    }
+                }
+
+                problemSignature = promptText + promptHTML + correctAns;
+                loopCount++;
+
+            } while (problemSignature === lastPrompt && loopCount < 10); 
+            
+            lastPrompt = problemSignature;
+
+            // --- Safe DOM Updates ---
+            document.getElementById('promptTitle').innerText = promptText; 
+            let displayBox = document.getElementById('problemDisplay');
+            
+            if (optionsAreText || promptHTML.includes("<br>")) {
+                displayBox.innerHTML = promptHTML;
+            } else {
+                displayBox.innerHTML = `\\( ${promptHTML} \\)`;
+            }
+
+            // Process Options
+            let finalOptions = new Set();
+            finalOptions.add(correctAns);
+            let distArray = Array.from(distractors);
+            let i = 0;
+
+            while(finalOptions.size < targetOptionsSize && i < distArray.length) {
+                finalOptions.add(distArray[i]); i++;
+            }
+            
+            // Pad safely based on mode formats
+            let pad = 1;
+            while(finalOptions.size < targetOptionsSize) { 
+                if (currentMode === 8) {
+                    finalOptions.add(`x = ${pad}`);
+                } else if (currentMode === 7) {
+                    finalOptions.add(`x \\ge ${pad}`);
+                } else if (currentMode === 1) {
+                    finalOptions.add(`Rational, ${pad}`);
+                } else {
+                    let parsed = parseInt(correctAns);
+                    if (isNaN(parsed)) parsed = getRandomInt(5, 15);
+                    finalOptions.add((parsed + pad).toString()); 
+                }
+                pad++;
+            }
+            
+            let options = shuffle(Array.from(finalOptions));
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = ''; 
+
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'option-btn';
+                if (forceFullWidth || opt.length > 25) btn.classList.add('full-width');
+                
+                if (optionsAreText) {
+                    btn.innerHTML = opt; 
+                } else {
+                    btn.innerHTML = `\\(${opt}\\)`; 
+                }
+
+                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                grid.appendChild(btn);
+            });
+
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { 
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "\\(", right: "\\)", display: false}
+                    ] 
+                });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            setTimeout(() => display.classList.remove('error'), 400);
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
