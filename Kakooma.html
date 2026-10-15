@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kakooma Addition Puzzles</title>
+    
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #3498db;
+            --level3: #9b59b6;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #00bfff; /* Bright blue from the image */
+            --highlight: #f1c40f;
+            --success: #2ecc71;
+            --error: #e74c3c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-2 { border-color: var(--level2); }
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-2 .level-title { background: var(--level2); }
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 12px 18px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-2 .menu-btn span { background-color: var(--level2); }
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 191, 255, 0.3);
+        }
+        
+        .lvl-2 .menu-btn:hover { background-color: var(--level2); border-color: var(--level2); }
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 18px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: var(--light);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #bdc3c7;
+        }
+
+        .instruction-highlight { color: var(--level1); }
+
+        /* --- Kakooma Board Layout --- */
+        .kakooma-board {
+            display: grid;
+            grid-template-columns: auto 60px auto;
+            grid-template-rows: auto 60px auto;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .kakooma-center {
+            grid-row: 2;
+            grid-column: 2;
+            background-color: var(--secondary);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            box-shadow: inset 0 0 0 2px var(--dark);
+        }
+
+        .kakooma-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 3px;
+            background-color: var(--dark); /* Forms the grid lines */
+            border: 3px solid var(--dark);
+            width: fit-content;
+        }
+
+        /* Positioning the 4 blocks */
+        .block-0 { grid-row: 1; grid-column: 1; }
+        .block-1 { grid-row: 1; grid-column: 3; }
+        .block-2 { grid-row: 3; grid-column: 1; }
+        .block-3 { grid-row: 3; grid-column: 3; }
+
+        .kakooma-cell {
+            background-color: white;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .kakooma-cell:hover:not(.solved):not(.selected) {
+            background-color: #f0f8ff;
+        }
+
+        .kakooma-cell:active:not(.solved) {
+            transform: scale(0.95);
+        }
+
+        /* Interaction States */
+        .kakooma-cell.selected {
+            background-color: var(--highlight);
+            color: white;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .kakooma-block.solved .kakooma-cell {
+            background-color: var(--light);
+            color: #bdc3c7;
+            cursor: default;
+        }
+
+        .kakooma-block.solved .kakooma-cell.correct-part {
+            background-color: var(--success);
+            color: white;
+            font-weight: bold;
+        }
+
+        .kakooma-block.error {
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .kakooma-cell { width: 55px; height: 55px; font-size: 22px; }
+            .kakooma-board { grid-template-columns: auto 40px auto; grid-template-rows: auto 40px auto; gap: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Kakooma Puzzles</h1>
+        <p class="subtitle">Brain-Building Addition</p>
+        
+        <div class="level-section">
+            <div class="level-title">Emerging Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(10)"><span>1</span> Sums up to 10</button>
+                <button class="menu-btn" onclick="startGame(15)"><span>2</span> Sums up to 15</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-2">
+            <div class="level-title">Developing Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(20)"><span>3</span> Sums up to 20</button>
+                <button class="menu-btn" onclick="startGame(50)"><span>4</span> Sums up to 50</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Proficient Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(100)" style="grid-column: 1 / -1;"><span>5</span> Challenge: Sums up to 100</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div class="prompt-text">
+            Sequence: Click <span class="instruction-highlight">Addend</span> &rarr; Click <span class="instruction-highlight">Addend</span> &rarr; Click <b>Sum</b>
+        </div>
+        
+        <div class="kakooma-board" id="kakoomaBoard">
+            <!-- Dynamically injected via JS -->
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    let currentMaxSum = 10;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let blocksSolved = 0;
+
+    // State tracker for the 4 grids
+    // selectedCells[blockIndex] = [cellIndex1, cellIndex2...]
+    let selectedCells = [[], [], [], []];
+    let blockData = [[], [], [], []]; // Stores the numbers in each block
+    let blockStatus = [false, false, false, false]; // True if solved
+
+    // --- Audio System ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playClick() { playTone(400, 'sine', 0.1, 0.1); }
+    function playBlockSuccess() { playTone(600, 'triangle', 0.15, 0.2); setTimeout(() => playTone(800, 'triangle', 0.2, 0.2), 100); }
+    function playBoardSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sawtooth', 0.3, 0.2); }
+
+    // --- Math Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+    function generateKakoomaBlock(maxSum) {
+        let maxAddend = Math.floor(maxSum * 0.8); 
+        if (maxAddend < 5) maxAddend = maxSum - 1;
+
+        let a, b, c, d;
+        let valid = false;
+        
+        while (!valid) {
+            a = getRandomInt(1, maxAddend);
+            b = getRandomInt(1, maxAddend);
+            if (a === b) continue;
+            
+            c = a + b;
+            if (c > maxSum) continue;
+            
+            d = getRandomInt(1, maxSum);
+            
+            let arr = [a, b, c, d];
+            let unique = new Set(arr);
+            if (unique.size < 4) continue; // All 4 numbers must be distinct
+            
+            // Validate that there is EXACTLY ONE sum equation possible in this block
+            let eqCount = 0;
+            for(let i = 0; i < 4; i++) {
+                for(let j = i + 1; j < 4; j++) {
+                    let sum = arr[i] + arr[j];
+                    if (arr.includes(sum)) eqCount++;
+                }
+            }
+            
+            if (eqCount === 1) {
+                valid = true;
+                return shuffle(arr);
+            }
+        }
+    }
+
+    // --- Game Logic ---
+    function startGame(maxSum) {
+        currentMaxSum = maxSum;
+        currentStreak = 0;
+        document.getElementById('streakDisplay').innerText = currentStreak;
+        
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        buildBoard();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    function buildBoard() {
+        blocksSolved = 0;
+        selectedCells = [[], [], [], []];
+        blockStatus = [false, false, false, false];
+        
+        const board = document.getElementById('kakoomaBoard');
+        board.innerHTML = '';
+        
+        // Generate the 4 puzzles
+        for(let i = 0; i < 4; i++) {
+            blockData[i] = generateKakoomaBlock(currentMaxSum);
+            
+            let blockDiv = document.createElement('div');
+            blockDiv.className = `kakooma-block block-${i}`;
+            blockDiv.id = `block-${i}`;
+            
+            for(let j = 0; j < 4; j++) {
+                let cell = document.createElement('div');
+                cell.className = 'kakooma-cell';
+                cell.id = `cell-${i}-${j}`;
+                cell.innerText = blockData[i][j];
+                cell.onclick = (e) => handleCellClick(i, j, e);
+                blockDiv.appendChild(cell);
+            }
+            
+            board.appendChild(blockDiv);
+        }
+        
+        // Inject Center Plus
+        let centerDiv = document.createElement('div');
+        centerDiv.className = 'kakooma-center';
+        centerDiv.innerText = '+';
+        board.appendChild(centerDiv);
+    }
+
+    function handleCellClick(blockIdx, cellIdx, event) {
+        if (blockStatus[blockIdx]) return; // Ignore if block already solved
+        
+        let cellEl = document.getElementById(`cell-${blockIdx}-${cellIdx}`);
+        let selectionArr = selectedCells[blockIdx];
+        
+        // Deselect if already selected
+        if (selectionArr.includes(cellIdx)) {
+            selectionArr.splice(selectionArr.indexOf(cellIdx), 1);
+            cellEl.classList.remove('selected');
+            playClick();
+            return;
+        }
+        
+        // Select cell
+        selectionArr.push(cellIdx);
+        cellEl.classList.add('selected');
+        playClick();
+        
+        // Evaluate if 3 cells are selected
+        if (selectionArr.length === 3) {
+            let v1 = blockData[blockIdx][selectionArr[0]];
+            let v2 = blockData[blockIdx][selectionArr[1]];
+            let v3 = blockData[blockIdx][selectionArr[2]]; // The sum
+            
+            let blockEl = document.getElementById(`block-${blockIdx}`);
+            
+            if (v1 + v2 === v3) {
+                // Success for this block
+                blockStatus[blockIdx] = true;
+                blockEl.classList.add('solved');
+                
+                // Color the correct cells green
+                document.getElementById(`cell-${blockIdx}-${selectionArr[0]}`).classList.add('correct-part');
+                document.getElementById(`cell-${blockIdx}-${selectionArr[1]}`).classList.add('correct-part');
+                document.getElementById(`cell-${blockIdx}-${selectionArr[2]}`).classList.add('correct-part');
+                
+                // Remove yellow selection styling
+                document.getElementById(`cell-${blockIdx}-${selectionArr[0]}`).classList.remove('selected');
+                document.getElementById(`cell-${blockIdx}-${selectionArr[1]}`).classList.remove('selected');
+                document.getElementById(`cell-${blockIdx}-${selectionArr[2]}`).classList.remove('selected');
+                
+                blocksSolved++;
+                
+                if (blocksSolved === 4) {
+                    playBoardSuccess();
+                    currentStreak++;
+                    document.getElementById('streakDisplay').innerText = currentStreak;
+                    if (currentStreak > highestStreak) {
+                        highestStreak = currentStreak;
+                        document.getElementById('highStreakDisplay').innerText = highestStreak;
+                    }
+                    createSparkle(event.clientX, event.clientY);
+                    setTimeout(buildBoard, 1500);
+                } else {
+                    playBlockSuccess();
+                }
+            } else {
+                // Failed attempt
+                playWrong();
+                blockEl.classList.add('error');
+                
+                // Reset selection for this block
+                document.getElementById(`cell-${blockIdx}-${selectionArr[0]}`).classList.remove('selected');
+                document.getElementById(`cell-${blockIdx}-${selectionArr[1]}`).classList.remove('selected');
+                document.getElementById(`cell-${blockIdx}-${selectionArr[2]}`).classList.remove('selected');
+                
+                selectedCells[blockIdx] = [];
+                
+                setTimeout(() => blockEl.classList.remove('error'), 400);
+            }
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        for(let i=0; i<3; i++) {
+            setTimeout(() => {
+                const sparkle = document.createElement('div');
+                sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+                sparkle.className = 'confetti';
+                sparkle.style.left = (x - 15 + getRandomInt(-20, 20)) + 'px';
+                sparkle.style.top = (y - 15 + getRandomInt(-20, 20)) + 'px';
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 1000);
+            }, i * 150);
+        }
+    }
+</script>
+
+</body>
+</html>
