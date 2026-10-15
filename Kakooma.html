@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kakooma Addition Puzzles</title>
+    <title>Kakooma Brain Puzzles</title>
     
     <style>
         :root {
@@ -12,7 +12,7 @@
             --level3: #9b59b6;
             --dark: #2c3e50;
             --light: #f8f9fa;
-            --secondary: #00bfff; /* Bright blue from the image */
+            --secondary: #00bfff;
             --highlight: #f1c40f;
             --success: #2ecc71;
             --error: #e74c3c;
@@ -217,12 +217,11 @@
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
             gap: 3px;
-            background-color: var(--dark); /* Forms the grid lines */
+            background-color: var(--dark); 
             border: 3px solid var(--dark);
             width: fit-content;
         }
 
-        /* Positioning the 4 blocks */
         .block-0 { grid-row: 1; grid-column: 1; }
         .block-1 { grid-row: 1; grid-column: 3; }
         .block-2 { grid-row: 3; grid-column: 1; }
@@ -250,7 +249,6 @@
             transform: scale(0.95);
         }
 
-        /* Interaction States */
         .kakooma-cell.selected {
             background-color: var(--highlight);
             color: white;
@@ -308,7 +306,7 @@
     <!-- Menu Screen -->
     <div id="menuScreen">
         <h1>Kakooma Puzzles</h1>
-        <p class="subtitle">Brain-Building Addition</p>
+        <p class="subtitle">Brain-Building Math</p>
         
         <div class="level-section">
             <div class="level-title">Emerging Level</div>
@@ -329,7 +327,8 @@
         <div class="level-section lvl-3">
             <div class="level-title">Proficient Level</div>
             <div class="menu-grid">
-                <button class="menu-btn" onclick="startGame(100)" style="grid-column: 1 / -1;"><span>5</span> Challenge: Sums up to 100</button>
+                <button class="menu-btn" onclick="startGame(100)"><span>5</span> Sums up to 100</button>
+                <button class="menu-btn" onclick="startGame('mult')"><span>6</span> 1-Digit Multiplication</button>
             </div>
         </div>
     </div>
@@ -343,12 +342,12 @@
             <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
         </div>
 
-        <div class="prompt-text">
-            Sequence: Click <span class="instruction-highlight">Addend</span> &rarr; Click <span class="instruction-highlight">Addend</span> &rarr; Click <b>Sum</b>
+        <div class="prompt-text" id="sequencePrompt">
+            <!-- Dynamically injected -->
         </div>
         
         <div class="kakooma-board" id="kakoomaBoard">
-            <!-- Dynamically injected via JS -->
+            <!-- Dynamically injected -->
         </div>
 
     </div>
@@ -356,16 +355,14 @@
 </div>
 
 <script>
-    let currentMaxSum = 10;
+    let currentMode = 10;
     let currentStreak = 0;
     let highestStreak = 0; 
     let blocksSolved = 0;
 
-    // State tracker for the 4 grids
-    // selectedCells[blockIndex] = [cellIndex1, cellIndex2...]
     let selectedCells = [[], [], [], []];
-    let blockData = [[], [], [], []]; // Stores the numbers in each block
-    let blockStatus = [false, false, false, false]; // True if solved
+    let blockData = [[], [], [], []]; 
+    let blockStatus = [false, false, false, false]; 
 
     // --- Audio System ---
     let audioCtx;
@@ -402,33 +399,52 @@
     function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
     function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
-    function generateKakoomaBlock(maxSum) {
-        let maxAddend = Math.floor(maxSum * 0.8); 
-        if (maxAddend < 5) maxAddend = maxSum - 1;
-
+    function generateKakoomaBlock(mode) {
         let a, b, c, d;
         let valid = false;
         
         while (!valid) {
-            a = getRandomInt(1, maxAddend);
-            b = getRandomInt(1, maxAddend);
-            if (a === b) continue;
-            
-            c = a + b;
-            if (c > maxSum) continue;
-            
-            d = getRandomInt(1, maxSum);
+            if (mode === 'mult') {
+                a = getRandomInt(2, 9);
+                b = getRandomInt(2, 9);
+                if (a === b) continue;
+                
+                c = a * b;
+                
+                // Distractor from the times table
+                let t1 = getRandomInt(2, 9);
+                let t2 = getRandomInt(2, 9);
+                d = t1 * t2;
+            } else {
+                let maxSum = mode;
+                let maxAddend = Math.floor(maxSum * 0.8); 
+                if (maxAddend < 5) maxAddend = maxSum - 1;
+
+                a = getRandomInt(1, maxAddend);
+                b = getRandomInt(1, maxAddend);
+                if (a === b) continue;
+                
+                c = a + b;
+                if (c > maxSum) continue;
+                
+                d = getRandomInt(1, maxSum);
+            }
             
             let arr = [a, b, c, d];
             let unique = new Set(arr);
             if (unique.size < 4) continue; // All 4 numbers must be distinct
             
-            // Validate that there is EXACTLY ONE sum equation possible in this block
+            // Validate that there is EXACTLY ONE valid equation in this block
             let eqCount = 0;
             for(let i = 0; i < 4; i++) {
                 for(let j = i + 1; j < 4; j++) {
-                    let sum = arr[i] + arr[j];
-                    if (arr.includes(sum)) eqCount++;
+                    if (mode === 'mult') {
+                        let prod = arr[i] * arr[j];
+                        if (arr.includes(prod)) eqCount++;
+                    } else {
+                        let sum = arr[i] + arr[j];
+                        if (arr.includes(sum)) eqCount++;
+                    }
                 }
             }
             
@@ -440,14 +456,21 @@
     }
 
     // --- Game Logic ---
-    function startGame(maxSum) {
-        currentMaxSum = maxSum;
+    function startGame(mode) {
+        currentMode = mode;
         currentStreak = 0;
         document.getElementById('streakDisplay').innerText = currentStreak;
         
         document.getElementById('menuScreen').style.display = 'none';
         document.getElementById('gameScreen').style.display = 'block';
         
+        const promptEl = document.getElementById('sequencePrompt');
+        if (currentMode === 'mult') {
+            promptEl.innerHTML = `Sequence: Click <span class="instruction-highlight">Factor</span> &rarr; Click <span class="instruction-highlight">Factor</span> &rarr; Click <b>Product</b>`;
+        } else {
+            promptEl.innerHTML = `Sequence: Click <span class="instruction-highlight">Addend</span> &rarr; Click <span class="instruction-highlight">Addend</span> &rarr; Click <b>Sum</b>`;
+        }
+
         buildBoard();
     }
 
@@ -468,7 +491,7 @@
         
         // Generate the 4 puzzles
         for(let i = 0; i < 4; i++) {
-            blockData[i] = generateKakoomaBlock(currentMaxSum);
+            blockData[i] = generateKakoomaBlock(currentMode);
             
             let blockDiv = document.createElement('div');
             blockDiv.className = `kakooma-block block-${i}`;
@@ -486,20 +509,19 @@
             board.appendChild(blockDiv);
         }
         
-        // Inject Center Plus
+        // Inject Center Symbol
         let centerDiv = document.createElement('div');
         centerDiv.className = 'kakooma-center';
-        centerDiv.innerText = '+';
+        centerDiv.innerText = currentMode === 'mult' ? '×' : '+';
         board.appendChild(centerDiv);
     }
 
     function handleCellClick(blockIdx, cellIdx, event) {
-        if (blockStatus[blockIdx]) return; // Ignore if block already solved
+        if (blockStatus[blockIdx]) return; 
         
         let cellEl = document.getElementById(`cell-${blockIdx}-${cellIdx}`);
         let selectionArr = selectedCells[blockIdx];
         
-        // Deselect if already selected
         if (selectionArr.includes(cellIdx)) {
             selectionArr.splice(selectionArr.indexOf(cellIdx), 1);
             cellEl.classList.remove('selected');
@@ -507,30 +529,32 @@
             return;
         }
         
-        // Select cell
         selectionArr.push(cellIdx);
         cellEl.classList.add('selected');
         playClick();
         
-        // Evaluate if 3 cells are selected
         if (selectionArr.length === 3) {
             let v1 = blockData[blockIdx][selectionArr[0]];
             let v2 = blockData[blockIdx][selectionArr[1]];
-            let v3 = blockData[blockIdx][selectionArr[2]]; // The sum
+            let v3 = blockData[blockIdx][selectionArr[2]]; 
             
             let blockEl = document.getElementById(`block-${blockIdx}`);
+            let isCorrect = false;
+
+            if (currentMode === 'mult') {
+                isCorrect = (v1 * v2 === v3);
+            } else {
+                isCorrect = (v1 + v2 === v3);
+            }
             
-            if (v1 + v2 === v3) {
-                // Success for this block
+            if (isCorrect) {
                 blockStatus[blockIdx] = true;
                 blockEl.classList.add('solved');
                 
-                // Color the correct cells green
                 document.getElementById(`cell-${blockIdx}-${selectionArr[0]}`).classList.add('correct-part');
                 document.getElementById(`cell-${blockIdx}-${selectionArr[1]}`).classList.add('correct-part');
                 document.getElementById(`cell-${blockIdx}-${selectionArr[2]}`).classList.add('correct-part');
                 
-                // Remove yellow selection styling
                 document.getElementById(`cell-${blockIdx}-${selectionArr[0]}`).classList.remove('selected');
                 document.getElementById(`cell-${blockIdx}-${selectionArr[1]}`).classList.remove('selected');
                 document.getElementById(`cell-${blockIdx}-${selectionArr[2]}`).classList.remove('selected');
@@ -551,11 +575,9 @@
                     playBlockSuccess();
                 }
             } else {
-                // Failed attempt
                 playWrong();
                 blockEl.classList.add('error');
                 
-                // Reset selection for this block
                 document.getElementById(`cell-${blockIdx}-${selectionArr[0]}`).classList.remove('selected');
                 document.getElementById(`cell-${blockIdx}-${selectionArr[1]}`).classList.remove('selected');
                 document.getElementById(`cell-${blockIdx}-${selectionArr[2]}`).classList.remove('selected');
