@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 8: Roots & Pythagorean Theorem</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #f39c12;
+            --level3: #27ae60;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-2 { border-color: var(--level2); }
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-2 .level-title { background: var(--level2); }
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-2 .menu-btn span { background-color: var(--level2); }
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-2 .menu-btn:hover { background-color: var(--level2); border-color: var(--level2); }
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        .tag {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+            font-weight: normal;
+        }
+        .tag.no-calc { background: #fadbd8; color: #c0392b; }
+        .tag.calc { background: #d5f5e3; color: #27ae60; }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .problem-display {
+            font-size: 36px;
+            margin: 0 0 25px 0;
+            padding: 20px 30px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        #errorAlert {
+            display: none;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            flex: 1 1 calc(50% - 15px); 
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 18px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+        
+        .option-btn.full-width { flex: 1 1 100%; }
+        .option-btn.three-col { flex: 1 1 calc(33% - 15px); }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .option-btn { flex: 1 1 100%; } 
+            .option-btn.three-col { flex: 1 1 100%; }
+            .problem-display { font-size: 26px; }
+            .prompt-text { font-size: 18px; }
+            .tag { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Roots & Pythagoras</h1>
+        <p class="subtitle">Math 8 Core Skills</p>
+        
+        <div class="level-section">
+            <div class="level-title">Emerging Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Evaluate Squares & Cubes <div class="tag no-calc">No Calc</div></button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Evaluate Perfect Roots <div class="tag no-calc">No Calc</div></button>
+                <button class="menu-btn" onclick="startGame(3)" style="grid-column: 1 / -1;"><span>3</span> Prime vs. Composite <div class="tag no-calc">No Calc</div></button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-2">
+            <div class="level-title">Developing Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Estimate Square Roots <div class="tag no-calc">No Calc</div></button>
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Prime Factorization <div class="tag calc">Calc</div></button>
+                <button class="menu-btn" onclick="startGame(6)" style="grid-column: 1 / -1;"><span>6</span> Perfect Squares in Shapes <div class="tag calc">Calc</div></button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Proficient Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(7)"><span>7</span> Solve Right Triangles <div class="tag calc">Calc</div></button>
+                <button class="menu-btn" onclick="startGame(8)"><span>8</span> Verify Right Triangles <div class="tag calc">Calc</div></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="errorAlert"></div>
+
+        <div class="prompt-text" id="promptTitle">Question:</div>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    
+    function isPrime(num) {
+        if (num <= 1) return false;
+        if (num <= 3) return true;
+        if (num % 2 === 0 || num % 3 === 0) return false;
+        for (let i = 5; i * i <= num; i += 6) {
+            if (num % i === 0 || num % (i + 2) === 0) return false;
+        }
+        return true;
+    }
+
+    function getPrimeFactors(n) {
+        let factors = {};
+        for(let i=2; i<=n; i++) {
+            while(n % i === 0) {
+                factors[i] = (factors[i] || 0) + 1;
+                n /= i;
+            }
+        }
+        return factors;
+    }
+
+    function formatPrimeFactorization(factors) {
+        let keys = Object.keys(factors).map(Number).sort((a,b) => a-b);
+        if (keys.length === 0) return "1";
+        return keys.map(p => factors[p] > 1 ? `${p}^{${factors[p]}}` : `${p}`).join(' \\cdot ');
+    }
+
+    const pythagoreanTriples = [
+        [3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25], [9, 40, 41]
+    ];
+
+    // --- Strict Navigation ---
+    function startGame(mode) {
+        try {
+            document.getElementById('errorAlert').style.display = 'none';
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            let colorVar = mode <= 3 ? "var(--level1)" : (mode <= 6 ? "var(--level2)" : "var(--level3)");
+            document.getElementById('gameScreen').style.borderColor = colorVar;
+            document.getElementById('problemDisplay').style.borderColor = colorVar;
+
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) {
+            console.error(e);
+            alert("App initialization failed. Please refresh the page.");
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Bulletproof Generation Engine ---
+    function generateProblem() {
+        try {
+            isTransitioning = false;
+            
+            let correctAns = "";
+            let distractors = new Set();
+            let promptHTML = "";
+            let promptText = "";
+            let problemSignature = "";
+            let loopCount = 0;
+            let targetOptionsSize = 4;
+            let isTextOptions = false;
+            let isBinaryOption = false; 
+            let isRawHTML = false;
+
+            do {
+                distractors.clear();
+                isTextOptions = false;
+                isBinaryOption = false;
+                isRawHTML = false;
+                targetOptionsSize = 4;
+
+                // MODE 1: Evaluate Squares and Cubes
+                if (currentMode === 1) {
+                    promptText = "(No Calculator) Evaluate the power:";
+                    let isCube = Math.random() > 0.5;
+                    let base = isCube ? getRandomInt(2, 6) : getRandomInt(2, 15);
+                    let p = isCube ? 3 : 2;
+                    
+                    promptHTML = `${base}^{${p}}`;
+                    let ans = Math.pow(base, p);
+                    correctAns = ans.toString();
+                    
+                    distractors.add((base * p).toString()); // Multiply base and exponent
+                    if (isCube) distractors.add(Math.pow(base, 2).toString()); // Squared instead of cubed
+                    else distractors.add(Math.pow(base, 3).toString()); // Cubed instead of squared
+                    distractors.add((ans + base).toString()); // Off by one base multiplication
+                }
+
+                // MODE 2: Evaluate Roots of Perfect Squares/Cubes
+                else if (currentMode === 2) {
+                    promptText = "(No Calculator) Evaluate the root:";
+                    let isCube = Math.random() > 0.5;
+                    let root = isCube ? getRandomInt(2, 6) : getRandomInt(2, 15);
+                    let p = isCube ? 3 : 2;
+                    let inside = Math.pow(root, p);
+                    
+                    promptHTML = isCube ? `\\sqrt[3]{${inside}}` : `\\sqrt{${inside}}`;
+                    correctAns = root.toString();
+                    
+                    distractors.add((inside / p).toFixed(0)); // Divided by index
+                    distractors.add((root + 1).toString()); // Off by one
+                    distractors.add((root * p).toString()); // Multiplied instead of rooted
+                }
+
+                // MODE 3: Prime vs Composite
+                else if (currentMode === 3) {
+                    promptText = "(No Calculator) Is the number prime or composite?";
+                    isTextOptions = true;
+                    isBinaryOption = true;
+                    targetOptionsSize = 2;
+                    
+                    let n = getRandomInt(10, 99);
+                    promptHTML = n.toString();
+                    
+                    if (isPrime(n)) {
+                        correctAns = "Prime";
+                        distractors.add("Composite");
+                    } else {
+                        correctAns = "Composite";
+                        distractors.add("Prime");
+                    }
+                }
+
+                // MODE 4: Estimate Values for Square Roots
+                else if (currentMode === 4) {
+                    promptText = "(No Calculator) Estimate the value of the root:";
+                    isTextOptions = true;
+                    
+                    let a = getRandomInt(3, 11);
+                    let lower = a * a;
+                    let upper = (a + 1) * (a + 1);
+                    
+                    let n = getRandomInt(lower + 1, upper - 1);
+                    
+                    promptHTML = `\\sqrt{${n}}`;
+                    correctAns = `Between ${a} and ${a+1}`;
+                    
+                    distractors.add(`Between ${a-1} and ${a}`);
+                    distractors.add(`Between ${a+1} and ${a+2}`);
+                    distractors.add(`Between ${a-2} and ${a-1}`);
+                }
+
+                // MODE 5: Factorize into Primes
+                else if (currentMode === 5) {
+                    promptText = "(Calculator Permitted) Find the prime factorization:";
+                    let n, factors, checkPrime;
+                    do {
+                        n = getRandomInt(24, 200);
+                        factors = getPrimeFactors(n);
+                        let keys = Object.keys(factors);
+                        checkPrime = (keys.length === 1 && factors[keys[0]] === 1);
+                    } while (checkPrime);
+
+                    promptHTML = `${n}`;
+                    correctAns = formatPrimeFactorization(factors);
+                    distractors.add(formatPrimeFactorization(getPrimeFactors(n + getRandomEl([-2, 2, 4]))));
+                    if (factors[2]) distractors.add(formatPrimeFactorization(getPrimeFactors(n * 2)));
+                    if (factors[3]) distractors.add(formatPrimeFactorization(getPrimeFactors(n * 3)));
+                }
+
+                // MODE 6: Perfect Squares in Shapes
+                else if (currentMode === 6) {
+                    promptText = "(Calculator Permitted) Solve the area problem:";
+                    isTextOptions = true;
+                    isRawHTML = true;
+                    
+                    let s = getRandomInt(5, 20);
+                    let area = s * s;
+                    let isPerimeter = Math.random() > 0.5;
+                    
+                    if (isPerimeter) {
+                        promptHTML = `<div style="font-size: 26px; line-height: 1.4; text-align: center;">A square has an area of <b>${area} cm²</b>.<br>What is its perimeter?</div>`;
+                        correctAns = `${s * 4} cm`;
+                        distractors.add(`${s} cm`); 
+                        distractors.add(`${area / 4} cm`); 
+                        distractors.add(`${s * 2} cm`); 
+                    } else {
+                        promptHTML = `<div style="font-size: 26px; line-height: 1.4; text-align: center;">A square has an area of <b>${area} cm²</b>.<br>What is its side length?</div>`;
+                        correctAns = `${s} cm`;
+                        distractors.add(`${s * 4} cm`); 
+                        distractors.add(`${area / 4} cm`); 
+                        distractors.add(`${s * 2} cm`); 
+                    }
+                }
+
+                // MODE 7: Solve Right Triangles (Visual SVG & Decimal Rounding)
+                else if (currentMode === 7) {
+                    promptText = "(Calculator Permitted) Find the missing side length:";
+                    isTextOptions = true;
+                    isRawHTML = true; 
+                    
+                    let findHypotenuse = Math.random() > 0.5;
+                    let decPlaces = Math.random() > 0.5 ? 1 : 2;
+                    let a, b, c_val, c_str, a_str, b_str;
+                    
+                    if (findHypotenuse) {
+                        a = getRandomInt(4, 15);
+                        b = getRandomInt(4, 15);
+                        c_val = Math.sqrt(a*a + b*b);
+                        
+                        a_str = a.toString();
+                        b_str = b.toString();
+                        c_str = "?";
+                        
+                        let ans = Number.isInteger(c_val) ? c_val.toString() : c_val.toFixed(decPlaces);
+                        correctAns = `x = ${ans}`;
+                        
+                        let dist1 = Math.sqrt(Math.abs(a*a - b*b));
+                        distractors.add(`x = ${Number.isInteger(dist1) ? dist1.toString() : dist1.toFixed(decPlaces)}`);
+                        distractors.add(`x = ${a + b}`);
+                        distractors.add(`x = ${(c_val + getRandomEl([1.1, -1.1, 2.2])).toFixed(decPlaces)}`);
+                        
+                    } else {
+                        c_val = getRandomInt(10, 25);
+                        a = getRandomInt(4, c_val - 2);
+                        b = Math.sqrt(c_val*c_val - a*a);
+                        
+                        a_str = a.toString();
+                        c_str = c_val.toString();
+                        b_str = "?";
+                        
+                        let ans = Number.isInteger(b) ? b.toString() : b.toFixed(decPlaces);
+                        correctAns = `x = ${ans}`;
+                        
+                        let dist1 = Math.sqrt(c_val*c_val + a*a);
+                        distractors.add(`x = ${Number.isInteger(dist1) ? dist1.toString() : dist1.toFixed(decPlaces)}`);
+                        distractors.add(`x = ${c_val - a}`);
+                        distractors.add(`x = ${(b + getRandomEl([1.1, -1.1, 2.2])).toFixed(decPlaces)}`);
+                    }
+                    
+                    // Injecting an inline SVG drawing of the right triangle directly into the problem display
+                    promptHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; padding-top: 10px;">
+                        <svg width="160" height="135" viewBox="0 0 160 135">
+                            <polyline points="30,105 45,105 45,120" fill="none" stroke="var(--dark)" stroke-width="2"/>
+                            <polygon points="30,20 30,120 130,120" fill="#ebf5fb" stroke="var(--secondary)" stroke-width="3"/>
+                            <text x="5" y="75" font-family="sans-serif" font-size="16" font-weight="bold" fill="var(--dark)">${a_str}</text>
+                            <text x="75" y="135" font-family="sans-serif" font-size="16" font-weight="bold" fill="var(--dark)">${b_str}</text>
+                            <text x="85" y="65" font-family="sans-serif" font-size="16" font-weight="bold" fill="var(--level1)">${c_str}</text>
+                        </svg>
+                    </div>`;
+                }
+
+                // MODE 8: Verify Right Triangles
+                else if (currentMode === 8) {
+                    promptText = "(Calculator Permitted) Does the triangle have a right angle?";
+                    isTextOptions = true;
+                    isBinaryOption = true;
+                    targetOptionsSize = 2;
+                    
+                    let isRight = Math.random() > 0.5;
+                    let primitive = getRandomEl(pythagoreanTriples);
+                    let scale = getRandomInt(1, 3);
+                    let a = primitive[0] * scale;
+                    let b = primitive[1] * scale;
+                    let c = primitive[2] * scale;
+                    
+                    if (!isRight) {
+                        c += getRandomEl([-1, 1, 2]);
+                        if (c <= b) c = b + 1; 
+                    }
+                    
+                    if (Math.random() > 0.5) { let temp = a; a = b; b = temp; }
+                    
+                    promptHTML = `\\text{Triangle sides: } ${a}, \\; ${b}, \\; ${c}`;
+                    
+                    if (isRight) {
+                        correctAns = "Yes";
+                        distractors.add("No");
+                    } else {
+                        correctAns = "No";
+                        distractors.add("Yes");
+                    }
+                }
+
+                problemSignature = promptText + promptHTML + correctAns;
+                loopCount++;
+
+            } while (problemSignature === lastPrompt && loopCount < 10); 
+            
+            lastPrompt = problemSignature;
+
+            // --- Safe DOM Updates ---
+            document.getElementById('promptTitle').innerText = promptText; 
+            
+            let displayBox = document.getElementById('problemDisplay');
+            
+            // Critical branch for SVG, Raw HTML, or standard KaTeX formatting
+            if (isRawHTML) {
+                displayBox.innerHTML = promptHTML;
+            } else {
+                displayBox.innerHTML = `\\( ${promptHTML} \\)`; 
+            }
+
+            let options;
+            
+            if (currentMode === 3) {
+                // Fixed order for Prime/Composite
+                options = ["Prime", "Composite"];
+            } else if (currentMode === 8) {
+                // Fixed order for Yes/No
+                options = ["Yes", "No"];
+            } else if (currentMode === 4) {
+                // Fixed incremental order for Estimation
+                let match = correctAns.match(/\d+/);
+                let base = match ? parseInt(match[0]) : 3;
+                let start = base - getRandomInt(0, 2);
+                if (start < 1) start = 1;
+                options = [
+                    `Between ${start} and ${start+1}`,
+                    `Between ${start+1} and ${start+2}`,
+                    `Between ${start+2} and ${start+3}`,
+                    `Between ${start+3} and ${start+4}`
+                ];
+            } else {
+                let finalOptions = new Set();
+                finalOptions.add(correctAns);
+                let distArray = Array.from(distractors);
+                let i = 0;
+
+                while(finalOptions.size < targetOptionsSize && i < distArray.length) {
+                    finalOptions.add(distArray[i]); i++;
+                }
+                
+                // Pad safely
+                let pad = 1;
+                while(finalOptions.size < targetOptionsSize) { 
+                    if (isBinaryOption) {
+                        finalOptions.add("Maybe"); // Shouldn't hit
+                    } else if (currentMode === 7) {
+                        let prefix = correctAns.split("=")[0].trim();
+                        finalOptions.add(`${prefix} = ${pad++}`);
+                    } else if (currentMode === 6) { 
+                        finalOptions.add(`${pad++} cm`);
+                    } else {
+                        let parsed = parseInt(correctAns);
+                        if (isNaN(parsed)) parsed = getRandomInt(5, 15);
+                        finalOptions.add((parsed + pad).toString()); 
+                    }
+                    pad++;
+                }
+                options = shuffle(Array.from(finalOptions));
+            }
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = ''; 
+
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'option-btn';
+                
+                // Wide buttons for Estimate Roots mode or Yes/No modes to look cleaner
+                if (opt.length > 20 || currentMode === 4 || isBinaryOption || currentMode === 6) {
+                    btn.classList.add('full-width');
+                }
+                
+                if (isTextOptions) {
+                    btn.innerHTML = opt;
+                } else {
+                    btn.innerHTML = `\\(${opt}\\)`;
+                }
+                
+                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                grid.appendChild(btn);
+            });
+
+            // Make sure KaTeX ignores raw HTML sections to prevent rendering crashes
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { 
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "\\(", right: "\\)", display: false}
+                    ] 
+                });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            setTimeout(() => display.classList.remove('error'), 400);
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
