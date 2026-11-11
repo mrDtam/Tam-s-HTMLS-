@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math 9 Accelerated · Prompt Builder</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#f5f6fa;
+    --card:#ffffff;
+    --ink:#111827;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --accent:#4f46e5;
+    --accent-soft:#eef2ff;
+    --radius:14px;
+  }
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.45;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:22px 16px 140px}
+  h1{font-size:1.45rem;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:.92rem;margin:0 0 20px}
+  h2.step{
+    font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);margin:26px 0 10px;font-weight:700;
+  }
+
+  /* ---------- unit cards ---------- */
+  .unit{
+    display:flex;gap:12px;align-items:center;
+    padding:14px 16px;margin-bottom:10px;
+    background:var(--card);border:2px solid var(--line);
+    border-radius:var(--radius);cursor:pointer;
+    transition:border-color .15s, background .15s, transform .06s;
+    outline:none;
+  }
+  .unit:active{transform:scale(.995)}
+  .unit:focus-visible{border-color:var(--accent)}
+  .unit .dot{
+    flex:0 0 auto;width:18px;height:18px;border-radius:50%;
+    border:2px solid #cbd5e1;position:relative;transition:.15s;
+  }
+  .unit.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .unit.sel .dot{border-color:var(--accent);background:var(--accent)}
+  .unit.sel .dot::after{
+    content:"";position:absolute;inset:3px;border-radius:50%;background:#fff;
+  }
+  .unit .uname{font-size:.95rem;font-weight:600}
+
+  /* ---------- count ---------- */
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px;
+  }
+  .countval{font-size:2rem;font-weight:800;letter-spacing:-.03em;text-align:center;color:var(--accent)}
+  .countval small{font-size:.85rem;font-weight:600;color:var(--muted);letter-spacing:0}
+  input[type=range]{
+    width:100%;margin:12px 0 4px;accent-color:var(--accent);height:28px;
+  }
+  .rangeticks{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
+
+  /* ---------- style buttons ---------- */
+  .styles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stylebtn{
+    display:flex;flex-direction:column;gap:3px;align-items:flex-start;
+    padding:14px;background:var(--card);border:2px solid var(--line);
+    border-radius:var(--radius);cursor:pointer;text-align:left;
+    font-family:inherit;color:inherit;transition:.15s;
+  }
+  .stylebtn .sicon{font-size:1.15rem;line-height:1}
+  .stylebtn .stitle{font-weight:700;font-size:.95rem}
+  .stylebtn .sdesc{font-size:.75rem;color:var(--muted);line-height:1.3}
+  .stylebtn.active{border-color:var(--accent);background:var(--accent-soft)}
+
+  /* ---------- bottom bar ---------- */
+  .bottombar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(255,255,255,.94);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .bottombar .inner{max-width:720px;margin:0 auto;display:flex;gap:10px}
+  .primary{
+    flex:1;padding:14px 18px;border-radius:12px;border:none;
+    background:var(--accent);color:#fff;font-weight:700;font-size:1rem;
+    font-family:inherit;cursor:pointer;transition:.15s;
+  }
+  .primary:disabled{background:#c7cbd6;cursor:not-allowed}
+  .primary:not(:disabled):active{transform:scale(.99)}
+  .ghost{
+    padding:14px 16px;border-radius:12px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);font-weight:600;font-size:.95rem;
+    font-family:inherit;cursor:pointer;
+  }
+
+  /* ---------- screen 2 ---------- */
+  .backbtn{
+    background:none;border:none;padding:6px 0;margin-bottom:6px;
+    font-family:inherit;font-size:.9rem;color:var(--accent);font-weight:600;cursor:pointer;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+  .chip{
+    font-size:.75rem;font-weight:600;padding:5px 11px;border-radius:99px;
+    background:#fff;border:1px solid var(--line);color:var(--muted);
+  }
+  .chip.strong{background:var(--accent-soft);border-color:#c7d2fe;color:var(--accent)}
+
+  .levelcard{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px 14px;margin-bottom:12px;
+    border-left:5px solid var(--lc,#94a3b8);
+  }
+  .levelhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .lvl{font-size:.72rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--lc,#475569)}
+  .mini{
+    background:none;border:none;font-family:inherit;font-size:.72rem;font-weight:700;
+    color:var(--muted);cursor:pointer;padding:4px 6px;border-radius:6px;
+  }
+  .mini:hover{background:#f1f5f9}
+  .skill{
+    display:flex;gap:10px;align-items:flex-start;
+    padding:7px 0;cursor:pointer;font-size:.88rem;
+  }
+  .skill input{
+    flex:0 0 auto;width:18px;height:18px;margin-top:2px;
+    accent-color:var(--accent);cursor:pointer;
+  }
+  .skill .stext{flex:1}
+
+  .row-actions{display:flex;gap:10px;margin-bottom:14px}
+  .row-actions button{
+    flex:1;padding:9px;border-radius:10px;border:1px solid var(--line);
+    background:#fff;font-family:inherit;font-size:.82rem;font-weight:600;
+    color:var(--muted);cursor:pointer;
+  }
+
+  /* ---------- screen 3: prompt card + copy ---------- */
+  .promptcard{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    margin:0 0 14px;
+    box-shadow:0 1px 2px rgba(16,24,40,.05);
+  }
+  .promptcard-head{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:10px 12px 10px 16px;
+    border-bottom:1px solid var(--line);
+    background:#f8fafc;
+    font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .copybtn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 16px;border-radius:10px;border:none;
+    background:var(--accent);color:#fff;
+    font-family:inherit;font-weight:700;font-size:.85rem;
+    cursor:pointer;transition:background .15s, transform .06s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .copybtn:active{transform:scale(.97)}
+  .copybtn.done{background:#16a34a}
+
+  .promptbox{
+    margin:0;
+    background:#0f172a;color:#e2e8f0;
+    padding:16px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.8rem;line-height:1.55;
+    white-space:pre-wrap;word-break:break-word;
+    max-height:54vh;overflow:auto;-webkit-overflow-scrolling:touch;
+  }
+  .promptbox::selection,
+  .promptbox ::selection{background:#3b82f6;color:#fff}
+
+  .hint{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+  .hint strong{color:var(--ink)}
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed;left:50%;bottom:92px;
+    transform:translate(-50%,16px);
+    background:#111827;color:#fff;
+    padding:11px 20px;border-radius:99px;
+    font-size:.85rem;font-weight:600;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:60;max-width:88vw;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ SCREEN 1 ============ -->
+  <section id="screen1">
+    <h1>Math 9 Accelerated · Prompt Builder</h1>
+    <p class="sub">Pick a unit, a question count, and a format. On the next screen you'll fine-tune which skills to include and get a ready-to-paste AI prompt.</p>
+
+    <h2 class="step">1 · Unit</h2>
+    <div id="unitList"></div>
+
+    <h2 class="step">2 · Number of questions</h2>
+    <div class="card">
+      <div class="countval"><span id="countVal">15</span> <small>questions</small></div>
+      <input id="countRange" type="range" min="10" max="20" step="1" value="15" aria-label="Number of questions">
+      <div class="rangeticks"><span>10</span><span>15</span><span>20</span></div>
+    </div>
+
+    <h2 class="step">3 · Format</h2>
+    <div class="styles">
+      <button class="stylebtn" data-style="worksheet">
+        <span class="sicon">🖨️</span>
+        <span class="stitle">Worksheet</span>
+        <span class="sdesc">Printable, with an answer-key toggle</span>
+      </button>
+      <button class="stylebtn" data-style="quiz">
+        <span class="sicon">⚡</span>
+        <span class="stitle">Interactive Quiz</span>
+        <span class="sdesc">Self-checking, MC + typed answers</span>
+      </button>
+    </div>
+
+    <div class="bottombar"><div class="inner">
+      <button id="continueBtn" class="primary" disabled>Choose a unit to continue</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 2 ============ -->
+  <section id="screen2" hidden>
+    <button class="backbtn" id="backBtn">← Back</button>
+    <h1>Choose skills</h1>
+    <p class="sub">Only Levels 1–5 are included. Uncheck anything you don't want in the prompt.</p>
+
+    <div class="chips" id="summaryChips"></div>
+
+    <div class="row-actions">
+      <button id="selectAllBtn">Select all</button>
+      <button id="clearAllBtn">Clear all</button>
+    </div>
+
+    <div id="skillList"></div>
+
+    <div class="bottombar"><div class="inner">
+      <button id="generateBtn" class="primary">Generate prompt</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 3 ============ -->
+  <section id="screen3" hidden>
+    <button class="backbtn" id="backBtn2">← Edit skills</button>
+    <h1>Your prompt</h1>
+    <p class="hint">Tap <strong>Copy</strong> on the card below, then paste it into your AI assistant.</p>
+
+    <div class="promptcard">
+      <div class="promptcard-head">
+        <span>AI Prompt</span>
+        <button class="copybtn" id="copyTop">📋 Copy</button>
+      </div>
+      <pre class="promptbox" id="promptOut"></pre>
+    </div>
+
+    <div class="bottombar"><div class="inner">
+      <button class="ghost" id="startOverBtn">Start over</button>
+      <button class="primary" id="copyBtn">Copy prompt</button>
+    </div></div>
+  </section>
+
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   DATA (MATH 9 ACCELERATED)
+   ========================================================= */
+const UNITS = [
+  {
+    id: 'u1',
+    name: 'Rational Numbers',
+    levels: [
+      { label: 'Level 1–2', color: '#f97316', skills: [
+        'Convert mixed numbers to improper fractions',
+        'Convert improper fractions to mixed numbers',
+        'Convert decimals to fractions',
+        'Perform simple arithmetic operations with rational numbers'
+      ]},
+      { label: 'Level 3–4', color: '#eab308', skills: [
+        'Identify rational numbers',
+        'Classify number sets',
+        'Order rational numbers',
+        'Compare decimals',
+        'Compare fractions',
+        'Apply order of operations'
+      ]},
+      { label: 'Level 5', color: '#16a34a', skills: [
+        'Solve application problems',
+        'Solve for missing values'
+      ]}
+    ]
+  },
+  {
+    id: 'u2',
+    name: 'Linear Relations',
+    levels: [
+      { label: 'Level 1–2', color: '#f97316', skills: [
+        'Determine the slope of a line (using a graph or two points)',
+        'Identify parallel and perpendicular slopes',
+        'Sketch lines in slope-intercept form ($y=mx+b$)'
+      ]},
+      { label: 'Level 3–4', color: '#eab308', skills: [
+        'Work with slope-intercept, point-slope, and general/standard forms of lines (graph equations, convert between forms, and write equations)',
+        'Use the formula for arithmetic sequences to solve problems',
+        'Convert between different forms of linear equations (e.g., Write $y-3=\\dfrac{1}{2}(x+2)$ in general form)'
+      ]},
+      { label: 'Level 5', color: '#16a34a', skills: [
+        'Write equations given specific conditions (e.g., Write the equation of a line in slope-intercept form that is perpendicular to $y=2x-1$ and has the same $y$-intercept as $3x-2y=6$)',
+        'Model linear relations and solve application problems'
+      ]}
+    ]
+  },
+  {
+    id: 'u3',
+    name: 'Functions and Arithmetic Sequences/Series',
+    levels: [
+      { label: 'Level 1–2', color: '#f97316', skills: [
+        'Represent relations (using mapping diagrams, ordered pairs, tables, and graphs)',
+        'Understand the difference between functions and relations',
+        'Determine simple domain and range',
+        'Identify the common difference in an arithmetic sequence (find the next terms)',
+        'Use function notation to evaluate given an input value'
+      ]},
+      { label: 'Level 3–4', color: '#eab308', skills: [
+        'Write domain and range for different relations or functions given a graph',
+        'Use formulas for arithmetic sequences and series to solve problems',
+        'Express indicated values using inequality notation, interval notation, or set-builder notation',
+        'Read function values from a graph'
+      ]},
+      { label: 'Level 5', color: '#16a34a', skills: [
+        'Interpret graphs of linear relations and identify key components (intercepts, rate of change, and domain/range)',
+        'Solve application problems involving arithmetic sequences and series'
+      ]}
+    ]
+  },
+  {
+    id: 'u4',
+    name: 'Linear Equations and Systems',
+    levels: [
+      { label: 'Level 1–2', color: '#f97316', skills: [
+        'Solve one-step linear equations ($ax = b$, $x+a=b$)',
+        'Solve two-step linear equations ($ax+b=c$)',
+        'Validate answers (perform left side-right side checks)',
+        'Solve linear equations requiring collecting like terms (manage multiple $x$ terms on the same side or on both sides)',
+        'Solve linear equations using the distributive law with integer coefficients only (e.g., $a(bx+c)=d(ex+f)$)'
+      ]},
+      { label: 'Level 3–4', color: '#eab308', skills: [
+        'Solve linear equations with fractions and decimals in different contexts (with and without common denominators, one to two decimal places)',
+        'Solve systems of equations (graphically, by substitution, and by elimination)'
+      ]},
+      { label: 'Level 5', color: '#16a34a', skills: [
+        'Solve more complicated cases involving equations or systems',
+        'Model and solve mathematical problems using linear equations',
+        'Model and solve mathematical problems using a system of equations'
+      ]}
+    ]
+  },
+  {
+    id: 'u5',
+    name: 'Powers and Exponents',
+    levels: [
+      { label: 'Level 1–2', color: '#f97316', skills: [
+        'Understand the representation of powers and exponents',
+        'Calculate simple powers',
+        'Write a number as a product of primes',
+        'Understand exponent laws in simple contexts',
+        'Evaluate simple order of operations with exponents',
+        'Compare numbers with exponents'
+      ]},
+      { label: 'Level 3–4', color: '#eab308', skills: [
+        'Apply exponent laws with variables',
+        'Evaluate more complicated order of operations with exponents',
+        'Understand negative exponents'
+      ]},
+      { label: 'Level 5', color: '#16a34a', skills: [
+        'Simplify powers using multiple exponent laws',
+        'Apply change of base to simplify'
+      ]}
+    ]
+  },
+  {
+    id: 'u6',
+    name: 'Factors and Polynomials',
+    levels: [
+      { label: 'Level 1–2', color: '#f97316', skills: [
+        'Find GCF and LCM given a pair or trio of numbers',
+        'Classify polynomials (identify monomials, binomials, and trinomials; leading coefficients and terms; determine the degree)',
+        'Simplify expressions by collecting like terms',
+        'Add and subtract polynomials (horizontally and vertically)',
+        'Multiply polynomials (monomial by monomial, binomial, and trinomial)',
+        'Divide polynomials by a monomial'
+      ]},
+      { label: 'Level 3–4', color: '#eab308', skills: [
+        'Expand polynomials (multiply 2-by-2, 2-by-3, and 3-by-3 polynomials)',
+        'Simplify multiple operations (perform up to 3 operations)',
+        'Factor polynomials (using GCF, by grouping, $x^2+bx+c$, and simple difference of squares)'
+      ]},
+      { label: 'Level 5', color: '#16a34a', skills: [
+        'Model perimeter, area, and volume with polynomials',
+        'Factor trinomials of the form $ax^2+bx+c$ where $a \\neq 1$',
+        'Factor fully using multiple factoring methods',
+        'Work with special polynomials'
+      ]}
+    ]
+  },
+  {
+    id: 'u7',
+    name: 'Similarity and Trigonometry',
+    levels: [
+      { label: 'Level 1–2', color: '#f97316', skills: [
+        'Identify enlargements and reductions',
+        'Work with scale factors, objects, and images',
+        'Solve simple cases of similar polygons and triangles',
+        'Identify ratios of the three primary trigonometric functions ($\\sin$, $\\cos$, and $\\tan$)'
+      ]},
+      { label: 'Level 3–4', color: '#eab308', skills: [
+        'Justify similarity in polygons or explain why they are not similar',
+        'Solve for missing values in similar polygons and triangles using algebra',
+        'Solve triangles using trigonometry (missing side, missing angle, or complete triangle)'
+      ]},
+      { label: 'Level 5', color: '#16a34a', skills: [
+        'Solve problems that require multiple trigonometry steps',
+        'Model and solve application problems using trigonometry (apply multiple steps when required)'
+      ]}
+    ]
+  }
+];
+
+/* =========================================================
+   STATE / HELPERS
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const state = { unitId: null, count: 15, style: 'worksheet', selected: new Set() };
+
+const skillId = (unitId, li, si) => `${unitId}:${li}:${si}`;
+const getUnit = id => UNITS.find(u => u.id === id);
+
+function renderMath(el) {
+  if (typeof renderMathInElement !== 'function' || !el) return;
+  renderMathInElement(el, {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '$', right: '$', display: false },
+      { left: '\\(', right: '\\)', display: false }
+    ],
+    throwOnError: false
+  });
+}
+
+function show(id) {
+  ['screen1', 'screen2', 'screen3'].forEach(s => {
+    document.getElementById(s).hidden = (s !== id);
+  });
+  window.scrollTo(0, 0);
+}
+
+/* ---------- toast ---------- */
+let toastTimer;
+function showToast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2300);
+}
+
+/* ---------- robust copy ---------- */
+async function copyPrompt(btn) {
+  const text = $('#promptOut').textContent;
+  let ok = false;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    }
+  } catch (e) { }
+
+  if (!ok) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+  }
+
+  if (!ok) {
+    const pre = $('#promptOut');
+    const range = document.createRange();
+    range.selectNodeContents(pre);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    showToast('Text selected — press Ctrl / ⌘ + C to copy');
+    return;
+  }
+
+  showToast('Prompt copied to clipboard ✓');
+  if (btn) {
+    const original = btn.innerHTML;
+    btn.classList.add('done');
+    btn.innerHTML = '✓ Copied';
+    setTimeout(() => {
+      btn.classList.remove('done');
+      btn.innerHTML = original;
+    }, 1700);
+  }
+}
+
+/* =========================================================
+   SCREEN 1
+   ========================================================= */
+function renderUnits() {
+  $('#unitList').innerHTML = UNITS.map(u => `
+    <div class="unit" data-id="${u.id}" role="button" tabindex="0">
+      <span class="dot"></span>
+      <span class="uname">${u.name}</span>
+    </div>
+  `).join('');
+}
+
+function selectUnit(id) {
+  state.unitId = id;
+  document.querySelectorAll('.unit').forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+  const btn = $('#continueBtn');
+  btn.disabled = false;
+  btn.textContent = 'Continue →';
+}
+
+function setStyle(style) {
+  state.style = style;
+  document.querySelectorAll('.stylebtn').forEach(b =>
+    b.classList.toggle('active', b.dataset.style === style)
+  );
+}
+
+/* =========================================================
+   SCREEN 2
+   ========================================================= */
+function selectAllForUnit() {
+  const unit = getUnit(state.unitId);
+  state.selected = new Set();
+  unit.levels.forEach((lv, li) =>
+    lv.skills.forEach((_, si) => state.selected.add(skillId(unit.id, li, si)))
+  );
+}
+
+function renderChips() {
+  const unit = getUnit(state.unitId);
+  const styleLabel = state.style === 'worksheet' ? 'Worksheet' : 'Interactive quiz';
+  $('#summaryChips').innerHTML = `
+    <span class="chip strong">${unit.name}</span>
+    <span class="chip">${state.count} questions</span>
+    <span class="chip">${styleLabel}</span>
+  `;
+}
+
+function renderSkills() {
+  const unit = getUnit(state.unitId);
+  $('#skillList').innerHTML = unit.levels.map((lv, li) => {
+    const allOn = lv.skills.every((_, si) => state.selected.has(skillId(unit.id, li, si)));
+    const items = lv.skills.map((s, si) => {
+      const id = skillId(unit.id, li, si);
+      return `<label class="skill">
+        <input type="checkbox" data-id="${id}" ${state.selected.has(id) ? 'checked' : ''}>
+        <span class="stext">${s}</span>
+      </label>`;
+    }).join('');
+    return `<div class="levelcard" style="--lc:${lv.color}">
+      <div class="levelhead">
+        <span class="lvl">${lv.label}</span>
+        <button class="mini" data-level="${li}">${allOn ? 'Clear' : 'Select all'}</button>
+      </div>
+      ${items}
+    </div>`;
+  }).join('');
+  renderMath($('#skillList'));
+  updateGenerateState();
+}
+
+function toggleLevel(li) {
+  const unit = getUnit(state.unitId);
+  const ids = unit.levels[li].skills.map((_, si) => skillId(unit.id, li, si));
+  const allOn = ids.every(id => state.selected.has(id));
+  ids.forEach(id => allOn ? state.selected.delete(id) : state.selected.add(id));
+  renderSkills();
+}
+
+function updateGenerateState() {
+  const btn = $('#generateBtn');
+  const n = state.selected.size;
+  btn.disabled = n === 0;
+  btn.textContent = n === 0 ? 'Select at least one skill' : `Generate prompt (${n} skill${n === 1 ? '' : 's'})`;
+}
+
+/* =========================================================
+   PROMPT
+   ========================================================= */
+function buildPrompt() {
+  const unit = getUnit(state.unitId);
+  const styleWord = state.style === 'worksheet' ? 'worksheet' : 'interactive quiz';
+  const lines = [];
+
+  lines.push(`Build an HTML ${styleWord} with ${state.count} questions, using KaTeX, for Math 9 Accelerated, focusing on the following skills:`);
+  lines.push('');
+  lines.push(`Unit: ${unit.name}`);
+
+  unit.levels.forEach((lv, li) => {
+    const picked = lv.skills.filter((_, si) => state.selected.has(skillId(unit.id, li, si)));
+    if (!picked.length) return;
+    lines.push('');
+    lines.push(`${lv.label}:`);
+    picked.forEach(s => lines.push(`- ${s}`));
+  });
+
+  lines.push('');
+  if (state.style === 'worksheet') {
+    lines.push('If HTML worksheet, have a show answers toggle somewhere so that the user can print the worksheet and answer key separately.');
+  } else {
+    lines.push('If interactive HTML, have a mix of multiple choice and enter answer style questions. Enter answer questions should be purely numeric, without needing to enter math symbols. It can be even partial entry, ie. enter the simplified value to fill in the blank in this answer format.');
+  }
+  lines.push('');
+  lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too.");
+
+  return lines.join('\n');
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function init() {
+  renderUnits();
+
+  // --- screen 1 ---
+  $('#unitList').addEventListener('click', e => {
+    const card = e.target.closest('.unit');
+    if (card) selectUnit(card.dataset.id);
+  });
+  $('#unitList').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.unit');
+    if (card) { e.preventDefault(); selectUnit(card.dataset.id); }
+  });
+
+  $('#countRange').addEventListener('input', e => {
+    state.count = Number(e.target.value);
+    $('#countVal').textContent = state.count;
+    if (!$('#screen2').hidden) renderChips();
+  });
+
+  document.querySelectorAll('.stylebtn').forEach(btn =>
+    btn.addEventListener('click', () => setStyle(btn.dataset.style))
+  );
+  setStyle('worksheet');
+
+  $('#continueBtn').addEventListener('click', () => {
+    if (!state.unitId) return;
+    selectAllForUnit();
+    renderChips();
+    renderSkills();
+    show('screen2');
+  });
+
+  // --- screen 2 ---
+  $('#backBtn').addEventListener('click', () => show('screen1'));
+
+  $('#skillList').addEventListener('change', e => {
+    const cb = e.target.closest('input[type=checkbox]');
+    if (!cb) return;
+    if (cb.checked) state.selected.add(cb.dataset.id);
+    else state.selected.delete(cb.dataset.id);
+
+    const card = cb.closest('.levelcard');
+    const li = Number(card.querySelector('.mini').dataset.level);
+    const unit = getUnit(state.unitId);
+    const allOn = unit.levels[li].skills.every((_, si) => state.selected.has(skillId(unit.id, li, si)));
+    card.querySelector('.mini').textContent = allOn ? 'Clear' : 'Select all';
+    updateGenerateState();
+  });
+
+  $('#skillList').addEventListener('click', e => {
+    const btn = e.target.closest('button.mini');
+    if (!btn) return;
+    e.preventDefault();
+    toggleLevel(Number(btn.dataset.level));
+  });
+
+  $('#selectAllBtn').addEventListener('click', () => {
+    selectAllForUnit();
+    renderSkills();
+  });
+
+  $('#clearAllBtn').addEventListener('click', () => {
+    state.selected.clear();
+    renderSkills();
+  });
+
+  $('#generateBtn').addEventListener('click', () => {
+    if (!state.selected.size) return;
+    $('#promptOut').textContent = buildPrompt();
+
+    const top = $('#copyTop');
+    top.classList.remove('done');
+    top.innerHTML = '📋 Copy';
+    const bottom = $('#copyBtn');
+    bottom.classList.remove('copied');
+    bottom.textContent = 'Copy prompt';
+
+    show('screen3');
+  });
+
+  // --- screen 3 ---
+  $('#backBtn2').addEventListener('click', () => show('screen2'));
+
+  $('#startOverBtn').addEventListener('click', () => {
+    state.unitId = null;
+    state.selected.clear();
+    document.querySelectorAll('.unit').forEach(c => c.classList.remove('sel'));
+    const btn = $('#continueBtn');
+    btn.disabled = true;
+    btn.textContent = 'Choose a unit to continue';
+    show('screen1');
+  });
+
+  $('#copyTop').addEventListener('click', e => copyPrompt(e.currentTarget));
+  $('#copyBtn').addEventListener('click', e => copyPrompt(e.currentTarget));
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
