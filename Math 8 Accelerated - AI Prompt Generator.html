@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math 8 Accelerated · Prompt Builder</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#f5f6fa;
+    --card:#ffffff;
+    --ink:#111827;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --accent:#4f46e5;
+    --accent-soft:#eef2ff;
+    --radius:14px;
+  }
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.45;
+    -webkit-text-size-adjust:100%;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:22px 16px 140px}
+  h1{font-size:1.45rem;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:.92rem;margin:0 0 20px}
+  h2.step{
+    font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);margin:26px 0 10px;font-weight:700;
+  }
+
+  /* ---------- unit cards ---------- */
+  .unit{
+    display:flex;gap:12px;align-items:center;
+    padding:14px 16px;margin-bottom:10px;
+    background:var(--card);border:2px solid var(--line);
+    border-radius:var(--radius);cursor:pointer;
+    transition:border-color .15s, background .15s, transform .06s;
+    outline:none;
+  }
+  .unit:active{transform:scale(.995)}
+  .unit:focus-visible{box-shadow:0 0 0 3px rgba(79,70,229,.25)}
+  .unit .dot{
+    flex:0 0 auto;width:18px;height:18px;border-radius:50%;
+    border:2px solid #cbd5e1;position:relative;transition:.15s;
+  }
+  .unit.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .unit.sel .dot{border-color:var(--accent);background:var(--accent)}
+  .unit.sel .dot::after{
+    content:"";position:absolute;inset:3px;border-radius:50%;background:#fff;
+  }
+  .unit .uname{font-size:.95rem;font-weight:600;flex:1;min-width:0}
+  .unit .calc{
+    flex:0 0 auto;font-size:.66rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;padding:3px 9px;border-radius:99px;
+    background:#f1f5f9;color:var(--muted);
+  }
+  .unit .calc.yes{background:#fef3c7;color:#92400e}
+
+  /* ---------- count ---------- */
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px;
+  }
+  .countval{font-size:2rem;font-weight:800;letter-spacing:-.03em;text-align:center;color:var(--accent)}
+  .countval small{font-size:.85rem;font-weight:600;color:var(--muted);letter-spacing:0}
+  input[type=range]{
+    width:100%;margin:12px 0 4px;accent-color:var(--accent);height:28px;
+  }
+  .rangeticks{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
+
+  /* ---------- style buttons ---------- */
+  .styles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stylebtn{
+    display:flex;flex-direction:column;gap:3px;align-items:flex-start;
+    padding:14px;background:var(--card);border:2px solid var(--line);
+    border-radius:var(--radius);cursor:pointer;text-align:left;
+    font-family:inherit;color:inherit;transition:.15s;
+  }
+  .stylebtn .sicon{font-size:1.15rem;line-height:1}
+  .stylebtn .stitle{font-weight:700;font-size:.95rem}
+  .stylebtn .sdesc{font-size:.75rem;color:var(--muted);line-height:1.3}
+  .stylebtn.active{border-color:var(--accent);background:var(--accent-soft)}
+
+  /* ---------- bottom bar ---------- */
+  .bottombar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(255,255,255,.94);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .bottombar .inner{max-width:720px;margin:0 auto;display:flex;gap:10px}
+  .primary{
+    flex:1;padding:14px 18px;border-radius:12px;border:none;
+    background:var(--accent);color:#fff;font-weight:700;font-size:1rem;
+    font-family:inherit;cursor:pointer;transition:.15s;
+  }
+  .primary:disabled{background:#c7cbd6;cursor:not-allowed}
+  .primary:not(:disabled):active{transform:scale(.99)}
+  .ghost{
+    padding:14px 16px;border-radius:12px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);font-weight:600;font-size:.95rem;
+    font-family:inherit;cursor:pointer;
+  }
+
+  /* ---------- screen 2 ---------- */
+  .backbtn{
+    background:none;border:none;padding:6px 0;margin-bottom:6px;
+    font-family:inherit;font-size:.9rem;color:var(--accent);font-weight:600;cursor:pointer;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+  .chip{
+    font-size:.75rem;font-weight:600;padding:5px 11px;border-radius:99px;
+    background:#fff;border:1px solid var(--line);color:var(--muted);
+  }
+  .chip.strong{background:var(--accent-soft);border-color:#c7d2fe;color:var(--accent)}
+  .chip.warn{background:#fef3c7;border-color:#fde68a;color:#92400e}
+
+  .row-actions{display:flex;gap:10px;margin-bottom:14px}
+  .row-actions button{
+    flex:1;padding:9px;border-radius:10px;border:1px solid var(--line);
+    background:#fff;font-family:inherit;font-size:.82rem;font-weight:600;
+    color:var(--muted);cursor:pointer;
+  }
+
+  /* level cards */
+  .levelcard{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px 14px;
+    margin-bottom:12px;
+    border-left:5px solid var(--lc,#94a3b8);
+  }
+  .levelhead{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+    margin-bottom:8px;
+  }
+  .lvl{
+    font-size:.72rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--lc,#475569);
+    display:flex;align-items:center;gap:8px;
+  }
+  .lvl .cnt{
+    font-size:.65rem;font-weight:700;color:var(--muted);
+    background:#f1f5f9;padding:2px 8px;border-radius:99px;letter-spacing:0;
+    text-transform:none;
+  }
+  .mini{
+    background:none;border:none;font-family:inherit;font-size:.72rem;font-weight:700;
+    color:var(--muted);cursor:pointer;padding:4px 6px;border-radius:6px;
+  }
+  .mini:hover{background:#f1f5f9}
+
+  .skill{
+    display:flex;gap:10px;align-items:flex-start;
+    padding:7px 0;cursor:pointer;font-size:.88rem;line-height:1.4;
+  }
+  .skill input{
+    flex:0 0 auto;width:18px;height:18px;margin-top:2px;
+    accent-color:var(--accent);cursor:pointer;
+  }
+  .skill .stext{flex:1;min-width:0}
+  .skill .stext .katex{font-size:1em}
+
+  /* ---------- screen 3 ---------- */
+  .promptcard{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    margin:0 0 14px;
+    box-shadow:0 1px 2px rgba(16,24,40,.05);
+  }
+  .promptcard-head{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:10px 12px 10px 16px;
+    border-bottom:1px solid var(--line);
+    background:#f8fafc;
+    font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .copybtn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 16px;border-radius:10px;border:none;
+    background:var(--accent);color:#fff;
+    font-family:inherit;font-weight:700;font-size:.85rem;
+    cursor:pointer;transition:background .15s, transform .06s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .copybtn:active{transform:scale(.97)}
+  .copybtn.done{background:#16a34a}
+
+  .promptbox{
+    margin:0;
+    background:#0f172a;color:#e2e8f0;
+    padding:16px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.8rem;line-height:1.55;
+    white-space:pre-wrap;word-break:break-word;
+    max-height:54vh;overflow:auto;-webkit-overflow-scrolling:touch;
+  }
+  .promptbox::selection,
+  .promptbox ::selection{background:#3b82f6;color:#fff}
+
+  .hint{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+  .hint strong{color:var(--ink)}
+
+  .toast{
+    position:fixed;left:50%;bottom:92px;
+    transform:translate(-50%,16px);
+    background:#111827;color:#fff;
+    padding:11px 20px;border-radius:99px;
+    font-size:.85rem;font-weight:600;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:60;max-width:88vw;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ SCREEN 1 ============ -->
+  <section id="screen1">
+    <h1>Math 8 Accelerated · Prompt Builder</h1>
+    <p class="sub">Pick a unit, a question count, and a format. Next you'll choose skills from each proficiency level (Emerging → Extending) and get a ready-to-paste AI prompt.</p>
+
+    <h2 class="step">1 · Unit</h2>
+    <div id="unitList"></div>
+
+    <h2 class="step">2 · Number of questions</h2>
+    <div class="card">
+      <div class="countval"><span id="countVal">15</span> <small>questions</small></div>
+      <input id="countRange" type="range" min="10" max="20" step="1" value="15" aria-label="Number of questions">
+      <div class="rangeticks"><span>10</span><span>15</span><span>20</span></div>
+    </div>
+
+    <h2 class="step">3 · Format</h2>
+    <div class="styles">
+      <button class="stylebtn" data-style="worksheet">
+        <span class="sicon">🖨️</span>
+        <span class="stitle">Worksheet</span>
+        <span class="sdesc">Printable, with an answer-key toggle</span>
+      </button>
+      <button class="stylebtn" data-style="quiz">
+        <span class="sicon">⚡</span>
+        <span class="stitle">Interactive Quiz</span>
+        <span class="sdesc">Self-checking, MC + typed answers</span>
+      </button>
+    </div>
+
+    <div class="bottombar"><div class="inner">
+      <button id="continueBtn" class="primary" disabled>Choose a unit to continue</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 2 ============ -->
+  <section id="screen2" hidden>
+    <button class="backbtn" id="backBtn">← Back</button>
+    <h1>Choose skills</h1>
+    <p class="sub">Skills grouped by proficiency level. Uncheck anything you don't want in the prompt.</p>
+
+    <div class="chips" id="summaryChips"></div>
+
+    <div class="row-actions">
+      <button id="selectAllBtn">Select all</button>
+      <button id="clearAllBtn">Clear all</button>
+    </div>
+
+    <div id="skillList"></div>
+
+    <div class="bottombar"><div class="inner">
+      <button id="generateBtn" class="primary">Generate prompt</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 3 ============ -->
+  <section id="screen3" hidden>
+    <button class="backbtn" id="backBtn2">← Edit skills</button>
+    <h1>Your prompt</h1>
+    <p class="hint">Tap <strong>Copy</strong> on the card below, then paste it into your AI assistant.</p>
+
+    <div class="promptcard">
+      <div class="promptcard-head">
+        <span>AI Prompt</span>
+        <button class="copybtn" id="copyTop">📋 Copy</button>
+      </div>
+      <pre class="promptbox" id="promptOut"></pre>
+    </div>
+
+    <div class="bottombar"><div class="inner">
+      <button class="ghost" id="startOverBtn">Start over</button>
+      <button class="primary" id="copyBtn">Copy prompt</button>
+    </div></div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   DATA — Math 8 Accelerated, on the 4-point proficiency scale
+   (Unfamiliar / open-ended items deliberately omitted.)
+   ========================================================= */
+const UNITS = [
+
+  /* ---------- 1 ---------- */
+  {
+    id: 'rational',
+    name: 'Rational Numbers',
+    calc: 'No calculators',
+    levels: [
+      { label: 'Emerging', color: '#f97316', skills: [
+        'Convert mixed fractions to improper fractions',
+        'Convert improper fractions to mixed fractions',
+        'Convert decimals to fractions',
+        'Evaluate simple arithmetic operations with rational numbers'
+      ]},
+      { label: 'Developing', color: '#eab308', skills: [
+        'Identify rational numbers',
+        'Classify rational numbers',
+        'Compare rational numbers'
+      ]},
+      { label: 'Proficient', color: '#16a34a', skills: [
+        'Evaluate order of operations with rational numbers'
+      ]},
+      { label: 'Extending', color: '#2563eb', skills: [
+        'Model and solve application problems, including multi-step',
+        'Simplify complex fractions'
+      ]}
+    ]
+  },
+
+  /* ---------- 2 ---------- */
+  {
+    id: 'linear-eq',
+    name: 'Linear Equations and Inequalities',
+    calc: 'No calculators',
+    levels: [
+      { label: 'Emerging', color: '#f97316', skills: [
+        'Write simple algebraic expressions or equations from words (e.g. "the sum of twice $x$ and $y$"; "$H$ is the difference of $x$ and half $y$")',
+        'Solve one-step linear equations',
+        'Solve two-step linear equations',
+        'Evaluate expressions with simple substitutions',
+        'Validate answers by left and right side check'
+      ]},
+      { label: 'Developing', color: '#eab308', skills: [
+        'Solve linear equations with multiple instances of $x$',
+        'Solve linear equations with the distributive law, keeping to integer coefficients'
+      ]},
+      { label: 'Proficient', color: '#16a34a', skills: [
+        'Solve linear equations with fractions and decimals in different contexts (with common denominators, without common denominators, one to two decimal places, etc.)'
+      ]},
+      { label: 'Extending', color: '#2563eb', skills: [
+        'Model and solve application problems with linear equations',
+        'Solve linear inequalities and write answers as an inequality and model on a number line'
+      ]}
+    ]
+  },
+
+  /* ---------- 3 ---------- */
+  {
+    id: 'powers',
+    name: 'Roots, Powers, and Exponent Laws',
+    calc: 'No calculators',
+    levels: [
+      { label: 'Emerging', color: '#f97316', skills: [
+        'Represent numbers using powers and exponents',
+        'Evaluate simple expressions with exponents',
+        'Evaluate roots of numbers with rational answers',
+        'Represent a number as a product of primes',
+        'Simplify expressions with exponent laws (simple)'
+      ]},
+      { label: 'Developing', color: '#eab308', skills: [
+        'Evaluate simple order of operations with exponents',
+        'Compare numbers with exponents',
+        'Estimate roots of numbers that are irrational',
+        'Understand radicals and roots as inverse operations of exponents'
+      ]},
+      { label: 'Proficient', color: '#16a34a', skills: [
+        'Apply multiple exponent laws to simplify an expression',
+        'Evaluate more complicated order of operations with exponents',
+        'Evaluate roots of larger numbers by prime factorization'
+      ]},
+      { label: 'Extending', color: '#2563eb', skills: [
+        'Apply multiple exponent laws to simplify a complex expression',
+        'Simplify an expression using a change of base and then exponent laws',
+        'Simplify more complicated expressions with negative exponents',
+        'Solve for the unknown using inverse operations on exponents (e.g. if $x^2=4$, then $x=\\pm 2$)'
+      ]}
+    ]
+  },
+
+  /* ---------- 4 ---------- */
+  {
+    id: 'geometry',
+    name: 'Pythagorean Theorem, Surface Area and Volume',
+    calc: 'Calculators required',
+    levels: [
+      { label: 'Emerging', color: '#f97316', skills: [
+        'Identify solids by name given a sketch or net diagram',
+        'Sketch a net diagram of a given solid',
+        'Sketch and label the sides of a given solid with measurements',
+        'Find the surface area given a net diagram with measurements'
+      ]},
+      { label: 'Developing', color: '#eab308', skills: [
+        'Find surface area and volume of rectangular prisms',
+        'Find surface area and volume of cylinders',
+        'Solve right triangles with the Pythagorean Theorem',
+        'Verify whether a triangle is a right triangle'
+      ]},
+      { label: 'Proficient', color: '#16a34a', skills: [
+        'Find surface area and volume of triangular prisms',
+        'Find surface area and volume of cones',
+        'Find surface area and volume of spheres',
+        'Find volume of composite solids'
+      ]},
+      { label: 'Extending', color: '#2563eb', skills: [
+        'Find surface area of composite solids',
+        'Find a missing measurement given the volume',
+        'Find a missing measurement given the surface area'
+      ]}
+    ]
+  },
+
+  /* ---------- 5 ---------- */
+  {
+    id: 'relations',
+    name: 'Linear Relations',
+    calc: null,
+    levels: [
+      { label: 'Emerging', color: '#f97316', skills: [
+        'Plot points on a grid (integral coordinates)',
+        'Understand linear patterns (state next terms, state common difference)',
+        'Use a provided linear equation to find information (find $t$ given $n$; find $n$ given $t$)',
+        'Write equations for linear patterns'
+      ]},
+      { label: 'Developing', color: '#eab308', skills: [
+        'Complete a table of values for a given linear relation and then graph it ($y=mx+b$)',
+        'Sketch linear equations using slope-intercept form: $y=mx+b$',
+        'Sketch horizontal and vertical lines'
+      ]},
+      { label: 'Proficient', color: '#16a34a', skills: [
+        'Sketch linear equations using general form: $Ax+By=C$ (integer coefficients)',
+        'Write linear equations of linear graphs (integer $y$-intercept)',
+        'Solve for a missing coordinate given an equation (find the missing $x$ in a point $(\\_,\\,y)$ or the missing $y$ in $(x,\\,\\_)$)'
+      ]},
+      { label: 'Extending', color: '#2563eb', skills: [
+        'Write linear equations with a rational $y$-intercept',
+        'Sketch linear equations with rational coefficients',
+        'Use linear equations to solve linear application problems',
+        'Model a linear relation problem through a table of values and graph',
+        'Use interpolation and extrapolation to find or estimate values'
+      ]}
+    ]
+  },
+
+  /* ---------- 6 ---------- */
+  {
+    id: 'polynomials',
+    name: 'Polynomials',
+    calc: null,
+    levels: [
+      { label: 'Emerging', color: '#f97316', skills: [
+        'Classify polynomials (monomials, binomials, trinomials; leading coefficients and terms; degree)',
+        'Write expressions modelled by algebra tiles',
+        'Simplify expressions by collecting like terms'
+      ]},
+      { label: 'Developing', color: '#eab308', skills: [
+        'Add and subtract polynomials (horizontally and vertically)',
+        'Multiply simple polynomials (monomial by monomial)'
+      ]},
+      { label: 'Proficient', color: '#16a34a', skills: [
+        'Multiply complex polynomials (monomial by binomial; monomial by trinomial)',
+        'Divide polynomials by a monomial'
+      ]},
+      { label: 'Extending', color: '#2563eb', skills: [
+        'Apply multiple operations using BEDMAS',
+        'Multiply polynomials beyond just a monomial (e.g. $(2x+3)(4x-5)$)',
+        'Solve area problems involving polynomials'
+      ]}
+    ]
+  },
+
+  /* ---------- 7 ---------- */
+  {
+    id: 'rates',
+    name: 'Rates, Proportions, and Similarity',
+    calc: 'Calculators required',
+    levels: [
+      { label: 'Emerging', color: '#f97316', skills: [
+        'Simplify ratios, rates, and fractions',
+        'Find unit rates',
+        'Convert between fractions, decimals, and percentages',
+        'Identify enlargements and reductions',
+        'Work with scale factors, objects, and images'
+      ]},
+      { label: 'Developing', color: '#eab308', skills: [
+        'Simplify ratios with simple unit conversions',
+        'Solve for an unknown in a proportion equation',
+        'Solve for missing side lengths in simple similar polygons and triangles'
+      ]},
+      { label: 'Proficient', color: '#16a34a', skills: [
+        'Solve percent problems',
+        'Solve simple word problems involving proportions or percentages',
+        'Justify similarity in polygons or explain why they are not similar',
+        'Solve for missing side lengths in similar polygons and triangles using algebra'
+      ]},
+      { label: 'Extending', color: '#2563eb', skills: [
+        'Solve complex word problems involving proportions',
+        'Solve compound percent problems and their applications',
+        'Solve complicated cases involving similar polygons',
+        'Solve word problems requiring similar polygons or proportions'
+      ]}
+    ]
+  },
+
+  /* ---------- 8 ---------- */
+  {
+    id: 'stats',
+    name: 'Statistics and Probability',
+    calc: 'Calculators required',
+    levels: [
+      { label: 'Emerging', color: '#f97316', skills: [
+        'Define different measures of central tendency',
+        'Identify measures of the center given a data set (mean, median, mode)',
+        'Interpret data from simple graphs'
+      ]},
+      { label: 'Developing', color: '#eab308', skills: [
+        'Justify properties of graphs',
+        'Identify misrepresentations in graphs with explanation'
+      ]},
+      { label: 'Proficient', color: '#16a34a', skills: [
+        'Calculate simple probabilities (dice, spinners, cards, marbles)',
+        'Identify independent and dependent events',
+        'Find probabilities of multiple events'
+      ]},
+      { label: 'Extending', color: '#2563eb', skills: [
+        'Solve for missing data values given the mean, median, mode, etc.',
+        'Solve complicated probability scenarios'
+      ]}
+    ]
+  }
+];
+
+/* =========================================================
+   STATE / HELPERS
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const state = { unitId: null, count: 15, style: 'worksheet', selected: new Set() };
+
+const skillId = (unitId, li, si) => `${unitId}:${li}:${si}`;
+const getUnit = id => UNITS.find(u => u.id === id);
+
+function renderMath(el) {
+  if (typeof renderMathInElement !== 'function' || !el) return;
+  renderMathInElement(el, {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '$',  right: '$',  display: false },
+      { left: '\\(', right: '\\)', display: false }
+    ],
+    throwOnError: false
+  });
+}
+
+function show(id) {
+  ['screen1', 'screen2', 'screen3'].forEach(s => {
+    document.getElementById(s).hidden = (s !== id);
+  });
+  window.scrollTo(0, 0);
+}
+
+/* ---------- toast ---------- */
+let toastTimer;
+function showToast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2300);
+}
+
+/* ---------- robust copy ---------- */
+async function copyPrompt(btn) {
+  const text = $('#promptOut').textContent;
+  let ok = false;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    }
+  } catch (e) { /* fall through */ }
+
+  if (!ok) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0'; ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+  }
+
+  if (!ok) {
+    const pre = $('#promptOut');
+    const range = document.createRange();
+    range.selectNodeContents(pre);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    showToast('Text selected — press Ctrl / ⌘ + C to copy');
+    return;
+  }
+
+  showToast('Prompt copied to clipboard ✓');
+  if (btn) {
+    const original = btn.innerHTML;
+    btn.classList.add('done');
+    btn.innerHTML = '✓ Copied';
+    setTimeout(() => {
+      btn.classList.remove('done');
+      btn.innerHTML = original;
+    }, 1700);
+  }
+}
+
+/* =========================================================
+   SCREEN 1
+   ========================================================= */
+function renderUnits() {
+  $('#unitList').innerHTML = UNITS.map(u => `
+    <div class="unit" data-id="${u.id}" role="button" tabindex="0">
+      <span class="dot"></span>
+      <span class="uname">${u.name}</span>
+      ${u.calc ? `<span class="calc ${/required/i.test(u.calc) ? 'yes' : ''}">${u.calc === 'Calculators required' ? 'Calc OK' : 'No calc'}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+function selectUnit(id) {
+  state.unitId = id;
+  document.querySelectorAll('.unit').forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+  const btn = $('#continueBtn');
+  btn.disabled = false;
+  btn.textContent = 'Continue →';
+}
+
+function setStyle(style) {
+  state.style = style;
+  document.querySelectorAll('.stylebtn').forEach(b =>
+    b.classList.toggle('active', b.dataset.style === style)
+  );
+}
+
+/* =========================================================
+   SCREEN 2
+   ========================================================= */
+function selectAllForUnit() {
+  const unit = getUnit(state.unitId);
+  state.selected = new Set();
+  unit.levels.forEach((lv, li) =>
+    lv.skills.forEach((_, si) => state.selected.add(skillId(unit.id, li, si)))
+  );
+}
+
+function renderChips() {
+  const unit = getUnit(state.unitId);
+  const styleLabel = state.style === 'worksheet' ? 'Worksheet' : 'Interactive quiz';
+  $('#summaryChips').innerHTML = `
+    <span class="chip strong">${unit.name}</span>
+    <span class="chip">${state.count} questions</span>
+    <span class="chip">${styleLabel}</span>
+    ${unit.calc ? `<span class="chip warn">${unit.calc}</span>` : ''}
+  `;
+}
+
+function levelSelectedCount(unit, li) {
+  return unit.levels[li].skills.filter((_, si) =>
+    state.selected.has(skillId(unit.id, li, si))
+  ).length;
+}
+
+function renderSkills() {
+  const unit = getUnit(state.unitId);
+  $('#skillList').innerHTML = unit.levels.map((lv, li) => {
+    const total = lv.skills.length;
+    const picked = levelSelectedCount(unit, li);
+    const allOn = picked === total;
+
+    const items = lv.skills.map((s, si) => {
+      const id = skillId(unit.id, li, si);
+      return `<label class="skill">
+        <input type="checkbox" data-id="${id}" ${state.selected.has(id) ? 'checked' : ''}>
+        <span class="stext">${s}</span>
+      </label>`;
+    }).join('');
+
+    return `<div class="levelcard" style="--lc:${lv.color}">
+      <div class="levelhead">
+        <span class="lvl">${lv.label}<span class="cnt">${picked}/${total}</span></span>
+        <button class="mini" data-level="${li}">${allOn ? 'Clear' : 'Select all'}</button>
+      </div>
+      ${items}
+    </div>`;
+  }).join('');
+
+  renderMath($('#skillList'));
+  updateGenerateState();
+}
+
+function toggleLevel(li) {
+  const unit = getUnit(state.unitId);
+  const ids = unit.levels[li].skills.map((_, si) => skillId(unit.id, li, si));
+  const allOn = ids.every(id => state.selected.has(id));
+  ids.forEach(id => allOn ? state.selected.delete(id) : state.selected.add(id));
+  renderSkills();
+}
+
+function updateGenerateState() {
+  const btn = $('#generateBtn');
+  const n = state.selected.size;
+  btn.disabled = n === 0;
+  btn.textContent = n === 0 ? 'Select at least one skill' : `Generate prompt (${n} skill${n === 1 ? '' : 's'})`;
+}
+
+/* =========================================================
+   PROMPT
+   ========================================================= */
+function buildPrompt() {
+  const unit = getUnit(state.unitId);
+  const styleWord = state.style === 'worksheet' ? 'worksheet' : 'interactive quiz';
+  const lines = [];
+
+  lines.push(`Build an HTML ${styleWord} with ${state.count} questions, using KaTeX, for Math 8 Accelerated, focusing on the following skills:`);
+  lines.push('');
+  lines.push(`Unit: ${unit.name}`);
+  if (unit.calc) lines.push(`Calculator policy: ${unit.calc}`);
+
+  unit.levels.forEach((lv, li) => {
+    const picked = lv.skills.filter((_, si) => state.selected.has(skillId(unit.id, li, si)));
+    if (!picked.length) return;
+    lines.push('');
+    lines.push(`${lv.label}:`);
+    picked.forEach(s => lines.push(`- ${s}`));
+  });
+
+  lines.push('');
+  if (state.style === 'worksheet') {
+    lines.push('If HTML worksheet, have a show answers toggle somewhere so that the user can print the worksheet and answer key separately.');
+  } else {
+    lines.push('If interactive HTML, have a mix of multiple choice and enter answer style questions. Enter-answer questions should be purely numeric, without needing to enter math symbols.');
+  }
+  lines.push('');
+  lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too.");
+
+  return lines.join('\n');
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function init() {
+  renderUnits();
+
+  // --- screen 1 ---
+  $('#unitList').addEventListener('click', e => {
+    const card = e.target.closest('.unit');
+    if (card) selectUnit(card.dataset.id);
+  });
+  $('#unitList').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.unit');
+    if (card) { e.preventDefault(); selectUnit(card.dataset.id); }
+  });
+
+  $('#countRange').addEventListener('input', e => {
+    state.count = Number(e.target.value);
+    $('#countVal').textContent = state.count;
+    if (!$('#screen2').hidden) renderChips();
+  });
+
+  document.querySelectorAll('.stylebtn').forEach(btn =>
+    btn.addEventListener('click', () => setStyle(btn.dataset.style))
+  );
+  setStyle('worksheet');
+
+  $('#continueBtn').addEventListener('click', () => {
+    if (!state.unitId) return;
+    selectAllForUnit();
+    renderChips();
+    renderSkills();
+    show('screen2');
+  });
+
+  // --- screen 2 ---
+  $('#backBtn').addEventListener('click', () => show('screen1'));
+
+  $('#skillList').addEventListener('change', e => {
+    const cb = e.target.closest('input[type=checkbox]');
+    if (!cb) return;
+    if (cb.checked) state.selected.add(cb.dataset.id);
+    else state.selected.delete(cb.dataset.id);
+
+    const card = cb.closest('.levelcard');
+    const li = Number(card.querySelector('.mini').dataset.level);
+    const unit = getUnit(state.unitId);
+    const total = unit.levels[li].skills.length;
+    const picked = levelSelectedCount(unit, li);
+    card.querySelector('.cnt').textContent = `${picked}/${total}`;
+    card.querySelector('.mini').textContent = (picked === total) ? 'Clear' : 'Select all';
+
+    updateGenerateState();
+  });
+
+  $('#skillList').addEventListener('click', e => {
+    const btn = e.target.closest('button.mini');
+    if (!btn) return;
+    e.preventDefault();
+    toggleLevel(Number(btn.dataset.level));
+  });
+
+  $('#selectAllBtn').addEventListener('click', () => {
+    selectAllForUnit();
+    renderSkills();
+  });
+
+  $('#clearAllBtn').addEventListener('click', () => {
+    state.selected.clear();
+    renderSkills();
+  });
+
+  $('#generateBtn').addEventListener('click', () => {
+    if (!state.selected.size) return;
+    $('#promptOut').textContent = buildPrompt();
+
+    const top = $('#copyTop');
+    top.classList.remove('done');
+    top.innerHTML = '📋 Copy';
+    const bottom = $('#copyBtn');
+    bottom.classList.remove('copied');
+    bottom.textContent = 'Copy prompt';
+
+    show('screen3');
+  });
+
+  // --- screen 3 ---
+  $('#backBtn2').addEventListener('click', () => show('screen2'));
+
+  $('#startOverBtn').addEventListener('click', () => {
+    state.unitId = null;
+    state.selected.clear();
+    document.querySelectorAll('.unit').forEach(c => c.classList.remove('sel'));
+    const btn = $('#continueBtn');
+    btn.disabled = true;
+    btn.textContent = 'Choose a unit to continue';
+    show('screen1');
+  });
+
+  $('#copyTop').addEventListener('click', e => copyPrompt(e.currentTarget));
+  $('#copyBtn').addEventListener('click', e => copyPrompt(e.currentTarget));
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
