@@ -770,10 +770,10 @@ function buildPrompt() {
   if (state.style === 'worksheet') {
     lines.push('If HTML worksheet, have a show answers toggle somewhere so that the user can print the worksheet and answer key separately.');
   } else {
-    lines.push('If interactive HTML, have a mix of multiple choice and enter answer style questions. Enter-answer questions should be purely numeric, without needing to enter math symbols.');
+    lines.push('If interactive HTML, have a mix of multiple choice and enter answer style questions. Enter answer questions should be purely numeric, without needing to enter math symbols. It can be even partial entry, ie. enter the simplified value to fill in the blank in this answer format. Provide right or wrong feedback immediately.');
   }
   lines.push('');
-lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too. Include diagrams, nets, labelled sketches, coordinate graphs, number lines, or other visual aids where appropriate to support the questions — for example, net diagrams for solids, labelled figures with dimensions, or plotted coordinate grids. Use inline SVG for any drawings so they render on mobile.");
+lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too. Make sure it compiles the KaTeX for math font correctly. Include diagrams, nets, labelled sketches, coordinate graphs, number lines, or other visual aids where appropriate to support the questions — for example, net diagrams for solids, labelled figures with dimensions, or plotted coordinate grids. Use inline SVG for any drawings so they render on mobile.");
 
   return lines.join('\n');
 }
