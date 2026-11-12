@@ -640,7 +640,7 @@ function buildPrompt() {
     lines.push('If interactive HTML, have a mix of multiple choice and enter answer style questions. Enter answer questions should be purely numeric, without needing to enter math symbols. It can be even partial entry, ie. enter the simplified value to fill in the blank in this answer format. Provide right or wrong feedback immediately.');
   }
   lines.push('');
-lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too. Make sure it compiles the KaTeX for math font correctly. Include diagrams, nets, labelled sketches, coordinate graphs, number lines, or other visual aids where appropriate to support the questions — for example, net diagrams for solids, labelled figures with dimensions, or plotted coordinate grids. Use inline SVG for any drawings so they render on mobile.");
+lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too. Make sure it compiles the KaTeX for math font correctly. Include diagrams (using inline SVG) ONLY where necessary to solve the problem (e.g., geometry, nets, coordinate planes). Do not add images for basic algebraic expressions. Ensure diagrams DO NOT reveal the answer.");
 
   return lines.join('\n');
 }
