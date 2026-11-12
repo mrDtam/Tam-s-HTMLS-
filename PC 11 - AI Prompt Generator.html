@@ -236,6 +236,11 @@
         <span class="stitle">Interactive Quiz</span>
         <span class="sdesc">Self-checking, MC + typed answers</span>
       </button>
+     <button class="stylebtn" data-style="text">
+    <span class="sicon">💬</span>
+    <span class="stitle">Chat Text</span>
+    <span class="sdesc">Read in AI window</span>
+  </button>
     </div>
 
     <div class="bottombar"><div class="inner">
@@ -636,10 +641,20 @@ function buildPrompt() {
   });
 
   lines.push('');
-  if (state.style === 'worksheet') {
-    lines.push('If HTML worksheet, have a show answers toggle somewhere so that the user can print the worksheet and answer key separately.');
-  } else {
-    lines.push('If interactive HTML, have a mix of multiple choice and enter answer style questions. Enter answer questions should be purely numeric, without needing to enter math symbols. It can be even partial entry, ie. enter the simplified value to fill in the blank in this answer format. Provide right or wrong feedback immediately.');
+    if (state.style === 'worksheet') {
+    lines.push('Format: Build an HTML worksheet with a show answers toggle.');
+    lines.push('Include a button to print the worksheet and answer key separately.');
+  } 
+  else if (state.style === 'quiz') {
+    lines.push('Format: Build an interactive HTML quiz.');
+    lines.push('Include a mix of multiple choice and numeric-only enter-answer questions.');
+    lines.push('Provide right or wrong feedback immediately.');
+  } 
+  else if (state.style === 'text') {
+    lines.push('Format: Plain text output directly in the chat window.');
+    lines.push('Use standard Markdown and LaTeX math delimiters (like $x^2$ or $$\\frac{1}{2}$$).');
+    lines.push('Do NOT output any HTML, CSS, or JavaScript code.');
+    lines.push('Format clearly with Question 1, Question 2, etc., followed by a separate Answer Key section at the end.');
   }
   lines.push('');
 lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too. Make sure it compiles the KaTeX for math font correctly. Include diagrams (using inline SVG) ONLY where necessary to solve the problem (e.g., geometry, nets, coordinate planes). Do not add images for basic algebraic expressions. Ensure diagrams DO NOT reveal the answer.");
