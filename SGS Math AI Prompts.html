@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Prompt Builder Hub</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#f5f6fa;
+    --card:#ffffff;
+    --ink:#111827;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --accent:#4f46e5;
+    --accent-soft:#eef2ff;
+    --radius:14px;
+  }
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.45;
+    -webkit-text-size-adjust:100%;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:22px 16px 140px}
+  h1{font-size:1.45rem;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:.92rem;margin:0 0 20px}
+  h2.step{
+    font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);margin:26px 0 10px;font-weight:700;
+  }
+
+  /* ---------- list cards (courses, units) ---------- */
+  .unit{
+    display:flex;gap:12px;align-items:center;
+    padding:14px 16px;margin-bottom:10px;
+    background:var(--card);border:2px solid var(--line);
+    border-radius:var(--radius);cursor:pointer;
+    transition:border-color .15s, background .15s, transform .06s;
+    outline:none;
+  }
+  .unit:active{transform:scale(.995)}
+  .unit:focus-visible{border-color:var(--accent)}
+  .unit .dot{
+    flex:0 0 auto;width:18px;height:18px;border-radius:50%;
+    border:2px solid #cbd5e1;position:relative;transition:.15s;
+  }
+  .unit.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .unit.sel .dot{border-color:var(--accent);background:var(--accent)}
+  .unit.sel .dot::after{
+    content:"";position:absolute;inset:3px;border-radius:50%;background:#fff;
+  }
+  .unit .uname{font-size:.95rem;font-weight:600;flex:1;min-width:0}
+  
+  /* ---------- calc badges ---------- */
+  .calc{
+    flex:0 0 auto;font-size:.66rem;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;padding:3px 9px;border-radius:99px;
+    background:#f1f5f9;color:var(--muted);
+  }
+  .calc.yes{background:#fef3c7;color:#92400e}
+
+  /* ---------- count ---------- */
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px;
+  }
+  .countval{font-size:2rem;font-weight:800;letter-spacing:-.03em;text-align:center;color:var(--accent)}
+  .countval small{font-size:.85rem;font-weight:600;color:var(--muted);letter-spacing:0}
+  input[type=range]{
+    width:100%;margin:12px 0 4px;accent-color:var(--accent);height:28px;
+  }
+  .rangeticks{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
+
+  /* ---------- style buttons ---------- */
+  .styles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  @media (max-width: 500px) {
+    .styles { grid-template-columns: 1fr; }
+  }
+  .stylebtn{
+    display:flex;flex-direction:column;gap:3px;align-items:flex-start;
+    padding:14px;background:var(--card);border:2px solid var(--line);
+    border-radius:var(--radius);cursor:pointer;text-align:left;
+    font-family:inherit;color:inherit;transition:.15s;
+  }
+  .stylebtn .sicon{font-size:1.15rem;line-height:1}
+  .stylebtn .stitle{font-weight:700;font-size:.95rem}
+  .stylebtn .sdesc{font-size:.75rem;color:var(--muted);line-height:1.3}
+  .stylebtn.active{border-color:var(--accent);background:var(--accent-soft)}
+
+  /* ---------- bottom bar ---------- */
+  .bottombar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(255,255,255,.94);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .bottombar .inner{max-width:720px;margin:0 auto;display:flex;gap:10px}
+  .primary{
+    flex:1;padding:14px 18px;border-radius:12px;border:none;
+    background:var(--accent);color:#fff;font-weight:700;font-size:1rem;
+    font-family:inherit;cursor:pointer;transition:.15s;
+  }
+  .primary:disabled{background:#c7cbd6;cursor:not-allowed}
+  .primary:not(:disabled):active{transform:scale(.99)}
+  .ghost{
+    padding:14px 16px;border-radius:12px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);font-weight:600;font-size:.95rem;
+    font-family:inherit;cursor:pointer;
+  }
+
+  /* ---------- screen 2 ---------- */
+  .backbtn{
+    background:none;border:none;padding:6px 0;margin-bottom:6px;
+    font-family:inherit;font-size:.9rem;color:var(--accent);font-weight:600;cursor:pointer;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+  .chip{
+    font-size:.75rem;font-weight:600;padding:5px 11px;border-radius:99px;
+    background:#fff;border:1px solid var(--line);color:var(--muted);
+  }
+  .chip.strong{background:var(--accent-soft);border-color:#c7d2fe;color:var(--accent)}
+  .chip.warn{background:#fef3c7;border-color:#fde68a;color:#92400e}
+
+  .row-actions{display:flex;gap:10px;margin-bottom:14px}
+  .row-actions button{
+    flex:1;padding:9px;border-radius:10px;border:1px solid var(--line);
+    background:#fff;font-family:inherit;font-size:.82rem;font-weight:600;
+    color:var(--muted);cursor:pointer;
+  }
+
+  /* level cards */
+  .levelcard{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px 14px;
+    margin-bottom:12px;
+    border-left:5px solid var(--lc,#94a3b8);
+  }
+  .levelhead{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+    margin-bottom:8px;
+  }
+  .lvl{
+    font-size:.72rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--lc,#475569);
+    display:flex;align-items:center;gap:8px;
+  }
+  .lvl .cnt{
+    font-size:.65rem;font-weight:700;color:var(--muted);
+    background:#f1f5f9;padding:2px 8px;border-radius:99px;letter-spacing:0;
+    text-transform:none;
+  }
+  .mini{
+    background:none;border:none;font-family:inherit;font-size:.72rem;font-weight:700;
+    color:var(--muted);cursor:pointer;padding:4px 6px;border-radius:6px;
+  }
+  .mini:hover{background:#f1f5f9}
+
+  .skill{
+    display:flex;gap:10px;align-items:flex-start;
+    padding:7px 0;cursor:pointer;font-size:.88rem;line-height:1.4;
+  }
+  .skill input{
+    flex:0 0 auto;width:18px;height:18px;margin-top:2px;
+    accent-color:var(--accent);cursor:pointer;
+  }
+  .skill .stext{flex:1;min-width:0}
+  .skill .stext .katex{font-size:1em}
+
+  /* ---------- screen 3 ---------- */
+  .promptcard{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    margin:0 0 14px;
+    box-shadow:0 1px 2px rgba(16,24,40,.05);
+  }
+  .promptcard-head{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:10px 12px 10px 16px;
+    border-bottom:1px solid var(--line);
+    background:#f8fafc;
+    font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  .copybtn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:9px 16px;border-radius:10px;border:none;
+    background:var(--accent);color:#fff;
+    font-family:inherit;font-weight:700;font-size:.85rem;
+    cursor:pointer;transition:background .15s, transform .06s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .copybtn:active{transform:scale(.97)}
+  .copybtn.done{background:#16a34a}
+
+  .promptbox{
+    margin:0;
+    background:#0f172a;color:#e2e8f0;
+    padding:16px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.8rem;line-height:1.55;
+    white-space:pre-wrap;word-break:break-word;
+    max-height:54vh;overflow:auto;-webkit-overflow-scrolling:touch;
+  }
+  .promptbox::selection,
+  .promptbox ::selection{background:#3b82f6;color:#fff}
+
+  .hint{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+  .hint strong{color:var(--ink)}
+
+  .toast{
+    position:fixed;left:50%;bottom:92px;
+    transform:translate(-50%,16px);
+    background:#111827;color:#fff;
+    padding:11px 20px;border-radius:99px;
+    font-size:.85rem;font-weight:600;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:60;max-width:88vw;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ SCREEN 0: COURSE SELECTION ============ -->
+  <section id="screen0">
+    <h1>Math Prompt Builder</h1>
+    <p class="sub">Select your course to begin building practice questions and assessments.</p>
+    <h2 class="step">Select Course</h2>
+    <div id="courseList"></div>
+    <div class="bottombar"><div class="inner">
+      <button id="courseContinueBtn" class="primary" disabled>Choose a course to continue</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 1: UNIT SELECTION ============ -->
+  <section id="screen1" hidden>
+    <button class="backbtn" id="backToCoursesBtn">← Back to courses</button>
+    <h1 id="courseTitle">Course</h1>
+    <p class="sub">Pick a unit, a question count, and a format. Next you'll choose skills.</p>
+
+    <h2 class="step">1 · Unit</h2>
+    <div id="unitList"></div>
+
+    <h2 class="step">2 · Number of questions</h2>
+    <div class="card">
+      <div class="countval"><span id="countVal">15</span> <small>questions</small></div>
+      <input id="countRange" type="range" min="10" max="20" step="1" value="15" aria-label="Number of questions">
+      <div class="rangeticks"><span>10</span><span>15</span><span>20</span></div>
+    </div>
+
+    <h2 class="step">3 · Format</h2>
+    <div class="styles">
+      <button class="stylebtn" data-style="worksheet">
+        <span class="sicon">🖨️</span>
+        <span class="stitle">Worksheet</span>
+        <span class="sdesc">Printable HTML</span>
+      </button>
+      <button class="stylebtn" data-style="quiz">
+        <span class="sicon">⚡</span>
+        <span class="stitle">Quiz</span>
+        <span class="sdesc">Interactive HTML</span>
+      </button>
+      <button class="stylebtn" data-style="text">
+        <span class="sicon">💬</span>
+        <span class="stitle">Chat Text</span>
+        <span class="sdesc">Read in AI window</span>
+      </button>
+    </div>
+
+    <div class="bottombar"><div class="inner">
+      <button id="continueBtn" class="primary" disabled>Choose a unit to continue</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 2: SKILL SELECTION ============ -->
+  <section id="screen2" hidden>
+    <button class="backbtn" id="backBtn">← Back to units</button>
+    <h1>Choose skills</h1>
+    <p class="sub">Uncheck anything you don't want in the prompt.</p>
+
+    <div class="chips" id="summaryChips"></div>
+
+    <div class="row-actions">
+      <button id="selectAllBtn">Select all</button>
+      <button id="clearAllBtn">Clear all</button>
+    </div>
+
+    <div id="skillList"></div>
+
+    <div class="bottombar"><div class="inner">
+      <button id="generateBtn" class="primary">Generate prompt</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 3: PROMPT ============ -->
+  <section id="screen3" hidden>
+    <button class="backbtn" id="backBtn2">← Edit skills</button>
+    <h1>Your prompt</h1>
+    <p class="hint">Tap <strong>Copy</strong> on the card below, then paste it into your AI assistant.</p>
+
+    <div class="promptcard">
+      <div class="promptcard-head">
+        <span>AI Prompt</span>
+        <button class="copybtn" id="copyTop">📋 Copy</button>
+      </div>
+      <pre class="promptbox" id="promptOut"></pre>
+    </div>
+
+    <div class="bottombar"><div class="inner">
+      <button class="ghost" id="startOverBtn">Start over</button>
+      <button class="primary" id="copyBtn">Copy prompt</button>
+    </div></div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   MASTER DATA
+   ========================================================= */
+const COURSES = {
+  math8: {
+    name: "Math 8",
+    units: [
+      { id: 'm8u1', name: 'Integers and Fractions', calc: 'No calculators', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Convert mixed fractions to improper fractions', 'Convert improper fractions to mixed fractions', 'Simplify fractions', 'Add and subtract fractions with a common denominator (no mixed)', 'Multiply and divide positive and negative fractions (no mixed)'] },
+        { label: 'Developing', color: '#eab308', skills: ['Add and subtract fractions with different denominators (mixed fractions included)', 'Multiply and divide fractions (mixed fractions included)'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Evaluate simple order of operations with fractions (3 fractions)', 'Solve simple word problems with fractions (one operation)'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Evaluate more complicated order of operations with fractions (4 to 6 fractions)', 'Find the missing fraction (one-step)', 'Solve more complicated word problems with fractions (multi-step)'] }
+      ]},
+      { id: 'm8u2', name: 'Linear Equations and Relations', calc: 'No calculators', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Write simple algebraic expressions or equations from words', 'Solve one-step equations', 'Evaluate simple substitutions', 'Plot points on a grid', 'Identify coordinates of points on a grid'] },
+        { label: 'Developing', color: '#eab308', skills: ['Solve two-step linear equations', 'Solve linear equations with one expansion'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Solve linear equations with multiple instances of x', 'Complete a table of values for a given linear relation', 'Graph a linear relation from a table of values', 'Solve for missing coordinates given a linear relation'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Solve linear equations with 2 expansions', 'Model and solve application problems with linear equations', 'Model a linear relation problem through a table of values and graph'] }
+      ]},
+      { id: 'm8u3', name: 'Roots and Pythagorean Theorem', calc: 'Mixed', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Evaluate squares and cubes of numbers (no calc)', 'Evaluate square roots of perfect squares (no calc)', 'Evaluate cube roots of perfect cubes (no calc)', 'Identify prime and composite numbers (no calc)'] },
+        { label: 'Developing', color: '#eab308', skills: ['Estimate values for square roots (no calc)', 'Identify which two numbers a radical is in between (no calc)', 'Factorize a number into a product of primes (calc)', 'Work with perfect squares in shapes (calc)'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Use Pythagorean Theorem to solve right-angled triangles', 'Verify if a triangle is a right triangle'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Solve multi-step problems involving the Pythagorean Theorem', 'Solve application problems with the Pythagorean Theorem'] }
+      ]},
+      { id: 'm8u4', name: 'Surface Area and Volume', calc: 'Calculators Required', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Identify solids by name given sketch or net diagram', 'Sketch a net diagram of a given solid', 'Sketch and label the sides of a given solid with measurements', 'Find the surface area given a net diagram with measurements'] },
+        { label: 'Developing', color: '#eab308', skills: ['Find surface area and volume of rectangular prisms', 'Find surface area and volume of cylinders'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Find surface area and volume of triangular prisms', 'Find surface area and volume of cones', 'Find surface area and volume of spheres', 'Find volume of composite solids'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Find surface area of composite solids', 'Find a missing measurement given the volume', 'Find a missing measurement given the surface area'] }
+      ]},
+      { id: 'm8u5', name: 'Rates Ratios Percentages and Finance', calc: 'Calculators Required', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Simplify ratios, rates, and fractions', 'Find unit rates', 'Convert between fractions, decimals, and percentages'] },
+        { label: 'Developing', color: '#eab308', skills: ['Simplify ratios with simple unit conversion', 'Compare and select better buy options', 'Solve for unknown in a proportion equation'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Solve percent problems', 'Solve simple application problems with proportions', 'Solve simple application problems with percentages'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Solve more complicated application problems involving proportions and better buy scenarios', 'Solve application problems involving compound percentages'] }
+      ]},
+      { id: 'm8u6', name: 'Statistics and Probability', calc: 'Calculators Required', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Understand definitions of different measures of central tendency', 'Find measures of the centre given a data set', 'Interpret data from simple graphs'] },
+        { label: 'Developing', color: '#eab308', skills: ['Justify properties of graphs', 'Identify and explain misrepresentation in graphs'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Calculate simple probabilities', 'Identify independent versus dependent events', 'Find probabilities of multiple events'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Solve for data values given information about the centre', 'Find probability of more complicated scenarios'] }
+      ]}
+    ]
+  },
+  math8a: {
+    name: "Math 8 Accelerated",
+    units: [
+      { id: 'm8au1', name: 'Rational Numbers', calc: 'No calculators', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Convert mixed fractions to improper fractions', 'Convert improper fractions to mixed fractions', 'Convert decimals to fractions', 'Evaluate simple arithmetic operations with rational numbers'] },
+        { label: 'Developing', color: '#eab308', skills: ['Identify rational numbers', 'Classify rational numbers', 'Compare rational numbers'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Evaluate order of operations with rational numbers'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Model and solve application problems, including multi-step', 'Simplify complex fractions'] }
+      ]},
+      { id: 'm8au2', name: 'Linear Equations and Inequalities', calc: 'No calculators', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Write simple algebraic expressions or equations from words (e.g., the sum of twice x and y; H is the difference of x and half y)', 'Solve one-step linear equations', 'Solve two-step linear equations', 'Evaluate expressions with simple substitutions', 'Validate answers by left and right side check'] },
+        { label: 'Developing', color: '#eab308', skills: ['Solve linear equations with multiple instances of x', 'Solve linear equations with distributive law - keeping to integer coefficients'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Solve linear equations with fractions and decimals in different contexts (with common denominators, without common denominators, one to two decimal places, etc.)'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Model and solve application problems with linear equations', 'Solve linear inequalities and write answers as an inequality and model on a number line'] }
+      ]},
+      { id: 'm8au3', name: 'Roots, Powers, and Exponent Laws', calc: 'No calculators', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Represent numbers using powers and exponents', 'Evaluate simple expressions with exponents', 'Evaluate roots of numbers with rational answers', 'Represent a number as a product of primes', 'Simplify expressions with exponent laws (simple)'] },
+        { label: 'Developing', color: '#eab308', skills: ['Evaluate simple order of operations with exponents', 'Compare numbers with exponents', 'Estimate roots of numbers with irrational numbers', 'Understand radicals and roots as inverse operations of exponents'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Apply multiple exponent laws to simplify an expression', 'Evaluate more complicated order of operations with exponents', 'Evaluate roots of larger numbers by prime factorization'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Apply multiple exponent laws to simplify a complex expression', 'Simplify an expression using a change of base and then exponent laws', 'Simplify more complicated expressions with negative exponents', 'Solve for the unknown using inverse operations on exponents (ie. if x^2=4, then x = \\pm 2)'] }
+      ]},
+      { id: 'm8au4', name: 'Pythagorean Theorem, Surface Area and Volume', calc: 'Calculators Required', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Identify solids by name given sketch or net diagram', 'Sketch a net diagram of a given solid', 'Sketch and label the sides of a given solid with measurements', 'Find the surface area given a net diagram with measurements'] },
+        { label: 'Developing', color: '#eab308', skills: ['Find surface area and volume of rectangular prisms', 'Find surface area and volume of cylinders', 'Solve right-triangles with the Pythagorean Theorem', 'Verifying if a triangle is a right triangle'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Find surface area and volume of triangular prisms', 'Find surface area and volume of cones', 'Find surface area and volume of spheres', 'Find volume of composite solids'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Find surface area of composite solids', 'Find a missing measurement given the volume', 'Find a missing measurement given the surface area'] }
+      ]},
+      { id: 'm8au5', name: 'Linear Relations', calc: null, levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Plot points on a grid (integral coordinates)', 'Understand linear patterns (state next terms, state common difference)', 'Use provided linear equation to find information (find t given n; find n given t)', 'Write equations for linear patterns'] },
+        { label: 'Developing', color: '#eab308', skills: ['Complete a table of values for a given linear relation and then graph (y=mx+b)', 'Sketch linear equations using slope-intercept form: y=mx+b', 'Sketch horizontal and vertical lines'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Sketch linear equations using general form: Ax+By=C (apply integer coefficients)', 'Write linear equations of linear graphs (integer y-intercept)', 'Solve for coordinates given an equation (find missing x in (_, y) or missing y in (x, _))'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Write linear equations with rational y-intercept', 'Sketch linear equations with rational coefficients', 'Use linear equations to solve linear application problems', 'Model a linear relation problem through a table of values and graph', 'Use interpolation and extrapolation to find/estimate values'] }
+      ]},
+      { id: 'm8au6', name: 'Polynomials', calc: null, levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Classify polynomials (identify monomials, binomials, and trinomials; leading coefficients and terms; determine degree)', 'Write expressions modelled by algebra tiles', 'Simplify expressions by collecting like terms'] },
+        { label: 'Developing', color: '#eab308', skills: ['Add and subtract polynomials (solve horizontally and vertically)', 'Multiply simple polynomials (monomial by a monomial)'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Multiply complex polynomials (monomial by a binomial; monomial by a trinomial)', 'Divide polynomials by a monomial'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Apply multiple operations using BEDMAS', 'Multiply polynomials beyond just a monomial (e.g., (2x+3)(4x-5))', 'Solve area problems involving polynomials'] }
+      ]},
+      { id: 'm8au7', name: 'Rates, Proportions, and Similarity', calc: 'Calculators Required', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Simplify ratios, rates, and fractions', 'Find unit rates', 'Convert between fractions, decimals, and percentages', 'Identify enlargements and reductions', 'Work with scale factors, objects, and images'] },
+        { label: 'Developing', color: '#eab308', skills: ['Simplify ratios with simple unit conversions', 'Solve for an unknown in a proportion equation', 'Solve for missing side lengths in simple similar polygons and triangles'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Solve percent problems', 'Solve simple word problems involving proportions or percentages', 'Justify similarity in polygons or explain why they are not similar', 'Solve for missing side lengths in similar polygons and triangles using algebra'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Solve complex word problems involving proportions', 'Solve compound percent problems and their applications', 'Solve complicated cases involving similar polygons', 'Solve word problems requiring similar polygons or proportions'] }
+      ]},
+      { id: 'm8au8', name: 'Statistics and Probability', calc: 'Calculators Required', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Define different measures of central tendency', 'Identify measures of the center given a data set (mean, median, mode)', 'Interpret data from simple graphs'] },
+        { label: 'Developing', color: '#eab308', skills: ['Justify properties of graphs', 'Identify misrepresentations in graphs with explanation'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Calculate simple probabilities (dice, spinners, cards, marbles)', 'Identify independent and dependent events', 'Find probabilities of multiple events'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Solve for missing data values given the mean, median, mode, etc.', 'Solve complicated probability scenarios'] }
+      ]}
+    ]
+  },
+  math9: {
+    name: "Math 9",
+    units: [
+      { id: 'm9u1', name: 'Rational Numbers', calc: 'No calculators', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Convert mixed fractions to improper fractions', 'Convert improper fractions to mixed fractions', 'Convert decimals to fractions', 'Evaluate simple arithmetic operations with rational numbers'] },
+        { label: 'Developing', color: '#eab308', skills: ['Identify rational numbers', 'Classify rational numbers', 'Compare rational numbers'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Evaluate order of operations with rational numbers'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Model and solve application problems, including multi-step', 'Simplify complex fractions'] }
+      ]},
+      { id: 'm9u2', name: 'Linear Equations and Inequalities', calc: 'No calculators', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Write simple algebraic expressions or equations from words (e.g., the sum of twice x and y; H is the difference of x and half y)', 'Solve one-step linear equations', 'Solve two-step linear equations', 'Evaluate expressions with simple substitutions', 'Validate answers by left and right side check'] },
+        { label: 'Developing', color: '#eab308', skills: ['Solve linear equations with multiple instances of x', 'Solve linear equations with distributive law - keeping to integer coefficients'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Solve linear equations with fractions and decimals in different contexts (with common denominators, without common denominators, one to two decimal places, etc.)'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Model and solve application problems with linear equations', 'Solve linear inequalities and write answers as an inequality and model on a number line'] }
+      ]},
+      { id: 'm9u3', name: 'Powers and Exponents', calc: 'No calculators', levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Represent numbers using powers and exponents', 'Evaluate simple expressions with exponents', 'Represent a number as a product of primes', 'Simplify expressions with exponent laws (simple)'] },
+        { label: 'Developing', color: '#eab308', skills: ['Evaluate simple order of operations with exponents', 'Compare numbers with exponents'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Apply multiple exponent laws to simplify an expression', 'Evaluate more complicated order of operations with exponents'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Apply multiple exponent laws to simplify a complex expression', 'Simplify an expression using a change of base and then exponent laws', 'Simplify more complicated expressions with negative exponents'] }
+      ]},
+      { id: 'm9u4', name: 'Linear Relations', calc: null, levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Understand linear patterns (state next terms, state common difference)', 'Use provided linear equation to find information (find t given n; find n given t)', 'Write equations for linear patterns'] },
+        { label: 'Developing', color: '#eab308', skills: ['Sketch linear equations using slope-intercept form: y=mx+b', 'Sketch horizontal and vertical lines'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Sketch linear equations using general form: Ax+By=C (apply integer coefficients)', 'Write linear equations of linear graphs (integer y-intercept)', 'Solve for coordinates given an equation (find missing x in (_, y) or missing y in (x, _))'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Write linear equations with rational y-intercept', 'Sketch linear equations with rational coefficients', 'Use linear equations to solve linear application problems', 'Model a linear relation problem through a table of values and graph', 'Use interpolation and extrapolation to find/estimate values'] }
+      ]},
+      { id: 'm9u5', name: 'Polynomials', calc: null, levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Classify polynomials (identify monomials, binomials, and trinomials; leading coefficients and terms; determine degree)', 'Write expressions modelled by algebra tiles', 'Simplify expressions by collecting like terms'] },
+        { label: 'Developing', color: '#eab308', skills: ['Add and subtract polynomials (solve horizontally and vertically)', 'Multiply simple polynomials (monomial by a monomial)'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Multiply complex polynomials (monomial by a binomial; monomial by a trinomial)', 'Divide polynomials by a monomial'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Apply multiple operations using BEDMAS', 'Multiply polynomials beyond just a monomial (e.g., (2x+3)(4x-5))', 'Solve area problems involving polynomials'] }
+      ]},
+      { id: 'm9u6', name: 'Similarity and Transformations', calc: null, levels: [
+        { label: 'Emerging', color: '#f97316', skills: ['Identify enlargement and reduction', 'Solve measurements involving scale factor, object, and image', 'Identify simple point transformations', 'Sketch simple point transformations'] },
+        { label: 'Developing', color: '#eab308', skills: ['Solve similar polygons/triangles', 'Justify if polygons are similar or not'] },
+        { label: 'Proficient', color: '#16a34a', skills: ['Solve similar polygons with further algebraic steps', 'Identify points after multiple transformations', 'Sketch after multiple transformations'] },
+        { label: 'Extending', color: '#2563eb', skills: ['Solve similar polygons in complicated scenarios', 'Model and solve application problems with proportions', 'Understand order of transformations and their results'] }
+      ]}
+    ]
+  },
+  math9a: {
+    name: "Math 9 Accelerated",
+    units: [
+      { id: 'm9au1', name: 'Rational Numbers', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Convert mixed numbers to improper fractions', 'Convert improper fractions to mixed numbers', 'Convert decimals to fractions', 'Perform simple arithmetic operations with rational numbers'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Identify rational numbers', 'Classify number sets', 'Order rational numbers', 'Compare decimals', 'Compare fractions', 'Apply order of operations'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve application problems', 'Solve for missing values'] }
+      ]},
+      { id: 'm9au2', name: 'Functions and Arithmetic Sequences/Series', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Represent relations (use mapping diagrams, ordered pairs, tables, and graphs)', 'Understand the difference between functions and relations', 'Determine simple domain and range', 'Identify the common difference in an arithmetic sequence (find the next terms)', 'Use function notation to evaluate given an input value'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Write domain and range for different relations or functions given a graph', 'Use formulas for arithmetic sequences and series to solve problems', 'Express indicated values using inequality notation, interval notation, or set-builder notation', 'Read function values from a graph'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Interpret graphs of linear relations and identify key components (identify intercepts, rate of change, and domain/range)', 'Solve application problems involving arithmetic sequences and series'] }
+      ]},
+      { id: 'm9au3', name: 'Linear Relations', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Determine the slope of a line (use a graph or two points)', 'Identify parallel and perpendicular slopes', 'Sketch lines in slope-intercept form (y=mx+b)'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Work with slope-intercept, point-slope, and general/standard forms of lines (graph equations, convert between forms, and write equations)', 'Use the formula for arithmetic sequences to solve problems', 'Convert between different forms of linear equations (e.g., write y-3=1/2(x+2) in general form)'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Write equations given specific conditions (e.g., write the equation of a line in slope-intercept form that is perpendicular to y=2x-1 and has the same y-intercept as 3x-2y=6)', 'Model linear relations and solve application problems'] }
+      ]},
+      { id: 'm9au4', name: 'Linear Equations and Systems', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Solve one-step linear equations (ax=b, x+a=b)', 'Solve two-step linear equations (ax+b=c)', 'Validate answers (perform left side-right side checks)', 'Solve linear equations requiring collecting like terms (manage multiple x terms on the same side or on both sides)', 'Solve linear equations using the distributive law (integer coefficients only, e.g., a(bx+c)=d(ex+f))'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Solve linear equations with fractions and decimals in different contexts (work with and without common denominators, work with one to two decimal places)', 'Solve systems of equations (graphically, by substitution, by elimination)'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve more complicated cases involving equations or systems', 'Model and solve mathematical problems using linear equations', 'Model and solve mathematical problems using a system of equations'] }
+      ]},
+      { id: 'm9au5', name: 'Powers and Exponents', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Understand the representation of powers and exponents', 'Calculate simple powers', 'Write a number as a product of primes', 'Understand exponent laws in simple contexts', 'Evaluate simple order of operations with exponents', 'Compare numbers with exponents'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Apply exponent laws with variables', 'Evaluate more complicated order of operations with exponents', 'Understand negative exponents'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Simplify powers using multiple exponent laws', 'Apply change of base to simplify'] }
+      ]},
+      { id: 'm9au6', name: 'Factors and Polynomials', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Find GCF and LCM given a pair or trio of numbers', 'Classify polynomials (identify monomials, binomials, and trinomials; identify leading coefficients and terms; determine the degree)', 'Simplify expressions by collecting like terms', 'Add and subtract polynomials (solve horizontally and vertically)', 'Multiply polynomials (monomial by monomial, binomial, and trinomial)', 'Divide polynomials by a monomial'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Expand polynomials (multiply 2-by-2, 2-by-3, and 3-by-3 polynomials)', 'Simplify multiple operations (perform up to 3 operations)', 'Factor polynomials (factor using GCF, factor by grouping, factor trinomials of the form x^2+bx+c, factor simple difference of squares)'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Model perimeter, area, and volume with polynomials', 'Factor trinomials of the form ax^2+bx+c where a \\neq 1', 'Factor fully using multiple factoring methods', 'Work with special polynomials'] }
+      ]},
+      { id: 'm9au7', name: 'Similarity and Trigonometry', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Identify enlargements and reductions', 'Work with scale factors, objects, and images', 'Solve simple cases of similar polygons and triangles', 'Identify ratios of the three primary trigonometric functions (sin, cos, tan)'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Justify similarity in polygons or explain why they are not similar', 'Solve for missing values in similar polygons and triangles using algebra', 'Solve triangles using trigonometry (solve for a missing side, solve for a missing angle, solve a complete triangle)'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve problems that require multiple trigonometry steps', 'Model and solve application problems using trigonometry (apply multiple steps when required)'] }
+      ]}
+    ]
+  },
+  math10: {
+    name: "Math 10",
+    units: [
+      { id: 'm10u1', name: 'Trigonometry', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Identify and determine the different sides of a right triangle with respect to a reference angle (opposite, adjacent, hypotenuse)', 'Name and identify angles', 'Identify and write the primary trigonometric ratios (sin, cos, tan)', 'Evaluate the trigonometric ratios for a given triangle', 'Solve for missing sides using trigonometric ratios', 'Use inverse trigonometric functions to solve for an unknown angle'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Solve a triangle completely', 'Verify and solve for sides using the Pythagorean theorem'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve problems involving two or more triangles', 'Model and solve application problems using one triangle', 'Model and solve application problems requiring multiple steps'] }
+      ]},
+      { id: 'm10u2', name: 'Factors and Products', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Write a number as a product of its prime factors (prime factorization)', 'Find the GCF of two or more numbers', 'Find the LCM of two or more numbers', 'Solve application problems involving GCF and LCM', 'Determine whether a number is a perfect square or perfect cube using prime factorization', 'Identify terms, variables, and coefficients', 'Classify a polynomial', 'Determine the degree of a polynomial'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Multiply and simplify polynomials', 'Expand special polynomials using general rules', 'Factor a polynomial using GCF', 'Factor by grouping', 'Factor polynomials in the form of x^2+bx+c'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve application problems involving polynomials', 'Factor polynomials in the form of ax^2+bx+c', 'Determine a value of b or c to make a trinomial factorable', 'Factor special polynomials (perfect square trinomials and difference of squares)', 'Determine if a given trinomial is a perfect square trinomial', 'Determine a value of b or c to make a trinomial a perfect square trinomial'] }
+      ]},
+      { id: 'm10u3', name: 'Powers and Exponents', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Understand the representation of powers and exponents', 'Calculate simple powers', 'Understand exponent laws in simple contexts (including negative exponents)'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Understand the representation of powers and exponents', 'Calculate simple powers', 'Understand exponent laws in simple contexts (including negative exponents)'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Simplify powers using multiple exponent laws (including negative exponents)', 'Apply change of base to simplify', 'Evaluate complicated order of operations with positive and negative exponents'] }
+      ]},
+      { id: 'm10u4', name: 'Functions and Relations', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Represent relations (use mapping diagrams, ordered pairs, tables, and graphs)', 'Understand the difference between functions and relations', 'Determine simple domain and range', 'Identify the common difference in an arithmetic sequence (find the next terms)', 'Use function notation to evaluate given an input value'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Write domain and range for different relations or functions given a graph', 'Use formulas for arithmetic sequences and series to solve problems', 'Express indicated values using inequality notation, interval notation, or set-builder notation', 'Read function values from a graph'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Interpret graphs of linear relations and identify key components (identify intercepts, rate of change, and domain/range)', 'Solve application problems involving arithmetic sequences and series'] }
+      ]},
+      { id: 'm10u5', name: 'Linear Relations', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Determine the different types of slopes (positive, negative, zero, undefined)', 'Determine the slope of a line by analyzing the graph', 'Determine the slope of a line using two points and the slope formula', 'Determine the x- and y-intercepts of a line by analyzing the graph', 'Determine the x- and y-intercepts of a line using the slope formula', 'Identify whether two lines are parallel, perpendicular, or neither by finding or analyzing their slopes'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Find the value of an unknown given that slopes are parallel or perpendicular (e.g., -3/4 and k/5)', 'Determine the slope of a line parallel or perpendicular to a given line in any form', 'Write the equation of a line in slope-intercept form, point-slope form, or general form given a graph', 'Determine the slope and y-intercept given an equation in any form', 'Graph the equation of a line in slope-intercept form or point-slope form'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Write the equation of a line in general form from slope-intercept form and point-slope form', 'Write the equation of a line in point-slope form, slope-intercept form, or general form given two pieces of information', 'Apply linear functions to solve application problems'] }
+      ]},
+      { id: 'm10u6', name: 'Systems of Linear Equations', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Understand the 3 different types of solutions based on the interaction of 2 lines (intersecting: one solution, parallel: no solution, coincident: infinitely many solutions)', 'Identify the solution given a graph of 2 intersecting lines', 'Solve a system of equations using the graphing method'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Solve a system of equations using the substitution method (manage scenarios where a variable is already isolated or needs to be isolated)', 'Solve a system of equations using the elimination method (manage scenarios where coefficients already cancel to 0, or where equations need to be modified)'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Model a situation using a system of linear equations and solve using an appropriate method'] }
+      ]}
+    ]
+  },
+  pc11: {
+    name: "Pre-Calculus 11",
+    units: [
+      { id: 'pc11u1', name: 'Factoring and Quadratic Equations Part 1', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Fully factor polynomials of different forms: x^2+bx+c, a^2-b^2, ax^2+bx+c', 'Factor out the greatest common factor (GCF)', 'Factor by grouping', 'Solve factored quadratic equations'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Solve quadratic equations by factoring', 'Solve quadratic equations by quadratic formula, round final answers', 'Solve quadratic equations with layered algebraic steps', 'Understand when a polynomial is factor-able (i.e find integer values of b such that 3x^2+bx+12 is factor-able)'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve quadratic equations that have multiple layered algebraic steps', 'Understand and work with perfect square trinomials', 'Recognize quadratic forms and factor', 'Model and solve quadratic application problems'] }
+      ]},
+      { id: 'pc11u2', name: 'Exponents and Radicals', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Identify if a number is rational or irrational', 'Convert between radical and exponent forms', 'Simplify expressions with exponent laws', 'Simplify radical expressions', 'Write as an entire radical', 'Add and subtract simple radical expressions'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Identify restrictions on variables', 'Add and subtract more complex radical expressions', 'Multiply radicals and simplify', 'Divide radicals and simplify', 'Solve simple radical equations'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Multiply and divide more complex radical expressions', 'Solve more complex radical equations', 'Simplify more complex expressions using exponent laws'] }
+      ]},
+      { id: 'pc11u3', name: 'Trigonometry', calc: 'No calculators for some', levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Find areas of triangles', 'Solve triangles using sine law', 'Solve triangles using cosine law', 'Sketch angles in standard position', 'Identify quadrants based on given information', 'State co-terminal angles', 'State reference angle'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Evaluate trigonometric functions with special angles (no calc)', 'Understand trigonometric ratios in all quadrants (no calc) (eg. if point P(3,-4) is on the terminal arm...)', 'Solve simple trigonometric equations (no calc)'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve more advanced trigonometric equations (multi-step equations, different domains, non-special angles)', 'Model and solve application problems using Sine Law or Cosine Law', 'Understand the ambiguous case of Sine Law'] }
+      ]},
+      { id: 'pc11u4', name: 'Quadratic Functions and Equations Part 2', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Identify properties of quadratics given graph', 'Sketch a quadratic function in vertex form', 'State properties of quadratics given function in vertex form', 'Solve equations with Square Root method'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['State transformations using correct language', 'Finding equations of parabolas given the graph or points', 'Converting quadratic functions to vertex form', 'Complete the square as needed', 'Discriminant questions'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve for exact values of more advanced quadratic equations', 'Model and solve application problems involving quadratic functions'] }
+      ]},
+      { id: 'pc11u5', name: 'Rational Expressions and Equations', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['State non-permissible values (NPVS)', 'Simplify individual rational expressions of various forms', 'Multiply and divide simple rational expressions', 'Add and subtract rational expressions with like denominators'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Multiply and divide rational expressions with multiple simplification steps', 'Add and subtract rational expressions with unlike denominators', 'Solve rational equations with simple steps'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Simplify rational expressions with mixed operations', 'Solve more complicated rational equations', 'Model and solve application problems using rational equations'] }
+      ]},
+      { id: 'pc11u6', name: 'Inequalities', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Understand different notations: Interval, Set Notation, Inequality', 'Solve one-variable inequalities (linear, quadratic (factorable))', 'Solve two-variable inequalities (linear, quadratics in vertex form)', 'Understand and represent union and intersection of sets'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Solve two-variable inequalities (quadratics not in vertex form)', 'Solve one-variable inequalities (multi-step, simple rational forms)', 'Write two-variable inequalities given solution regions'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve rational inequalities that require further simplifying', 'Model and solve application problems using inequalities'] }
+      ]}
+    ]
+  },
+  pc12: {
+    name: "Pre-Calculus 12",
+    units: [
+      { id: 'pc12u1', name: 'Functions and Transformations', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Understand the properties of a relation, a function, and a one-to-one function', 'Describe the transformations that occurred (limited to up to two transformations) (use the form y=af(b(x-c))+d, or analyze from two graphs)', 'Identify the new point after transformations (limited to up to two transformations)', 'Sketch a function given the original graph and the transformed equation (limited to up to two transformations)', 'Identify a point after transformation to its inverse (switch coordinates)'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Evaluate composite functions given the x-value and the equation, graph, or table of values', 'Simplify composite functions and identify the domain (e.g., (f \\circ g)(x), (g \\circ f)(x), (f \\circ f)(x), etc.)', 'Identify how to break down a composite function (e.g., If h(x)=f(g(x))=x^2-7, give possible functions for f(x) and g(x))', 'Write the equation after a set of given transformations (use y=f(x) form)', 'Describe the transformations that occur given more than two transformations (analyze y=af(b(x-c))+d, compare graphs, express in words/mapping notation)', 'Identify where a point is after being transformed (more than two transformations)', 'Predict if an inverse relation is a function given the graph of the original function (horizontal line test)', 'Find the value of an inverse function quickly given an instance of x and the original function (e.g., Given f(x)=2x-5, find f^{-1}(7))', 'Find an inverse given a function with one instance of x in the expression'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Sketch a composite function given the equations of two functions (focus attention on understanding the domain)', 'Find the inverse given a function with two instances of x in the expression', 'Prove that functions are inverses by two-way composition', 'Sketch a function given the original graph and the transformed equation (multiple transformations)', 'Write the transformed function given the original graph and the transformed graph (multiple transformations)', 'Find the domain and range after transformations and inverses', 'Understand and work with invariant points', 'Restrict the domain of a quadratic function maximally so that the inverse is also a function'] }
+      ]},
+      { id: 'pc12u2', name: 'Polynomials', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Identify whether an expression is a polynomial', 'Identify characteristics of a polynomial from an equation (determine degree, end behaviour, potential number of zeros)', 'Determine the correct polynomial function from a graph based on end behaviour', 'Apply the Remainder Theorem in simple contexts'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Perform long and synthetic division', 'Understand the meaning of a general polynomial function in x written with abstract coefficients and exponents', 'Write and interpret division statements', 'Use the Factor Theorem to factor higher-degree polynomials', 'Identify and analyze multiplicities of roots', 'Solve Remainder Theorem word problems to find a single unknown', 'Determine possible factors of a polynomial', 'Determine the intervals for which a polynomial is non-negative in value given its factored form', 'Understand the types of roots expected given their multiplicity when a polynomial is factored', 'Use the Remainder Theorem to find an unknown in an expanded polynomial, given remainders on division by stated divisors', 'Determine the sign of the leading coefficient (a > 0) and the constant from the graph of a polynomial', 'Identify the power function y=ax^b that best approximates a polynomial when zoomed out'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Write a polynomial equation from a graph and a given point (where a \\neq 1)', 'Identify the divisor, quotient, and remainder from various forms of a division statement', 'Use the Remainder Theorem to find multiple unknowns, given remainders on division by stated divisors', 'Solve complex polynomial word problems', 'Determine the intervals for which a polynomial is non-negative in value given its expanded form', 'Perform synthetic division to find multiple unknowns in a polynomial or divisor', 'Analyze how adding an extra linear term to a polynomial affects the graph', 'Evaluate a higher-degree polynomial at a specific value given its y-intercept, roots, and their multiplicities', 'Solve volume optimization application problems', 'Factor a fourth-degree polynomial completely given one of its roots', 'Solve polynomial equations that can be factored by inspection', 'Solve application problems involving products of consecutive integers'] }
+      ]},
+      { id: 'pc12u3', name: 'Radical and Rational Functions', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['State the domain of complex radical functions (e.g., f(x)=-6\\sqrt{2x-16}-14)', 'Match a radical function with its graph', 'State the asymptotes of a factored rational function'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Determine the domain and range of generalized radical functions when n is odd or even', 'Match an unfactored rational function with its graph', 'Graph a rational function that reduces to a parabola, including a point of discontinuity (hole)', 'Identify accurate descriptions of the graph of an unfactored rational function', 'Find the coordinates of the hole in a factored rational function'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Determine the equation of a radical function given its graph, incorporating reflections, compressions, and translations', 'Find the coordinates of any holes, asymptotes, and roots for an unfactored rational function', 'Determine the inverse of a rational function', 'Find all unknown constants in forms like y=\\frac{ax-b}{x-h} or y=\\frac{a}{x-h}+k given the graph of a rational function'] }
+      ]},
+      { id: 'pc12u4', name: 'Exponents and Logarithms', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Determine between which two consecutive integers a logarithm lies', 'Identify points on an inverse logarithmic graph given a point on an exponential graph', 'Simplify expressions involving natural logarithms and base e', 'Identify whether a given relation is or is not an exponential function', 'Write a complex expression as a power of a specified base', 'Convert equations between exponential and logarithmic forms'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Write an exponential function given specific points on the graph', 'Find the inverse of an exponential function', 'Solve logarithmic equations for exact values', 'Calculate the time required for an investment to multiply under continuous compound interest', 'Condense logarithmic expressions using logarithm laws', 'Expand logarithmic expressions using logarithm laws', 'Simplify expressions evaluating composite logarithms', 'Use a calculator to solve application problems involving exponentially increasing populations', 'Identify transformations of exponential functions', 'Solve exponential equations by converting to a common base and equating the exponents', 'Identify transformations of logarithmic functions', 'Simplify arithmetic expressions involving logarithms'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve half-life problems to find the decay time between two specific masses', 'Determine the half-life of a substance given the initial mass, final mass, and time of decay', 'Predict future populations using exponential growth models based on historical population data', 'Evaluate complex logarithmic expressions using logarithm laws', 'Simplify ratios of evaluated logarithms', 'Solve logarithmic equations and successfully identify extraneous solutions', 'Solve exponential equations with different bases to find exact algebraic solutions', 'Solve application problems involving earthquake magnitude and the Richter scale', 'Simplify complex logarithmic expressions with different bases'] }
+      ]},
+      { id: 'pc12u5', name: 'Trigonometry Part 1', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Find the smallest positive angle in standard position coterminal with a simple given angle', 'Convert between degrees and radians', 'Solve simple arc length problems', 'Write the equation of a circle centered at the origin given its radius', 'Identify undefined trigonometric ratios for quadrantal angles', 'Determine the amplitude and center of oscillation (vertical displacement) for a sinusoidal function', 'Determine the period of tangent or cotangent functions', 'Calculate frequency from a sinusoidal equation', 'Calculate the maximum or minimum value of a sinusoidal function', 'Identify that amplitude is the absolute value of the leading coefficient'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Find coterminal angles for extremely large angles', 'Determine missing coordinates for points on the unit circle', 'Evaluate trigonometric ratios for an angle given a point on its terminal arm', 'Find the exact value of trigonometric ratios for special angles', 'Determine the period and phase shift for a sinusoidal function', 'Graph sinusoidal functions without phase shifts', 'Identify the asymptotes of tangent or cotangent functions', 'Write the equation of a sinusoidal function from its graph', 'Model and solve application problems relating distance to the angle of elevation'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Solve complex arc length application problems', 'Determine the exact value of a trigonometric ratio given another ratio and quadrant constraints', 'Evaluate trigonometric ratios given the linear equation of the terminal arm and a domain restriction', 'Graph sinusoidal functions including phase shifts', 'Calculate specific features of a sinusoidal graph given local extrema', 'Solve complex real-world applications involving sinusoidal modeling'] }
+      ]},
+      { id: 'pc12u6', name: 'Trigonometry Part 2', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Simplify basic trigonometric expressions using Pythagorean and reciprocal identities', 'Determine the number of solutions for multiple-angle trigonometric equations within a given domain', 'Simplify expressions involving double-angle identities', 'Solve basic trigonometric equations for approximate values in given domains'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Simplify rational trigonometric expressions and state non-permissible values', 'Rewrite trigonometric expressions in terms of a single specified primary function', 'Evaluate exact values using sum and difference identities', 'Evaluate exact values using double-angle identities', 'Solve trigonometric equations involving multiple angles', 'Determine the general solution for linear and multiple-angle trigonometric equations'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Simplify complex rational trigonometric expressions and algebraically state all non-permissible values', 'Evaluate exact values of trigonometric functions for non-special angles using sum, difference, or half-angle identities', 'Determine the exact value of a double-angle trigonometric ratio given a primary ratio and a quadrant constraint', 'Find the exact general solution for complex trigonometric equations involving double-angle or Pythagorean identities'] }
+      ]},
+      { id: 'pc12u7', name: 'Sequences and Series', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Simplify summation expressions using sigma notation properties', 'Evaluate finite summations manually without formula dependence', 'Calculate the sum of a finite arithmetic sequence given the first term, common difference, and number of terms', 'Evaluate infinite alternating geometric series', 'Determine the convergence of a geometric series by examining the absolute value of the common ratio', 'Calculate specific partial sums of a given geometric series'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Solve for unknowns in arithmetic sequences using the properties of a common difference', 'Solve for unknowns in geometric sequences using the properties of a common ratio', 'Determine the first term of a geometric sequence given a partial sum and the common ratio', 'Solve algebraic equations derived from geometric series in sigma notation', 'Find a specific term in a geometric sequence given two non-consecutive terms'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Evaluate complex finite geometric series using sigma notation with index shifts', 'Solve real-world application problems involving repeated percentage decrease or exponential decay', 'Model and solve real-world applications using infinite geometric series'] }
+      ]}
+    ]
+  },
+  calc12: {
+    name: "Calculus 12",
+    units: [
+      { id: 'c12u1', name: 'Limits and Early Derivatives', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Evaluate limits given a graph', 'Evaluate limits given a function (by substituting values, given indeterminate form: use factoring, expanding, conjugate/rationalize, common denominators)', 'Evaluate limits with infinity (x approaches +/- infinity or the limit approaches to infinity)'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Evaluate limits given a piecewise function', 'Apply definitions for existence of limits and conditions for continuity', 'Evaluate limits with absolute value functions'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Find the derivative/slope at a given point using limits (m=f\'(a)=lim_{x to a} (f(x)-f(a))/(x-a) or m=f\'(a)=lim_{h to 0} (f(a+h)-f(a))/h)', 'Write tangent line equations, y-y1=m(x-x1)', 'Find the general derivative function: f\'(x), y\', dy/dx, etc. (f\'(x)=lim_{h to 0} (f(x+h)-f(x))/h)'] }
+      ]},
+      { id: 'c12u2', name: 'Differentiation Rules', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Find derivatives using only one of the rules with minimal to no simplifying needed (Power Rule, Product Rule, Quotient Rule, Chain Rule, Implicit Differentiation)'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Use the derivative to find information', 'Use derivative rules without defined functions', 'Find derivatives that use multiple rules'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Find the derivative using implicit differentiation with multiple rules', 'Applying definition of derivatives', 'Find higher derivatives'] }
+      ]},
+      { id: 'c12u3', name: 'Derivative Applications Part 1', calc: null, levels: [
+        { label: 'Level 1–3', color: '#f97316', skills: ['Use the extreme value theorem on polynomials', 'Find intervals of increase and decrease, local maxima/minima, and critical numbers', 'Apply the first derivative test on polynomials'] },
+        { label: 'Level 4–5', color: '#eab308', skills: ['Apply Level 1 to 3 skills on non-polynomial functions (work with functions that include rationals, radicals, etc.)', 'Solve optimization problems (analyze simple number descriptions, solve perimeter, area, and volume problems)', 'Use derivative techniques to find values'] }
+      ]},
+      { id: 'c12u4', name: 'Derivative Applications Part 2', calc: null, levels: [
+        { label: 'Level 1–2', color: '#f97316', skills: ['Find vertical and horizontal asymptotes', 'Find intervals of concavity (up and down) and inflection points on polynomial functions or simple power rule functions', 'Answer basic conceptual questions testing understanding of: The first derivative and its representation, The second derivative and its representation, Inflection points'] },
+        { label: 'Level 3–4', color: '#eab308', skills: ['Apply the second derivative test algebraically to find extrema', 'Find second derivative properties on more complicated functions (rationals, radicals, etc.)'] },
+        { label: 'Level 5', color: '#16a34a', skills: ['Analyze given simplified expressions of f(x), f\'(x), and f\'\'(x) to: Identify the domain, intercepts, and asymptotes of f(x), Find intervals of increase and decrease, Find any extrema, Find intervals of concavity (up and down), Find any inflection points, Sketch the graph', 'Sketch a possible graph of f(x) given a list of information'] }
+      ]},
+      { id: 'c12u5', name: 'Transcendental Functions', calc: null, levels: [
+        { label: 'Level 1', color: '#f97316', skills: ['Find derivatives of standard transcendental functions (apply the simple chain rule) (exclude product, quotient, implicit, higher derivatives, and multiple chain rules)'] },
+        { label: 'Level 2–3', color: '#eab308', skills: ['Find derivatives of transcendental functions (include product, quotient, implicit, higher derivatives, and multiple chain rules)', 'Use L\'Hopital\'s Rule to solve for indeterminate form limits'] },
+        { label: 'Level 4–5', color: '#16a34a', skills: ['Use logarithmic techniques to aid with derivatives (take the natural logarithm (ln) of both sides)', 'Find derivatives of transcendental functions to determine: Tangent line equations, Specific slopes'] }
+      ]},
+      { id: 'c12u6', name: 'Integrals', calc: null, levels: [
+        { label: 'Level 1', color: '#f97316', skills: ['Approximate area under a curve using rectangular approximation (left, right, middle) or the trapezoidal method', 'Understand integral representation', 'Find antiderivatives and integrals using the power rule'] },
+        { label: 'Level 2–3', color: '#eab308', skills: ['Understand integrals as area (use geometric shapes to calculate area)', 'Use integral notation for calculations', 'Find antiderivatives and integrals involving transcendental functions (apply relatively simple steps)', 'Evaluate definite integrals'] },
+        { label: 'Level 4–5', color: '#16a34a', skills: ['Solve for functions given a derivative and an initial condition', 'Evaluate integrals using substitution'] }
+      ]}
+    ]
+  }
+};
+
+/* =========================================================
+   STATE / HELPERS
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const state = { courseId: null, unitId: null, count: 15, style: 'worksheet', selected: new Set() };
+
+const skillId = (courseId, unitId, li, si) => `${courseId}:${unitId}:${li}:${si}`;
+const getCourse = id => COURSES[id];
+const getUnit = (courseId, unitId) => getCourse(courseId).units.find(u => u.id === unitId);
+
+function renderMath(el) {
+  if (typeof renderMathInElement !== 'function' || !el) return;
+  renderMathInElement(el, {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '$', right: '$', display: false },
+      { left: '\\(', right: '\\)', display: false }
+    ],
+    throwOnError: false
+  });
+}
+
+function show(id) {
+  ['screen0', 'screen1', 'screen2', 'screen3'].forEach(s => {
+    document.getElementById(s).hidden = (s !== id);
+  });
+  window.scrollTo(0, 0);
+}
+
+/* ---------- toast ---------- */
+let toastTimer;
+function showToast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2300);
+}
+
+/* ---------- robust copy ---------- */
+async function copyPrompt(btn) {
+  const text = $('#promptOut').textContent;
+  let ok = false;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    }
+  } catch (e) { }
+
+  if (!ok) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0'; ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+  }
+
+  if (!ok) {
+    const pre = $('#promptOut');
+    const range = document.createRange();
+    range.selectNodeContents(pre);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    showToast('Text selected — press Ctrl / ⌘ + C to copy');
+    return;
+  }
+
+  showToast('Prompt copied to clipboard ✓');
+  if (btn) {
+    const original = btn.innerHTML;
+    btn.classList.add('done');
+    btn.innerHTML = '✓ Copied';
+    setTimeout(() => {
+      btn.classList.remove('done');
+      btn.innerHTML = original;
+    }, 1700);
+  }
+}
+
+/* =========================================================
+   SCREEN 0 (COURSE)
+   ========================================================= */
+function renderCourses() {
+  $('#courseList').innerHTML = Object.keys(COURSES).map(key => {
+    const c = COURSES[key];
+    return `
+      <div class="unit" data-id="${key}" role="button" tabindex="0">
+        <span class="dot"></span>
+        <span class="uname">${c.name}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectCourse(id) {
+  state.courseId = id;
+  
+  // Update URL
+  const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?course=' + id;
+  window.history.pushState({ path: newUrl }, '', newUrl);
+
+  // UI updates
+  document.querySelectorAll('#courseList .unit').forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+  $('#courseTitle').textContent = getCourse(id).name + " · Prompt Builder";
+  
+  const btn = $('#courseContinueBtn');
+  btn.disabled = false;
+  btn.textContent = 'Continue →';
+}
+
+/* =========================================================
+   SCREEN 1 (UNITS)
+   ========================================================= */
+function renderUnits() {
+  const course = getCourse(state.courseId);
+  $('#unitList').innerHTML = course.units.map(u => `
+    <div class="unit" data-id="${u.id}" role="button" tabindex="0">
+      <span class="dot"></span>
+      <span class="uname">${u.name}</span>
+      ${u.calc ? `<span class="calc ${/required/i.test(u.calc) ? 'yes' : ''}">${u.calc === 'Calculators Required' ? 'Calc OK' : (u.calc === 'Mixed' ? 'Mixed' : 'No calc')}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+function selectUnit(id) {
+  state.unitId = id;
+  document.querySelectorAll('#unitList .unit').forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+  const btn = $('#continueBtn');
+  btn.disabled = false;
+  btn.textContent = 'Continue →';
+}
+
+function setStyle(style) {
+  state.style = style;
+  document.querySelectorAll('.stylebtn').forEach(b =>
+    b.classList.toggle('active', b.dataset.style === style)
+  );
+}
+
+/* =========================================================
+   SCREEN 2 (SKILLS)
+   ========================================================= */
+function selectAllForUnit() {
+  const unit = getUnit(state.courseId, state.unitId);
+  state.selected = new Set();
+  unit.levels.forEach((lv, li) =>
+    lv.skills.forEach((_, si) => state.selected.add(skillId(state.courseId, unit.id, li, si)))
+  );
+}
+
+function renderChips() {
+  const unit = getUnit(state.courseId, state.unitId);
+  let styleLabel = 'Worksheet';
+  if (state.style === 'quiz') styleLabel = 'Interactive Quiz';
+  if (state.style === 'text') styleLabel = 'Chat Text';
+
+  $('#summaryChips').innerHTML = `
+    <span class="chip strong">${unit.name}</span>
+    <span class="chip">${state.count} questions</span>
+    <span class="chip">${styleLabel}</span>
+    ${unit.calc ? `<span class="chip warn">${unit.calc}</span>` : ''}
+  `;
+}
+
+function levelSelectedCount(unit, li) {
+  return unit.levels[li].skills.filter((_, si) =>
+    state.selected.has(skillId(state.courseId, unit.id, li, si))
+  ).length;
+}
+
+function renderSkills() {
+  const unit = getUnit(state.courseId, state.unitId);
+  $('#skillList').innerHTML = unit.levels.map((lv, li) => {
+    const total = lv.skills.length;
+    const picked = levelSelectedCount(unit, li);
+    const allOn = picked === total;
+
+    const items = lv.skills.map((s, si) => {
+      const id = skillId(state.courseId, unit.id, li, si);
+      return `<label class="skill">
+        <input type="checkbox" data-id="${id}" ${state.selected.has(id) ? 'checked' : ''}>
+        <span class="stext">${s}</span>
+      </label>`;
+    }).join('');
+
+    return `<div class="levelcard" style="--lc:${lv.color}">
+      <div class="levelhead">
+        <span class="lvl">${lv.label}<span class="cnt">${picked}/${total}</span></span>
+        <button class="mini" data-level="${li}">${allOn ? 'Clear' : 'Select all'}</button>
+      </div>
+      ${items}
+    </div>`;
+  }).join('');
+
+  renderMath($('#skillList'));
+  updateGenerateState();
+}
+
+function toggleLevel(li) {
+  const unit = getUnit(state.courseId, state.unitId);
+  const ids = unit.levels[li].skills.map((_, si) => skillId(state.courseId, unit.id, li, si));
+  const allOn = ids.every(id => state.selected.has(id));
+  ids.forEach(id => allOn ? state.selected.delete(id) : state.selected.add(id));
+  renderSkills();
+}
+
+function updateGenerateState() {
+  const btn = $('#generateBtn');
+  const n = state.selected.size;
+  btn.disabled = n === 0;
+  btn.textContent = n === 0 ? 'Select at least one skill' : `Generate prompt (${n} skill${n === 1 ? '' : 's'})`;
+}
+
+/* =========================================================
+   PROMPT
+   ========================================================= */
+function buildPrompt() {
+  const unit = getUnit(state.courseId, state.unitId);
+  const course = getCourse(state.courseId);
+  const styleWord = state.style === 'worksheet' ? 'HTML worksheet' : (state.style === 'quiz' ? 'HTML interactive quiz' : 'plain text');
+  const formatIntro = state.style === 'text' ? 'Generate' : 'Build a';
+  const lines = [];
+
+  lines.push(`${formatIntro} ${styleWord} with ${state.count} questions, using KaTeX, for ${course.name}, focusing on the following skills:`);
+  lines.push('');
+  lines.push(`Unit: ${unit.name}`);
+  if (unit.calc) lines.push(`Calculator policy: ${unit.calc}`);
+
+  unit.levels.forEach((lv, li) => {
+    const picked = lv.skills.filter((_, si) => state.selected.has(skillId(state.courseId, unit.id, li, si)));
+    if (!picked.length) return;
+    lines.push('');
+    lines.push(`${lv.label}:`);
+    picked.forEach(s => lines.push(`- ${s}`));
+  });
+
+  lines.push('');
+  if (state.style === 'worksheet') {
+    lines.push('Format: Build an HTML worksheet with a show answers toggle.');
+    lines.push('Include a button to print the worksheet and answer key separately.');
+  } else if (state.style === 'quiz') {
+    lines.push('Format: Build an interactive HTML quiz.');
+    lines.push('Include a mix of multiple choice and numeric-only enter-answer questions.');
+    lines.push('Provide right or wrong feedback immediately.');
+  } else if (state.style === 'text') {
+    lines.push('Format: Plain text output directly in the chat window.');
+    lines.push('Use standard Markdown and LaTeX math delimiters (like $x^2$ or $$\\frac{1}{2}$$).');
+    lines.push('Do NOT output any HTML, CSS, or JavaScript code.');
+    lines.push('Format clearly with Question 1, Question 2, etc., followed by a separate Answer Key section at the end.');
+  }
+  lines.push('');
+  lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too. Make sure it compiles the KaTeX for math font correctly. Include diagrams (using inline SVG) ONLY where necessary to solve the problem (e.g., geometry, nets, coordinate planes). Do not add images for basic algebraic expressions. Ensure diagrams DO NOT reveal the answer.");
+
+  return lines.join('\n');
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function init() {
+  renderCourses();
+
+  // --- screen 0 ---
+  $('#courseList').addEventListener('click', e => {
+    const card = e.target.closest('.unit');
+    if (card) selectCourse(card.dataset.id);
+  });
+  $('#courseList').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.unit');
+    if (card) { e.preventDefault(); selectCourse(card.dataset.id); }
+  });
+
+  $('#courseContinueBtn').addEventListener('click', () => {
+    if (!state.courseId) return;
+    renderUnits();
+    show('screen1');
+  });
+
+  // Deep linking catcher
+  const params = new URLSearchParams(window.location.search);
+  const courseFromUrl = params.get('course');
+  if (courseFromUrl && COURSES[courseFromUrl]) {
+    selectCourse(courseFromUrl);
+    renderUnits();
+    show('screen1');
+  }
+
+  // --- screen 1 ---
+  $('#backToCoursesBtn').addEventListener('click', () => {
+    // Clear URL when going back
+    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+    
+    state.courseId = null;
+    state.unitId = null;
+    document.querySelectorAll('#courseList .unit').forEach(c => c.classList.remove('sel'));
+    const btn = $('#courseContinueBtn');
+    btn.disabled = true;
+    btn.textContent = 'Choose a course to continue';
+    show('screen0');
+  });
+
+  $('#unitList').addEventListener('click', e => {
+    const card = e.target.closest('.unit');
+    if (card) selectUnit(card.dataset.id);
+  });
+  $('#unitList').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.unit');
+    if (card) { e.preventDefault(); selectUnit(card.dataset.id); }
+  });
+
+  $('#countRange').addEventListener('input', e => {
+    state.count = Number(e.target.value);
+    $('#countVal').textContent = state.count;
+    if (!$('#screen2').hidden) renderChips();
+  });
+
+  document.querySelectorAll('.stylebtn').forEach(btn =>
+    btn.addEventListener('click', () => setStyle(btn.dataset.style))
+  );
+  setStyle('worksheet');
+
+  $('#continueBtn').addEventListener('click', () => {
+    if (!state.unitId) return;
+    selectAllForUnit();
+    renderChips();
+    renderSkills();
+    show('screen2');
+  });
+
+  // --- screen 2 ---
+  $('#backBtn').addEventListener('click', () => show('screen1'));
+
+  $('#skillList').addEventListener('change', e => {
+    const cb = e.target.closest('input[type=checkbox]');
+    if (!cb) return;
+    if (cb.checked) state.selected.add(cb.dataset.id);
+    else state.selected.delete(cb.dataset.id);
+
+    const card = cb.closest('.levelcard');
+    const li = Number(card.querySelector('.mini').dataset.level);
+    const unit = getUnit(state.courseId, state.unitId);
+    const total = unit.levels[li].skills.length;
+    const picked = levelSelectedCount(unit, li);
+    card.querySelector('.cnt').textContent = `${picked}/${total}`;
+    card.querySelector('.mini').textContent = (picked === total) ? 'Clear' : 'Select all';
+
+    updateGenerateState();
+  });
+
+  $('#skillList').addEventListener('click', e => {
+    const btn = e.target.closest('button.mini');
+    if (!btn) return;
+    e.preventDefault();
+    toggleLevel(Number(btn.dataset.level));
+  });
+
+  $('#selectAllBtn').addEventListener('click', () => {
+    selectAllForUnit();
+    renderSkills();
+  });
+
+  $('#clearAllBtn').addEventListener('click', () => {
+    state.selected.clear();
+    renderSkills();
+  });
+
+  $('#generateBtn').addEventListener('click', () => {
+    if (!state.selected.size) return;
+    $('#promptOut').textContent = buildPrompt();
+
+    const top = $('#copyTop');
+    top.classList.remove('done');
+    top.innerHTML = '📋 Copy';
+    const bottom = $('#copyBtn');
+    bottom.classList.remove('copied');
+    bottom.textContent = 'Copy prompt';
+
+    show('screen3');
+  });
+
+  // --- screen 3 ---
+  $('#backBtn2').addEventListener('click', () => show('screen2'));
+
+  $('#startOverBtn').addEventListener('click', () => {
+    // Clear URL when starting over
+    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+    
+    state.courseId = null;
+    state.unitId = null;
+    state.selected.clear();
+    document.querySelectorAll('#courseList .unit').forEach(c => c.classList.remove('sel'));
+    const courseBtn = $('#courseContinueBtn');
+    courseBtn.disabled = true;
+    courseBtn.textContent = 'Choose a course to continue';
+    show('screen0');
+  });
+
+  $('#copyTop').addEventListener('click', e => copyPrompt(e.currentTarget));
+  $('#copyBtn').addEventListener('click', e => copyPrompt(e.currentTarget));
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
