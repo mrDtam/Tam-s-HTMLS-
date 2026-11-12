@@ -928,8 +928,10 @@ function buildPrompt() {
     lines.push('Do NOT output any HTML, CSS, or JavaScript code.');
     lines.push('Format clearly with Question 1, Question 2, etc., followed by a separate Answer Key section at the end.');
   }
-  lines.push('');
-  lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too. Make sure it compiles the KaTeX for math font correctly. Include diagrams (using inline SVG) ONLY where necessary to solve the problem (e.g., geometry, nets, coordinate planes). Do not add images for basic algebraic expressions. Ensure diagrams DO NOT reveal the answer.");
+    lines.push('');
+  lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too.");
+  lines.push("CRITICAL: Use the KaTeX CDN from cdnjs (https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css and katex.min.js). Do NOT use Subresource Integrity (SRI) hashes. Include the renderMathInElement script to render the math.");
+  lines.push("Include diagrams (using inline SVG) ONLY where necessary to solve the problem (e.g., geometry, nets, coordinate planes). Do not add images for basic algebraic expressions. Ensure diagrams DO NOT reveal the answer.");
 
   return lines.join('\n');
 }
