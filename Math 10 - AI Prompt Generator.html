@@ -623,12 +623,12 @@ function updateGenerateState() {
    ========================================================= */
 function buildPrompt() {
   const unit = getUnit(state.unitId);
-  const styleWord = state.style === 'worksheet' ? 'worksheet' : 'interactive quiz';
-  const lines = [];
+  const styleWord = state.style === 'worksheet' ? 'HTML worksheet' : (state.style === 'quiz' ? 'HTML interactive quiz' : 'plain text');
+const formatIntro = state.style === 'text' ? 'Generate' : 'Build a';
+const lines = [];
 
-  lines.push(`Build an HTML ${styleWord} with ${state.count} questions, using KaTeX, for Math 10, focusing on the following skills:`);
-  lines.push('');
-  lines.push(`Unit: ${unit.name}`);
+lines.push(`${formatIntro} ${styleWord} with ${state.count} questions, using KaTeX, for Math 10, focusing on the following skills:`);  lines.push('');
+  lines.push(`Unit: ${unit.name}`);  lines.push('');
 
   unit.levels.forEach((lv, li) => {
     const picked = lv.skills.filter((_, si) => state.selected.has(skillId(unit.id, li, si)));
