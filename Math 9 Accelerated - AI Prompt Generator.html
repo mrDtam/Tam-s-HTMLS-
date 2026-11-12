@@ -587,7 +587,10 @@ function selectAllForUnit() {
 
 function renderChips() {
   const unit = getUnit(state.unitId);
-  const styleLabel = state.style === 'worksheet' ? 'Worksheet' : 'Interactive quiz';
+  let styleLabel = 'Worksheet';
+  if (state.style === 'quiz') styleLabel = 'Interactive Quiz';
+  if (state.style === 'text') styleLabel = 'Chat Text';
+
   $('#summaryChips').innerHTML = `
     <span class="chip strong">${unit.name}</span>
     <span class="chip">${state.count} questions</span>
