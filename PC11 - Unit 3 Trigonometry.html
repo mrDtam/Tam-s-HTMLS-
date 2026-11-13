@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Calculus 11: Trigonometry</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #f39c12;
+            --level3: #27ae60;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        .tag {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+            font-weight: normal;
+        }
+        .tag.no-calc { background: #fadbd8; color: #c0392b; }
+        .tag.calc { background: #d5f5e3; color: #27ae60; }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .problem-display {
+            font-size: 32px;
+            margin: 0 0 25px 0;
+            padding: 20px 30px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        #errorAlert {
+            display: none;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            flex: 1 1 calc(50% - 15px); 
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+        
+        .option-btn.full-width { flex: 1 1 100%; }
+        .option-btn.four-col { flex: 1 1 calc(25% - 15px); }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .option-btn { flex: 1 1 100%; font-size: 18px; } 
+            .option-btn.four-col { flex: 1 1 100%; }
+            .problem-display { font-size: 26px; }
+            .prompt-text { font-size: 18px; }
+            .tag { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Trigonometry</h1>
+        <p class="subtitle">Pre-Calculus 11 Core Skills</p>
+        
+        <div class="level-section">
+            <div class="level-title">Level 1 to Level 2 (Standard Position & Non-Right Triangles)</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Angles: Ref. & Co-terminal <div class="tag no-calc">No Calc</div></button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Identify the Quadrant <div class="tag no-calc">No Calc</div></button>
+                <button class="menu-btn" onclick="startGame(3)"><span>3</span> Solve Triangles (Sine/Cosine Law) <div class="tag calc">Calc</div></button>
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Area of Triangles <div class="tag calc">Calc</div></button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Level 3 to Level 4 (Special Angles & Equations)</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Terminal Arm Points P(x, y) <div class="tag no-calc">No Calc</div></button>
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Evaluate Special Angles <div class="tag no-calc">No Calc</div></button>
+                <button class="menu-btn" onclick="startGame(7)" style="grid-column: 1 / -1;"><span>7</span> Solve Simple Trig Equations <div class="tag no-calc">No Calc</div></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="errorAlert"></div>
+
+        <div class="prompt-text" id="promptTitle">Question:</div>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandomNonZero(min, max) {
+        let val; do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0); return val;
+    }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while(b) { let t = b; b = a % b; a = t; } return a || 1; }
+
+    function simplifyFrac(n, d) {
+        if (n === 0) return [0, 1];
+        if (d === 0) return [1, 0];
+        let g = gcd(n, d);
+        n /= g; d /= g;
+        if (d < 0) { n = -n; d = -d; }
+        return [n, d];
+    }
+    
+    function formatFrac(n, d) {
+        let [nn, dd] = simplifyFrac(n, d);
+        if (dd === 1) return nn.toString();
+        if (nn === 0) return "0";
+        if (nn < 0) return `-\\frac{${Math.abs(nn)}}{${dd}}`;
+        return `\\frac{${nn}}{${dd}}`;
+    }
+
+    // Special Angles Table (Exact Values)
+    const specialAngles = [
+        { deg: 0,   sin: "0", cos: "1", tan: "0" },
+        { deg: 30,  sin: "\\frac{1}{2}", cos: "\\frac{\\sqrt{3}}{2}", tan: "\\frac{\\sqrt{3}}{3}" },
+        { deg: 45,  sin: "\\frac{\\sqrt{2}}{2}", cos: "\\frac{\\sqrt{2}}{2}", tan: "1" },
+        { deg: 60,  sin: "\\frac{\\sqrt{3}}{2}", cos: "\\frac{1}{2}", tan: "\\sqrt{3}" },
+        { deg: 90,  sin: "1", cos: "0", tan: "\\text{Undefined}" },
+        { deg: 120, sin: "\\frac{\\sqrt{3}}{2}", cos: "-\\frac{1}{2}", tan: "-\\sqrt{3}" },
+        { deg: 135, sin: "\\frac{\\sqrt{2}}{2}", cos: "-\\frac{\\sqrt{2}}{2}", tan: "-1" },
+        { deg: 150, sin: "\\frac{1}{2}", cos: "-\\frac{\\sqrt{3}}{2}", tan: "-\\frac{\\sqrt{3}}{3}" },
+        { deg: 180, sin: "0", cos: "-1", tan: "0" },
+        { deg: 210, sin: "-\\frac{1}{2}", cos: "-\\frac{\\sqrt{3}}{2}", tan: "\\frac{\\sqrt{3}}{3}" },
+        { deg: 225, sin: "-\\frac{\\sqrt{2}}{2}", cos: "-\\frac{\\sqrt{2}}{2}", tan: "1" },
+        { deg: 240, sin: "-\\frac{\\sqrt{3}}{2}", cos: "-\\frac{1}{2}", tan: "\\sqrt{3}" },
+        { deg: 270, sin: "-1", cos: "0", tan: "\\text{Undefined}" },
+        { deg: 300, sin: "-\\frac{\\sqrt{3}}{2}", cos: "\\frac{1}{2}", tan: "-\\sqrt{3}" },
+        { deg: 315, sin: "-\\frac{\\sqrt{2}}{2}", cos: "\\frac{\\sqrt{2}}{2}", tan: "-1" },
+        { deg: 330, sin: "-\\frac{1}{2}", cos: "\\frac{\\sqrt{3}}{2}", tan: "-\\frac{\\sqrt{3}}{3}" }
+    ];
+
+    const pythagoreanTriples = [
+        [3, 4, 5], [5, 12, 13], [8, 15, 17], [7, 24, 25]
+    ];
+
+    // --- Strict Navigation ---
+    function startGame(mode) {
+        try {
+            document.getElementById('errorAlert').style.display = 'none';
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            let colorVar = mode <= 4 ? "var(--level1)" : "var(--level3)";
+            document.getElementById('gameScreen').style.borderColor = colorVar;
+            document.getElementById('problemDisplay').style.borderColor = colorVar;
+
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) {
+            console.error(e);
+            alert("App initialization failed. Please refresh the page.");
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Bulletproof Generation Engine ---
+    function generateProblem() {
+        try {
+            isTransitioning = false;
+            
+            let correctAns = "";
+            let distractors = new Set();
+            let promptHTML = "";
+            let promptText = "";
+            let problemSignature = "";
+            let loopCount = 0;
+            let targetOptionsSize = 4;
+            let isTextOptions = false;
+            let forceFullWidth = false;
+            let isFourCol = false;
+
+            do {
+                distractors.clear();
+                forceFullWidth = false;
+                isTextOptions = false;
+                isFourCol = false;
+                targetOptionsSize = 4;
+
+                // MODE 1: Co-terminal & Reference Angles
+                if (currentMode === 1) {
+                    let subType = getRandomInt(1, 2);
+                    
+                    if (subType === 1) { // Reference Angle
+                        promptText = "State the reference angle:";
+                        let theta = getRandomInt(-360, 720);
+                        if (theta % 90 === 0) theta += getRandomEl([15, 30, 45]);
+                        
+                        promptHTML = `\\theta = ${theta}^\\circ`;
+                        
+                        let eq = theta % 360;
+                        if (eq < 0) eq += 360;
+                        
+                        let ref;
+                        if (eq < 90) ref = eq;
+                        else if (eq < 180) ref = 180 - eq;
+                        else if (eq < 270) ref = eq - 180;
+                        else ref = 360 - eq;
+                        
+                        correctAns = `${ref}^\\circ`;
+                        
+                        distractors.add(`${90 - ref}^\\circ`); 
+                        distractors.add(`${180 - ref}^\\circ`); 
+                        distractors.add(`${eq < 180 ? eq : 360 - eq}^\\circ`); 
+                    } else { // Co-terminal
+                        promptText = "Which angle is co-terminal with:";
+                        let theta = getRandomInt(-180, 180);
+                        if (theta === 0) theta = 30;
+                        
+                        promptHTML = `\\theta = ${theta}^\\circ`;
+                        
+                        let shift = getRandomEl([-2, -1, 1, 2]) * 360;
+                        correctAns = `${theta + shift}^\\circ`;
+                        
+                        distractors.add(`${theta + 180}^\\circ`); 
+                        distractors.add(`${-theta}^\\circ`); 
+                        distractors.add(`${theta + 180 + shift}^\\circ`);
+                    }
+                }
+
+                // MODE 2: Identify the Quadrant
+                else if (currentMode === 2) {
+                    promptText = "In which quadrant does the angle terminate?";
+                    isTextOptions = true;
+                    isFourCol = true;
+                    
+                    let funcs = ['\\sin', '\\cos', '\\tan'];
+                    shuffle(funcs);
+                    let f1 = funcs[0];
+                    let f2 = funcs[1];
+                    
+                    let q = getRandomInt(1, 4);
+                    
+                    let getSign = (func, quad) => {
+                        if (quad === 1) return '>';
+                        if (func === '\\sin') return quad === 2 ? '>' : '<';
+                        if (func === '\\tan') return quad === 3 ? '>' : '<';
+                        if (func === '\\cos') return quad === 4 ? '>' : '<';
+                    };
+                    
+                    promptHTML = `${f1} \\theta ${getSign(f1, q)} 0 \\quad \\text{and} \\quad ${f2} \\theta ${getSign(f2, q)} 0`;
+                    
+                    let qMap = {1: "Quadrant I", 2: "Quadrant II", 3: "Quadrant III", 4: "Quadrant IV"};
+                    correctAns = qMap[q];
+                    
+                    distractors.add("Quadrant I");
+                    distractors.add("Quadrant II");
+                    distractors.add("Quadrant III");
+                    distractors.add("Quadrant IV");
+                }
+
+                // MODE 3: Solve Triangles (Sine / Cosine Law)
+                else if (currentMode === 3) {
+                    promptText = "(Calculator Permitted) Find the missing value (1 dec. place):";
+                    let isCosine = Math.random() > 0.5; 
+                    
+                    if (isCosine) { 
+                        let findAngle = Math.random() > 0.5;
+                        if (findAngle) {
+                            // SSS - find angle C
+                            let a = getRandomInt(10, 20);
+                            let b = getRandomInt(10, 20);
+                            let c = getRandomInt(Math.abs(a-b)+2, a+b-2); // Triangle inequality
+                            
+                            promptHTML = `\\text{In } \\triangle ABC: \\; a=${a}, \\; b=${b}, \\; c=${c}. \\; \\text{Find } \\angle C.`;
+                            
+                            let cosC = (a*a + b*b - c*c) / (2*a*b);
+                            let C = Math.acos(cosC) * 180 / Math.PI;
+                            
+                            correctAns = `\\angle C = ${C.toFixed(1)}^\\circ`;
+                            distractors.add(`\\angle C = ${(Math.acos((b*b + c*c - a*a) / (2*b*c)) * 180 / Math.PI).toFixed(1)}^\\circ`); // Angle A
+                            distractors.add(`\\angle C = ${(Math.acos((a*a + c*c - b*b) / (2*a*c)) * 180 / Math.PI).toFixed(1)}^\\circ`); // Angle B
+                            distractors.add(`\\angle C = ${(180 - C).toFixed(1)}^\\circ`); // Supplement
+                        } else {
+                            // SAS - find side c
+                            let a = getRandomInt(5, 15);
+                            let b = getRandomInt(5, 15);
+                            let C = getRandomInt(30, 150);
+                            
+                            promptHTML = `\\text{In } \\triangle ABC: \\; a=${a}, \\; b=${b}, \\; \\angle C=${C}^\\circ`;
+                            
+                            let c_sq = a*a + b*b - 2*a*b*Math.cos(C * Math.PI / 180);
+                            let c = Math.sqrt(c_sq);
+                            
+                            correctAns = `c = ${c.toFixed(1)}`;
+                            
+                            distractors.add(`c = ${Math.sqrt(a*a + b*b + 2*a*b*Math.cos(C * Math.PI / 180)).toFixed(1)}`); // Sign error
+                            distractors.add(`c = ${(a*a + b*b - 2*a*b*Math.cos(C * Math.PI / 180)).toFixed(1)}`); // Forgot sqrt
+                            distractors.add(`c = ${Math.sqrt(a*a + b*b).toFixed(1)}`); // Assumed right angle
+                        }
+                    } else { // Sine Law
+                        let findAngle = Math.random() > 0.5;
+                        if (findAngle) {
+                            // SSA - Guaranteed NO ambiguous case by forcing opposite side > adjacent side
+                            let A = getRandomInt(30, 80);
+                            let b = getRandomInt(10, 20);
+                            let a = getRandomInt(b + 1, b + 15); // a > b guarantees one distinct solution
+                            
+                            promptHTML = `\\text{In } \\triangle ABC: \\; a=${a}, \\; b=${b}, \\; \\angle A=${A}^\\circ. \\; \\text{Find } \\angle B.`;
+                            
+                            let sinB = (b * Math.sin(A * Math.PI / 180)) / a;
+                            let B = Math.asin(sinB) * 180 / Math.PI;
+                            
+                            correctAns = `\\angle B = ${B.toFixed(1)}^\\circ`;
+                            
+                            let flipSin = (a * Math.sin(A * Math.PI / 180)) / b;
+                            distractors.add(`\\angle B = ${(flipSin <= 1 ? Math.asin(flipSin) * 180 / Math.PI : B + 10).toFixed(1)}^\\circ`); // Flipped a and b
+                            distractors.add(`\\angle B = ${(180 - B).toFixed(1)}^\\circ`); // Obtuse ambiguous trap
+                            distractors.add(`\\angle B = ${(A * b / a).toFixed(1)}^\\circ`); // Ratio error
+                        } else {
+                            // AAS - Find side
+                            let A = getRandomInt(30, 80);
+                            let B = getRandomInt(30, 80);
+                            let a = getRandomInt(10, 30);
+                            
+                            promptHTML = `\\text{In } \\triangle ABC: \\; \\angle A=${A}^\\circ, \\; \\angle B=${B}^\\circ, \\; a=${a}. \\; \\text{Find } b.`;
+                            
+                            let b = a * Math.sin(B * Math.PI / 180) / Math.sin(A * Math.PI / 180);
+                            
+                            correctAns = `b = ${b.toFixed(1)}`;
+                            
+                            distractors.add(`b = ${(a * Math.sin(A * Math.PI / 180) / Math.sin(B * Math.PI / 180)).toFixed(1)}`); // Swapped angles
+                            distractors.add(`b = ${(a * Math.sin(B * Math.PI / 180)).toFixed(1)}`); // Forgot division
+                            distractors.add(`b = ${(b + 2.5).toFixed(1)}`); // Random trap
+                        }
+                    }
+                }
+
+                // MODE 4: Area of Triangles
+                else if (currentMode === 4) {
+                    promptText = "(Calculator Permitted) Find the area (1 dec. place):";
+                    
+                    let a = getRandomInt(8, 25);
+                    let b = getRandomInt(8, 25);
+                    let C = getRandomInt(30, 150);
+                    
+                    promptHTML = `\\text{In } \\triangle ABC: \\; a=${a}, \\; b=${b}, \\; \\angle C=${C}^\\circ`;
+                    
+                    let area = 0.5 * a * b * Math.sin(C * Math.PI / 180);
+                    correctAns = `${area.toFixed(1)}`;
+                    
+                    distractors.add(`${(a * b * Math.sin(C * Math.PI / 180)).toFixed(1)}`); 
+                    distractors.add(`${(0.5 * a * b * Math.cos(C * Math.PI / 180)).toFixed(1)}`); 
+                    distractors.add(`${(0.5 * a * b).toFixed(1)}`); 
+                }
+
+                // MODE 5: Terminal Arm Points P(x, y)
+                else if (currentMode === 5) {
+                    promptText = "Evaluate the trigonometric ratio:";
+                    
+                    let triple = getRandomEl(pythagoreanTriples);
+                    let x = triple[0] * getRandomEl([1, -1]);
+                    let y = triple[1] * getRandomEl([1, -1]);
+                    if (Math.random() > 0.5) { let temp = x; x = y; y = temp; }
+                    
+                    let r = triple[2];
+                    
+                    let funcs = ['\\sin', '\\cos', '\\tan'];
+                    let f = getRandomEl(funcs);
+                    
+                    promptHTML = `\\text{Point } P(${x}, ${y}) \\text{ is on the terminal arm of } \\theta. \\\\[10pt] \\text{Find } ${f} \\theta.`;
+                    
+                    if (f === '\\sin') {
+                        correctAns = formatFrac(y, r);
+                        distractors.add(formatFrac(x, r)); 
+                        distractors.add(formatFrac(y, x)); 
+                        distractors.add(formatFrac(-y, r)); 
+                    } else if (f === '\\cos') {
+                        correctAns = formatFrac(x, r);
+                        distractors.add(formatFrac(y, r)); 
+                        distractors.add(formatFrac(y, x)); 
+                        distractors.add(formatFrac(-x, r)); 
+                    } else {
+                        correctAns = formatFrac(y, x);
+                        distractors.add(formatFrac(x, y)); 
+                        distractors.add(formatFrac(y, r)); 
+                        distractors.add(formatFrac(-y, x)); 
+                    }
+                }
+
+                // MODE 6: Evaluate Special Angles
+                else if (currentMode === 6) {
+                    promptText = "Evaluate the exact value:";
+                    
+                    let f = getRandomEl(['\\sin', '\\cos', '\\tan']);
+                    let angleData = getRandomEl(specialAngles);
+                    
+                    promptHTML = `${f} (${angleData.deg}^\\circ)`;
+                    
+                    if (f === '\\sin') correctAns = angleData.sin;
+                    else if (f === '\\cos') correctAns = angleData.cos;
+                    else correctAns = angleData.tan;
+                    
+                    if (f === '\\sin' || f === '\\cos') {
+                        distractors.add(angleData.sin);
+                        distractors.add(angleData.cos);
+                        
+                        if (correctAns !== "0") {
+                            distractors.add(correctAns.startsWith("-") ? correctAns.substring(1) : "-" + correctAns);
+                        }
+                        
+                        if (correctAns.includes("\\frac{1}{2}")) distractors.add(correctAns.replace("1", "\\sqrt{3}"));
+                        else if (correctAns.includes("\\sqrt{3}")) distractors.add(correctAns.replace("\\sqrt{3}", "1"));
+                    } else {
+                        distractors.add(angleData.tan);
+                        if (correctAns !== "0" && correctAns !== "\\text{Undefined}") {
+                            distractors.add(correctAns.startsWith("-") ? correctAns.substring(1) : "-" + correctAns);
+                        }
+                        if (correctAns === "1" || correctAns === "-1") distractors.add("\\text{Undefined}");
+                        if (correctAns === "0" || correctAns === "\\text{Undefined}") distractors.add("1");
+                        if (correctAns.includes("\\sqrt{3}")) {
+                            if (correctAns.includes("\\frac")) distractors.add(correctAns.replace("\\frac{\\sqrt{3}}{3}", "\\sqrt{3}"));
+                            else distractors.add(correctAns.replace("\\sqrt{3}", "\\frac{\\sqrt{3}}{3}"));
+                        }
+                    }
+                }
+
+                // MODE 7: Solve Simple Trig Equations
+                else if (currentMode === 7) {
+                    promptText = `Solve for \\(\\theta\\) where \\(0^\\circ \\le \\theta < 360^\\circ\\):`;
+                    forceFullWidth = true;
+                    
+                    let f = getRandomEl(['sin', 'cos', 'tan']);
+                    
+                    let validAngles = specialAngles.filter(a => a[f] !== "\\text{Undefined}");
+                    let targetAngleData = getRandomEl(validAngles);
+                    let targetVal = targetAngleData[f];
+                    
+                    promptHTML = `\\${f} \\theta = ${targetVal}`;
+                    
+                    let solutions = validAngles.filter(a => a[f] === targetVal).map(a => `${a.deg}^\\circ`);
+                    correctAns = solutions.join(", \\; ");
+                    
+                    let oppVal = targetVal.startsWith("-") ? targetVal.substring(1) : (targetVal === "0" ? "0" : "-" + targetVal);
+                    let oppSols = validAngles.filter(a => a[f] === oppVal).map(a => `${a.deg}^\\circ`);
+                    if (oppSols.join(", \\; ") !== correctAns && oppSols.length > 0) {
+                        distractors.add(oppSols.join(", \\; "));
+                    }
+                    
+                    if (f === 'sin') {
+                        let confusedSols = validAngles.filter(a => a['cos'] === targetVal).map(a => `${a.deg}^\\circ`);
+                        if (confusedSols.join(", \\; ") !== correctAns && confusedSols.length > 0) distractors.add(confusedSols.join(", \\; "));
+                    } else if (f === 'cos') {
+                        let confusedSols = validAngles.filter(a => a['sin'] === targetVal).map(a => `${a.deg}^\\circ`);
+                        if (confusedSols.join(", \\; ") !== correctAns && confusedSols.length > 0) distractors.add(confusedSols.join(", \\; "));
+                    } else {
+                        let fakeVal = targetVal === "\\sqrt{3}" ? "\\frac{\\sqrt{3}}{3}" : (targetVal === "\\frac{\\sqrt{3}}{3}" ? "\\sqrt{3}" : targetVal);
+                        let confusedSols = validAngles.filter(a => a['tan'] === fakeVal).map(a => `${a.deg}^\\circ`);
+                        if (confusedSols.join(", \\; ") !== correctAns && confusedSols.length > 0) distractors.add(confusedSols.join(", \\; "));
+                    }
+                }
+
+                problemSignature = promptText + promptHTML + correctAns;
+                loopCount++;
+
+            } while (problemSignature === lastPrompt && loopCount < 10); 
+            
+            lastPrompt = problemSignature;
+
+            // --- Safe DOM Updates ---
+            document.getElementById('promptTitle').innerHTML = promptText; 
+            
+            let displayBox = document.getElementById('problemDisplay');
+            
+            if (isTextOptions) {
+                displayBox.innerHTML = `\\( ${promptHTML} \\)`;
+            } else {
+                displayBox.innerHTML = `\\( ${promptHTML} \\)`; 
+            }
+
+            let finalOptions = new Set();
+            finalOptions.add(correctAns);
+            let distArray = Array.from(distractors);
+            let i = 0;
+
+            while(finalOptions.size < targetOptionsSize && i < distArray.length) {
+                finalOptions.add(distArray[i]); i++;
+            }
+            
+            // Pad safely & robustly
+            let pad = 1;
+            while(finalOptions.size < targetOptionsSize) { 
+                if (currentMode === 2) {
+                    finalOptions.add(`Quadrant ${pad}`); 
+                } else {
+                    let isAngle = correctAns.includes("^\\circ");
+                    let prefixMatch = correctAns.match(/^[a-zA-Z\s\\]+=/);
+                    let prefix = prefixMatch ? prefixMatch[0] + " " : "";
+                    
+                    let parsed = parseFloat(correctAns.replace(/[^\d.-]/g, ''));
+                    if (isNaN(parsed)) parsed = getRandomInt(5, 15);
+                    
+                    let newVal = parsed + pad * (isAngle ? 15 : 1.5);
+                    
+                    if (correctAns.includes(".")) newVal = newVal.toFixed(1);
+                    
+                    finalOptions.add(`${prefix}${newVal}${isAngle ? '^\\circ' : ''}`);
+                }
+                pad++;
+            }
+            
+            let options = shuffle(Array.from(finalOptions));
+
+            if (currentMode === 2) {
+                options = ["Quadrant I", "Quadrant II", "Quadrant III", "Quadrant IV"];
+            }
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = ''; 
+
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'option-btn';
+                
+                if (forceFullWidth || opt.length > 25) btn.classList.add('full-width');
+                if (isFourCol) btn.classList.add('four-col');
+                
+                if (isTextOptions) {
+                    btn.innerHTML = opt;
+                } else {
+                    btn.innerHTML = `\\(${opt}\\)`;
+                }
+                
+                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                grid.appendChild(btn);
+            });
+
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { 
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "\\(", right: "\\)", display: false}
+                    ] 
+                });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            setTimeout(() => display.classList.remove('error'), 400);
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
