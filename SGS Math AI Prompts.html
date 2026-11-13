@@ -1067,18 +1067,20 @@ function init() {
   $('#backBtn2').addEventListener('click', () => show('screen2'));
 
   $('#startOverBtn').addEventListener('click', () => {
-    // Clear URL when starting over
-    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-    window.history.pushState({ path: newUrl }, '', newUrl);
-    
-    state.courseId = null;
-    state.unitId = null;
+    // 1. Clear the selected skills and the selected unit
     state.selected.clear();
-    document.querySelectorAll('#courseList .unit').forEach(c => c.classList.remove('sel'));
-    const courseBtn = $('#courseContinueBtn');
-    courseBtn.disabled = true;
-    courseBtn.textContent = 'Choose a course to continue';
-    show('screen0');
+    state.unitId = null;
+    
+    // 2. Un-highlight any selected units on the unit list
+    document.querySelectorAll('#unitList .unit').forEach(c => c.classList.remove('sel'));
+    
+    // 3. Reset the "Continue" button on the unit screen
+    const unitBtn = $('#continueBtn');
+    unitBtn.disabled = true;
+    unitBtn.textContent = 'Choose a unit to continue';
+
+    // 4. Send them back to Screen 1 (the Unit selection screen for their course)
+    show('screen1');
   });
 
   $('#copyTop').addEventListener('click', e => copyPrompt(e.currentTarget));
