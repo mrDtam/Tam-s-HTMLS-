@@ -372,20 +372,20 @@ const DIFFICULTY_TIERS = {
   easy: {
     label: 'Easy',
     summary: 'Direct single-skill application',
-    definition: 'Each question assesses exactly ONE of the selected skills, applied directly, in one or two straightforward steps. Entry-level Section A question. Typical command terms: "Find", "Differentiate", "State".',
+    definition: 'Each question assesses exactly ONE of the selected skills, applied directly, in one or two straightforward steps. The question provides the exact function, equation, or data set. Entry-level Section A question. Typical command terms: "Find", "Differentiate", "State".',
     example: 'Differentiate y = 3x^4 - 2x + 7.'
   },
   medium: {
     label: 'Medium',
-    summary: 'Chains 2–3 of the selected skills',
-    definition: 'Each question chains TWO OR THREE of the selected skills in sequence, each step depending on the previous one (for example, differentiate, then find a tangent, then find a normal). Later Section A or early Section B. Typical command terms: "Hence", "Show that", "Determine".',
-    example: 'For f(x) = x^3 - 6x^2 + 9x, find f\'(x), then find the equation of the tangent at x = 2.'
+    summary: 'Chained skills or parameter solving',
+    definition: 'The question must either (a) chain TWO OR THREE of the selected skills in sequence within a standard context, OR (b) use the selected skills in REVERSE to solve for unknown constants (e.g., find parameters a, b, k given stationary points, gradients, periods, or intercepts). No complex real-world modeling is required. Later Section A or early Section B. Typical command terms: "Hence", "Determine", "Find".',
+    example: 'The function f(x) = x^3 + ax^2 + bx has a stationary point at x = 1 and f\'\'(1) = 2. Find the values of a and b.'
   },
   hard: {
     label: 'Hard',
-    summary: 'Selected skills plus cross-topic reasoning',
-    definition: 'Each question either (a) combines the selected skills with skills from another unit (trigonometry, logarithms, kinematics, vectors, transformations, etc.), or (b) places the selected skills inside a larger extended-response problem that requires unfamiliar reasoning. Typically Section B extended-response. Typical command terms: "Hence or otherwise", "Justify", "Model", "Show that".',
-    example: 'A particle has displacement s(t) = e^{-t} sin(2t). Find the velocity, the first time the velocity is zero, and the acceleration at that instant.'
+    summary: 'True Section B: Cross-topic synthesis and modeling',
+    definition: 'A multi-part extended-response question. CRITICAL: The FIRST part(s) of the question MUST require skills from an entirely different unit (e.g., solving trigonometric equations, applying transformations, finding a sinusoidal model, setting up a geometric constraint, using logarithms) to establish the function or context. Subsequent parts then apply the selected skills to analyze that established function. The selected skill is the payoff, not the starting point.',
+    example: 'A Ferris wheel\'s height is modeled by a sinusoidal function. (a) Find the equation of the model from a given graph [Trig]. (b) Find the rate of change of height at t = 5 [Calculus].'
   }
 };
 
@@ -1771,8 +1771,10 @@ function buildPrompt() {
   });
   lines.push('Guidance for the AI:');
   lines.push('- Distribute the questions across the tiers you have selected. Aim for a balanced mix.');
-  lines.push('- Do NOT blur the boundaries between tiers. An Easy question must be solvable with a single selected skill. A Medium question must chain two or three of the selected skills in sequence. A Hard question must genuinely combine selected skills with cross-topic reasoning or extended-response structure — not simply be a longer Medium question.');
-  lines.push('- For Hard questions, name the secondary topic being called upon (for example, "this question also requires trigonometry" or "this question also requires logarithm laws") so the cross-topic demand is explicit.');
+  lines.push('- Do NOT blur the boundaries between tiers.');
+  lines.push('- For Medium questions, strongly favor "reverse-math" parameter problems. Provide the student with a function or model containing unknown constants (a, b, c, k) and give them conditions (e.g., f\'(2) = 0, the y-intercept is 4, the period is pi). The student must solve for the constants.');
+  lines.push('- For Hard questions, structure the prompt as a multi-part investigation or real-world modeling scenario (e.g., kinematics, optimization, finance). Part (a) MUST require setting up the model using a different unit\'s skills. Parts (b) and (c) should use the selected skills to analyze that model. The selected calculus/skill must be the payoff, not the setup.');
+  lines.push('- For Hard questions, name the secondary topic being called upon (for example, "this question also requires trigonometry") so the cross-topic demand is explicit.');
   lines.push('- Each question should clearly identify the skill(s) from the list above that it assesses.');
   lines.push('');
 
