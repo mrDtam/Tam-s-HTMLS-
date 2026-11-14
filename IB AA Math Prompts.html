@@ -23,7 +23,6 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     background:var(--bg); color:var(--ink); line-height:1.45;
     -webkit-text-size-adjust:100%;
-    /* VISIBLE tap feedback instead of transparent */
     -webkit-tap-highlight-color: rgba(79,70,229,0.18);
     overscroll-behavior-y: contain;
   }
@@ -35,14 +34,12 @@
     color:var(--muted);margin:26px 0 10px;font-weight:700;
   }
 
-  /* ---------- Global touch targets ---------- */
-  button, .unit, .paperbtn, .stylebtn, .mode-tab, .skill, .difficulty-card {
+  button, .unit, .paperbtn, .stylebtn, .skill, .difficulty-card {
     touch-action: manipulation;
     -webkit-user-select: none;
     user-select: none;
   }
 
-  /* ---------- Course / unit cards ---------- */
   .unit{
     display:flex;gap:12px;align-items:center;
     padding:16px 18px;margin-bottom:10px;
@@ -64,13 +61,6 @@
   }
   .unit .uname{font-size:.95rem;font-weight:600;flex:1;min-width:0}
 
-  .calc{
-    flex:0 0 auto;font-size:.66rem;font-weight:700;letter-spacing:.04em;
-    text-transform:uppercase;padding:3px 9px;border-radius:99px;
-    background:#f1f5f9;color:var(--muted);
-  }
-  .calc.yes{background:#fef3c7;color:#92400e}
-
   .card{
     background:var(--card);border:1px solid var(--line);
     border-radius:var(--radius);padding:16px;
@@ -82,7 +72,6 @@
   }
   .rangeticks{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
 
-  /* ---------- Paper buttons ---------- */
   .paper-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
   .paperbtn{
     flex:1 1 160px;padding:14px 16px;border-radius:12px;border:2px solid var(--line);
@@ -94,7 +83,6 @@
   .paperbtn .pdesc{display:block;font-size:.72rem;color:var(--muted);margin-top:2px}
   .paperbtn.active{border-color:var(--accent);background:var(--accent-soft)}
 
-  /* ---------- Format buttons ---------- */
   .styles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
   @media (max-width: 500px) {
     .styles { grid-template-columns: 1fr; }
@@ -112,7 +100,6 @@
   .stylebtn .sdesc{font-size:.75rem;color:var(--muted);line-height:1.3}
   .stylebtn.active{border-color:var(--accent);background:var(--accent-soft)}
 
-  /* ---------- Bottom bar ---------- */
   .bottombar{
     position:fixed;left:0;right:0;bottom:0;z-index:20;
     background:rgba(255,255,255,.96);
@@ -149,24 +136,6 @@
   .chip.strong{background:var(--accent-soft);border-color:#c7d2fe;color:var(--accent)}
   .chip.warn{background:#fef3c7;border-color:#fde68a;color:#92400e}
 
-  /* ---------- Mode tabs ---------- */
-  .mode-tabs{
-    display:flex;gap:6px;background:#eef2ff;padding:5px;
-    border-radius:12px;margin-bottom:16px;
-  }
-  .mode-tab{
-    flex:1;padding:14px 14px;border:none;border-radius:8px;
-    background:transparent;font-family:inherit;font-size:.85rem;
-    font-weight:700;color:var(--muted);cursor:pointer;transition:.15s;
-    min-height:48px;
-  }
-  .mode-tab:active{transform:scale(.98)}
-  .mode-tab.active{
-    background:#fff;color:var(--accent);
-    box-shadow:0 1px 3px rgba(0,0,0,.08);
-  }
-
-  /* ---------- Row actions ---------- */
   .row-actions{display:flex;gap:10px;margin-bottom:14px}
   .row-actions button{
     flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);
@@ -175,7 +144,6 @@
   }
   .row-actions button:active{background:var(--accent-soft)}
 
-  /* ---------- Skill list ---------- */
   .skillgroup{
     background:var(--card);border:1px solid var(--line);
     border-radius:var(--radius);padding:8px 14px;margin-bottom:12px;
@@ -194,13 +162,11 @@
   .skill input{
     flex:0 0 auto;width:22px;height:22px;margin-top:0;
     accent-color:var(--accent);cursor:pointer;
-    /* slightly larger tap target on the checkbox itself */
     transform: scale(1.15); transform-origin: left center;
   }
   .skill .stext{flex:1;min-width:0}
   .skill .stext .katex{font-size:1em}
 
-  /* ---------- Difficulty cards ---------- */
   .difficulty-card{
     background:var(--card);border:2px solid var(--line);
     border-radius:var(--radius);padding:18px;margin-bottom:12px;
@@ -235,7 +201,6 @@
   .hint{font-size:.82rem;color:var(--muted);margin:0 0 14px}
   .hint strong{color:var(--ink)}
 
-  /* ---------- Prompt screen ---------- */
   .promptcard{
     background:var(--card);border:1px solid var(--line);
     border-radius:var(--radius);overflow:hidden;margin:0 0 14px;
@@ -290,15 +255,15 @@
     <h2 class="step">Select Course</h2>
     <div id="courseList"></div>
     <div class="bottombar"><div class="inner">
-      <button id="courseContinueBtn" class="primary" disabled>Choose a course to continue</button>
+      <button id="courseContinueBtn" class="primary" disabled type="button">Choose a course to continue</button>
     </div></div>
   </section>
 
   <!-- ============ SCREEN 1 ============ -->
   <section id="screen1" hidden>
-    <button class="backbtn" id="backToCoursesBtn">← Back to courses</button>
+    <button class="backbtn" id="backToCoursesBtn" type="button">← Back to courses</button>
     <h1 id="courseTitle">Course</h1>
-    <p class="sub">Pick a subtopic, a question count, a paper, and a format. Next you'll choose what to focus on.</p>
+    <p class="sub">Pick a subtopic, a question count, a paper, and a format. Next you'll choose skills and difficulty.</p>
 
     <h2 class="step">1 · Subtopic</h2>
     <div id="unitList"></div>
@@ -342,46 +307,38 @@
     </div>
 
     <div class="bottombar"><div class="inner">
-      <button id="continueBtn" class="primary" disabled>Choose a subtopic to continue</button>
+      <button id="continueBtn" class="primary" disabled type="button">Choose a subtopic to continue</button>
     </div></div>
   </section>
 
   <!-- ============ SCREEN 2 ============ -->
   <section id="screen2" hidden>
-    <button class="backbtn" id="backBtn">← Back to subtopics</button>
+    <button class="backbtn" id="backBtn" type="button">← Back to subtopics</button>
     <h1>Choose your focus</h1>
-    <p class="sub">Pick specific skills to target, or pick difficulty tiers that describe the structure of the questions.</p>
-
-    <div class="mode-tabs" id="modeTabs">
-      <button class="mode-tab active" data-mode="skill" type="button">By skill</button>
-      <button class="mode-tab" data-mode="difficulty" type="button">By difficulty</button>
-    </div>
+    <p class="sub">Pick the skills to assess, then pick the difficulty structure for those skills.</p>
 
     <div class="chips" id="summaryChips"></div>
 
-    <!-- Skill mode -->
-    <div id="skillMode">
-      <div class="row-actions">
-        <button id="selectAllSkillsBtn" type="button">Select all</button>
-        <button id="clearAllSkillsBtn" type="button">Clear all</button>
-      </div>
-      <div id="skillList"></div>
+    <h2 class="step">1 · Skills to assess</h2>
+    <p class="hint">Every generated question will assess at least one of the skills you check below.</p>
+    <div class="row-actions">
+      <button id="selectAllSkillsBtn" type="button">Select all</button>
+      <button id="clearAllSkillsBtn" type="button">Clear all</button>
     </div>
+    <div id="skillList"></div>
 
-    <!-- Difficulty mode -->
-    <div id="difficultyMode" hidden>
-      <p class="hint">Each tier describes the <strong>cognitive structure</strong> of the question, not just its length. Pick one or more tiers and the AI will produce a balanced mix.</p>
-      <div id="difficultyList"></div>
-    </div>
+    <h2 class="step">2 · Difficulty structure</h2>
+    <p class="hint">Each tier describes <strong>how</strong> the chosen skills should be combined or applied. Pick at least one — the AI will distribute the questions across the tiers you select.</p>
+    <div id="difficultyList"></div>
 
     <div class="bottombar"><div class="inner">
-      <button id="generateBtn" class="primary">Generate prompt</button>
+      <button id="generateBtn" class="primary" type="button">Generate prompt</button>
     </div></div>
   </section>
 
   <!-- ============ SCREEN 3 ============ -->
   <section id="screen3" hidden>
-    <button class="backbtn" id="backBtn2">← Edit selection</button>
+    <button class="backbtn" id="backBtn2" type="button">← Edit selection</button>
     <h1>Your prompt</h1>
     <p class="hint">Tap <strong>Copy</strong> on the card below, then paste it into your AI assistant.</p>
 
@@ -409,25 +366,26 @@
 <script>
 /* =========================================================
    DIFFICULTY TIER DEFINITIONS
+   Skill-aware — they describe HOW the selected skills are combined.
    ========================================================= */
 const DIFFICULTY_TIERS = {
   easy: {
     label: 'Easy',
     summary: 'Direct single-skill application',
-    definition: 'The question targets exactly one named skill and is solvable in one or two straightforward steps. It is an entry-level Section A question. Typical command terms: "Find", "Differentiate", "State".',
+    definition: 'Each question assesses exactly ONE of the selected skills, applied directly, in one or two straightforward steps. Entry-level Section A question. Typical command terms: "Find", "Differentiate", "State".',
     example: 'Differentiate y = 3x^4 - 2x + 7.'
   },
   medium: {
     label: 'Medium',
-    summary: 'Multi-skill within the same subtopic',
-    definition: 'The question combines two or three skills from the same unit in sequence, each step depending on the previous one. It is a later Section A question or an early Section B question. Typical command terms: "Hence", "Show that", "Determine".',
-    example: 'For f(x) = x^3 - 6x^2 + 9x, find f\'(x), find the stationary points, and classify their nature.'
+    summary: 'Chains 2–3 of the selected skills',
+    definition: 'Each question chains TWO OR THREE of the selected skills in sequence, each step depending on the previous one (for example, differentiate, then find a tangent, then find a normal). Later Section A or early Section B. Typical command terms: "Hence", "Show that", "Determine".',
+    example: 'For f(x) = x^3 - 6x^2 + 9x, find f\'(x), then find the equation of the tangent at x = 2.'
   },
   hard: {
     label: 'Hard',
-    summary: 'Multidisciplinary cross-topic',
-    definition: 'The question deliberately calls on skills from another unit (for example trigonometric identities or transformations, exponential or logarithm laws, kinematics, functions and transformations, or vectors). It requires extended reasoning or modelling and is typically a Section B extended-response question. Typical command terms: "Hence or otherwise", "Justify", "Model", "Show that" combined with multi-part structure.',
-    example: 'A particle has displacement s(t) = e^{-t} sin(2t). Find the velocity, the first time at which the velocity is zero, and the acceleration at that instant.'
+    summary: 'Selected skills plus cross-topic reasoning',
+    definition: 'Each question either (a) combines the selected skills with skills from another unit (trigonometry, logarithms, kinematics, vectors, transformations, etc.), or (b) places the selected skills inside a larger extended-response problem that requires unfamiliar reasoning. Typically Section B extended-response. Typical command terms: "Hence or otherwise", "Justify", "Model", "Show that".',
+    example: 'A particle has displacement s(t) = e^{-t} sin(2t). Find the velocity, the first time the velocity is zero, and the acceleration at that instant.'
   }
 };
 
@@ -1541,7 +1499,6 @@ const state = {
   count: 10,
   paper: 'paper1',
   style: 'worksheet',
-  mode: 'skill',
   selectedSkills: new Set(),
   selectedTiers: new Set()
 };
@@ -1691,29 +1648,19 @@ function setStyle(style) {
 }
 
 /* =========================================================
-   SCREEN 2 — MODE SWITCHING
+   SCREEN 2 — RENDERERS
    ========================================================= */
-function setMode(mode) {
-  state.mode = mode;
-  document.querySelectorAll('.mode-tab')
-    .forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
-  $('#skillMode').hidden      = (mode !== 'skill');
-  $('#difficultyMode').hidden = (mode !== 'difficulty');
-  updateGenerateState();
-}
-
 function selectAllSkillsForUnit() {
   const unit = getUnit(state.courseId, state.unitId);
   const skills = getUnitSkills(unit);
   skills.forEach((_, i) => state.selectedSkills.add(`${unit.id}:skill:${i}`));
 }
 
-function renderSkillMode() {
+function renderSkills() {
   const unit = getUnit(state.courseId, state.unitId);
   const skills = getUnitSkills(unit);
   $('#skillList').innerHTML = `
     <div class="skillgroup">
-      <h3>Skills</h3>
       ${skills.map((s, i) => {
         const id = `${unit.id}:skill:${i}`;
         const checked = state.selectedSkills.has(id) ? 'checked' : '';
@@ -1728,7 +1675,7 @@ function renderSkillMode() {
   updateGenerateState();
 }
 
-function renderDifficultyMode() {
+function renderDifficulty() {
   $('#difficultyList').innerHTML = ['easy', 'medium', 'hard'].map(tier => {
     const info = DIFFICULTY_TIERS[tier];
     const sel = state.selectedTiers.has(tier) ? 'sel' : '';
@@ -1752,34 +1699,33 @@ function renderChips() {
   const paperLabel = state.paper === 'paper1' ? 'Paper 1 (No Calc)' : 'Paper 2 (GDC)';
   const paperClass = state.paper === 'paper1' ? 'chip warn' : 'chip';
 
-  let focusChip;
-  if (state.mode === 'skill') {
-    const n = state.selectedSkills.size;
-    focusChip = `<span class="chip strong">${n} skill${n === 1 ? '' : 's'}</span>`;
-  } else {
-    const n = state.selectedTiers.size;
-    focusChip = `<span class="chip strong">${n} tier${n === 1 ? '' : 's'}</span>`;
-  }
+  const s = state.selectedSkills.size;
+  const t = state.selectedTiers.size;
 
   $('#summaryChips').innerHTML = `
     <span class="chip strong">${unit.name}</span>
     <span class="chip">${state.count} questions</span>
     <span class="${paperClass}">${paperLabel}</span>
     <span class="chip">${styleLabel}</span>
-    ${focusChip}
+    <span class="chip strong">${s} skill${s === 1 ? '' : 's'}</span>
+    <span class="chip strong">${t} tier${t === 1 ? '' : 's'}</span>
   `;
 }
 
 function updateGenerateState() {
   const btn = $('#generateBtn');
-  const n = (state.mode === 'skill')
-    ? state.selectedSkills.size
-    : state.selectedTiers.size;
-  btn.disabled = n === 0;
-  const noun = (state.mode === 'skill') ? 'skill' : 'tier';
-  btn.textContent = n === 0
-    ? (state.mode === 'skill' ? 'Select at least one skill' : 'Select at least one tier')
-    : `Generate prompt (${n} ${noun}${n === 1 ? '' : 's'})`;
+  const s = state.selectedSkills.size;
+  const t = state.selectedTiers.size;
+  btn.disabled = s === 0 || t === 0;
+  if (s === 0 && t === 0) {
+    btn.textContent = 'Select skills and difficulty tiers';
+  } else if (s === 0) {
+    btn.textContent = 'Select at least one skill';
+  } else if (t === 0) {
+    btn.textContent = 'Select at least one difficulty tier';
+  } else {
+    btn.textContent = `Generate prompt (${s} skill${s === 1 ? '' : 's'} · ${t} tier${t === 1 ? '' : 's'})`;
+  }
 }
 
 /* =========================================================
@@ -1803,35 +1749,34 @@ function buildPrompt() {
   lines.push(`Paper: ${paperText}`);
   lines.push('');
 
-  if (state.mode === 'skill') {
-    const skills = getUnitSkills(unit);
-    const picked = skills.filter((_, i) => state.selectedSkills.has(`${unit.id}:skill:${i}`));
-    lines.push('Selected skills:');
-    picked.forEach(s => lines.push(`- ${s}`));
-    lines.push('');
-    lines.push('Guidance for the AI:');
-    lines.push('- For each selected skill, include at least one question that directly assesses it.');
-    lines.push('- Where it is natural, combine closely related skills within the same question (for example, differentiating and then finding a tangent at a point).');
-    lines.push('- Each question should clearly target the skill(s) it assesses, and the skill assessed should be identifiable from the question alone.');
-    lines.push('- Mix the difficulty across the set so the worksheet is not monotonous.');
-  } else {
-    const tiers = ['easy', 'medium', 'hard'].filter(t => state.selectedTiers.has(t));
-    lines.push('The questions must span the following difficulty tiers. Each tier describes the COGNITIVE STRUCTURE of the question, not just its length or mark count — match the structure precisely.');
-    lines.push('');
-    tiers.forEach(t => {
-      const info = DIFFICULTY_TIERS[t];
-      lines.push(`--- ${info.label.toUpperCase()} — ${info.summary} ---`);
-      lines.push(info.definition);
-      lines.push(`Illustrative example: ${info.example}`);
-      lines.push('');
-    });
-    lines.push('Guidance for the AI:');
-    lines.push('- Distribute the questions across the tiers you have selected. Aim for a balanced mix.');
-    lines.push('- Do NOT blur the boundaries between tiers. An Easy question must be solvable with a single named skill. A Medium question must chain two or three skills from the same unit in sequence. A Hard question must genuinely require cross-topic reasoning, not simply be a longer Medium question.');
-    lines.push('- For Hard questions, name the secondary topic being called upon (for example, "this question also requires trig identities" or "this question also requires logarithm laws") so the cross-topic demand is explicit.');
-  }
-
+  // ---- Skills section (primary) ----
+  const skills = getUnitSkills(unit);
+  const pickedSkills = skills.filter((_, i) => state.selectedSkills.has(`${unit.id}:skill:${i}`));
+  lines.push('=== SKILLS TO ASSESS ===');
+  lines.push('Every question you generate must assess at least one of the following skills:');
+  pickedSkills.forEach(s => lines.push(`- ${s}`));
   lines.push('');
+
+  // ---- Difficulty section (additional layer) ----
+  const tiers = ['easy', 'medium', 'hard'].filter(t => state.selectedTiers.has(t));
+  lines.push('=== DIFFICULTY STRUCTURE ===');
+  lines.push('The questions must be distributed across the following difficulty tiers. Each tier describes the COGNITIVE STRUCTURE of the question — how the selected skills above are combined or applied. Match the structure of each tier precisely.');
+  lines.push('');
+  tiers.forEach(t => {
+    const info = DIFFICULTY_TIERS[t];
+    lines.push(`--- ${info.label.toUpperCase()} — ${info.summary} ---`);
+    lines.push(info.definition);
+    lines.push(`Illustrative example: ${info.example}`);
+    lines.push('');
+  });
+  lines.push('Guidance for the AI:');
+  lines.push('- Distribute the questions across the tiers you have selected. Aim for a balanced mix.');
+  lines.push('- Do NOT blur the boundaries between tiers. An Easy question must be solvable with a single selected skill. A Medium question must chain two or three of the selected skills in sequence. A Hard question must genuinely combine selected skills with cross-topic reasoning or extended-response structure — not simply be a longer Medium question.');
+  lines.push('- For Hard questions, name the secondary topic being called upon (for example, "this question also requires trigonometry" or "this question also requires logarithm laws") so the cross-topic demand is explicit.');
+  lines.push('- Each question should clearly identify the skill(s) from the list above that it assesses.');
+  lines.push('');
+
+  // ---- Format section ----
   if (state.style === 'worksheet') {
     lines.push('Format: Build an HTML worksheet with the following features:');
     lines.push('- Display the mark allocation as a [n marks] badge next to each question number.');
@@ -1953,21 +1898,14 @@ function init() {
     selectAllSkillsForUnit();
     state.selectedTiers = new Set(['easy', 'medium', 'hard']);
 
-    setMode(state.mode);
-    renderSkillMode();
-    renderDifficultyMode();
+    renderSkills();
+    renderDifficulty();
     renderChips();
     show('screen2');
   });
 
   // --- screen 2 ---
   $('#backBtn').addEventListener('click', () => show('screen1'));
-
-  document.querySelectorAll('.mode-tab')
-    .forEach(tab => tab.addEventListener('click', () => {
-      setMode(tab.dataset.mode);
-      renderChips();
-    }));
 
   $('#skillList').addEventListener('change', e => {
     const cb = e.target.closest('input[type=checkbox]');
@@ -1980,24 +1918,27 @@ function init() {
 
   $('#selectAllSkillsBtn').addEventListener('click', () => {
     selectAllSkillsForUnit();
-    renderSkillMode();
+    renderSkills();
     renderChips();
   });
 
   $('#clearAllSkillsBtn').addEventListener('click', () => {
     state.selectedSkills.clear();
-    renderSkillMode();
+    renderSkills();
     renderChips();
   });
+
+  function toggleTier(tier) {
+    if (state.selectedTiers.has(tier)) state.selectedTiers.delete(tier);
+    else state.selectedTiers.add(tier);
+    renderDifficulty();
+    renderChips();
+  }
 
   $('#difficultyList').addEventListener('click', e => {
     const card = e.target.closest('.difficulty-card');
     if (!card) return;
-    const tier = card.dataset.tier;
-    if (state.selectedTiers.has(tier)) state.selectedTiers.delete(tier);
-    else state.selectedTiers.add(tier);
-    renderDifficultyMode();
-    renderChips();
+    toggleTier(card.dataset.tier);
   });
 
   $('#difficultyList').addEventListener('keydown', e => {
@@ -2005,16 +1946,11 @@ function init() {
     const card = e.target.closest('.difficulty-card');
     if (!card) return;
     e.preventDefault();
-    const tier = card.dataset.tier;
-    if (state.selectedTiers.has(tier)) state.selectedTiers.delete(tier);
-    else state.selectedTiers.add(tier);
-    renderDifficultyMode();
-    renderChips();
+    toggleTier(card.dataset.tier);
   });
 
   $('#generateBtn').addEventListener('click', () => {
-    const n = (state.mode === 'skill') ? state.selectedSkills.size : state.selectedTiers.size;
-    if (!n) return;
+    if (state.selectedSkills.size === 0 || state.selectedTiers.size === 0) return;
     $('#promptOut').textContent = buildPrompt();
 
     const top = $('#copyTop');
