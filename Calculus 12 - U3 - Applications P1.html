@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus: Derivative Applications</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #3498db;
+            --level3: #27ae60;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 26px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-4 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-4 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-4 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-4 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        /* --- Game Screen --- */
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .problem-display {
+            font-size: 32px;
+            margin: 0 0 25px 0;
+            padding: 20px 30px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        #errorAlert {
+            display: none;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            flex: 1 1 calc(50% - 15px); 
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+        
+        .option-btn.full-width { flex: 1 1 100%; }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .option-btn { flex: 1 1 100%; font-size: 18px; } 
+            .problem-display { font-size: 26px; }
+            .prompt-text { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>Derivative Applications</h1>
+        <p class="subtitle">Extrema & Curve Sketching</p>
+        
+        <div class="level-section">
+            <div class="level-title">Level 1 to Level 3 (Polynomials)</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Extreme Value Theorem</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Critical Nums (Factored f')</button>
+                <button class="menu-btn" onclick="startGame(3)"><span>3</span> Intervals of Inc / Dec</button>
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> 1st Deriv Test (Local Max/Min)</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-4">
+            <div class="level-title">Level 4 (Rationals & Radicals)</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Find Critical Numbers</button>
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Intervals of Inc / Dec</button>
+                <button class="menu-btn" onclick="startGame(7)" style="grid-column: 1 / -1;"><span>7</span> 1st Deriv Test (Local Max/Min)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="errorAlert"></div>
+
+        <div class="prompt-text" id="promptTitle">Question:</div>
+        
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+
+    // --- Audio System ---
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try {
+                audioCtx = new AudioContext(); 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            } catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    // --- Math Utility ---
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomEl(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandomNonZero(min, max) {
+        let val; do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0); return val;
+    }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+    function formatTerm(c, v, p, isFirst) {
+        if (c === 0) return "";
+        let sign = c < 0 ? (isFirst ? "-" : " - ") : (isFirst ? "" : " + ");
+        let cStr = Math.abs(c) === 1 && p !== 0 ? "" : Math.abs(c);
+        let vStr = p === 0 ? "" : (p === 1 ? v : `${v}^{${p}}`);
+        return `${sign}${cStr}${vStr}`;
+    }
+
+    // --- Strict Navigation ---
+    function startGame(mode) {
+        try {
+            document.getElementById('errorAlert').style.display = 'none';
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            document.getElementById('menuScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            let colorVar = mode <= 4 ? "var(--level1)" : "var(--level3)";
+            document.getElementById('gameScreen').style.borderColor = colorVar;
+            document.getElementById('problemDisplay').style.borderColor = colorVar;
+
+            setTimeout(() => { generateProblem(); }, 50);
+        } catch (e) {
+            console.error(e);
+            alert("App initialization failed. Please refresh the page.");
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    // --- Bulletproof Generation Engine ---
+    function generateProblem() {
+        try {
+            isTransitioning = false;
+            
+            let correctAns = "";
+            let distractors = new Set();
+            let promptHTML = "";
+            let promptText = "";
+            let problemSignature = "";
+            let loopCount = 0;
+            let targetOptionsSize = 4;
+            let forceFullWidth = false;
+
+            do {
+                distractors.clear();
+                forceFullWidth = false;
+                targetOptionsSize = 4;
+
+                // MODE 1: Extreme Value Theorem (Polynomials)
+                if (currentMode === 1) {
+                    let isMax = Math.random() > 0.5;
+                    promptText = `For which x-value does the absolute ${isMax ? 'MAXIMUM' : 'MINIMUM'} occur?`;
+                    
+                    let a = getRandomNonZero(-3, 3);
+                    let h = getRandomInt(-3, 3);
+                    let k = getRandomInt(-5, 5);
+                    let A = a;
+                    let B = -2 * a * h;
+                    let C = a * h * h + k;
+                    
+                    let p1 = formatTerm(A, 'x', 2, true);
+                    let p2 = formatTerm(B, 'x', 1, false);
+                    let p3 = formatTerm(C, 'x', 0, p1 === "" && p2 === "");
+                    
+                    let left = h - getRandomInt(1, 3);
+                    let right = h + getRandomInt(1, 3);
+                    
+                    promptHTML = `f(x) = ${p1}${p2}${p3} \\quad \\text{on} \\; [${left}, ${right}]`;
+                    
+                    let valH = a * (h - h)**2 + k; 
+                    let valL = a * (left - h)**2 + k;
+                    let valR = a * (right - h)**2 + k;
+                    
+                    let maxVal = Math.max(valH, valL, valR);
+                    let minVal = Math.min(valH, valL, valR);
+                    
+                    let targetVal = isMax ? maxVal : minVal;
+                    let ansX = (targetVal === valH) ? h : (targetVal === valL ? left : right);
+                    
+                    correctAns = `x = ${ansX}`;
+                    distractors.add(`x = ${left}`);
+                    distractors.add(`x = ${right}`);
+                    distractors.add(`x = ${h}`);
+                }
+
+                // MODE 2: Critical Numbers (Factored f')
+                else if (currentMode === 2) {
+                    promptText = "Find the critical numbers of f(x):";
+                    
+                    let r1 = getRandomInt(-5, 5);
+                    let r2; do { r2 = getRandomInt(-5, 5); } while(r1 === r2);
+                    
+                    let trap = Math.random() > 0.5; // (x^2 + 4) trap
+                    let a = getRandomEl([1, 2, 3]);
+                    
+                    let t1 = r1 === 0 ? "x" : (r1 < 0 ? `(x + ${-r1})` : `(x - ${r1})`);
+                    let t2 = r2 === 0 ? "x" : (r2 < 0 ? `(x + ${-r2})^2` : `(x - ${r2})^2`);
+                    let t3 = trap ? `(x^2 + ${getRandomEl([1, 4, 9])})` : "";
+                    
+                    promptHTML = `f'(x) = ${a === 1 ? "" : a}${t1}${t2}${t3}`;
+                    
+                    let sorted = [r1, r2].sort((x, y) => x - y);
+                    correctAns = `x = ${sorted.join(', ')}`;
+                    
+                    distractors.add(`x = ${[-r1, -r2].sort((x, y) => x - y).join(', ')}`); 
+                    distractors.add(`x = ${r1}`); 
+                    distractors.add(`x = ${r2}`); 
+                    if (trap) {
+                        let trapRoot = Math.sqrt(parseInt(t3.match(/\d+/)[0]));
+                        distractors.add(`x = ${sorted.join(', ')}, \\pm ${trapRoot}`); 
+                    }
+                }
+
+                // MODE 3: Intervals of Increase / Decrease
+                else if (currentMode === 3) {
+                    let isInc = Math.random() > 0.5;
+                    promptText = `Find the interval(s) where f(x) is ${isInc ? 'INCREASING' : 'DECREASING'}:`;
+                    forceFullWidth = true;
+                    
+                    let r1 = getRandomInt(-4, 0);
+                    let r2 = getRandomInt(1, 5);
+                    let a = getRandomEl([-2, -1, 1, 2]);
+                    
+                    let t1 = r1 === 0 ? "x" : `(x ${r1 < 0 ? '+' : '-'} ${Math.abs(r1)})`;
+                    let t2 = r2 === 0 ? "x" : `(x ${r2 < 0 ? '+' : '-'} ${Math.abs(r2)})`;
+                    
+                    promptHTML = `f'(x) = ${a === 1 ? "" : (a === -1 ? "-" : a)}${t1}${t2}`;
+                    
+                    let posInt = `(-\\infty, ${r1}) \\cup (${r2}, \\infty)`;
+                    let negInt = `(${r1}, ${r2})`;
+                    
+                    if (isInc) {
+                        correctAns = a > 0 ? posInt : negInt;
+                    } else {
+                        correctAns = a > 0 ? negInt : posInt;
+                    }
+                    
+                    distractors.add(a > 0 ? negInt : posInt); 
+                    distractors.add(`(-\\infty, ${-r1}) \\cup (${-r2}, \\infty)`); 
+                    distractors.add(`(${-r2}, ${-r1})`); 
+                }
+
+                // MODE 4: First Derivative Test (Local Extrema)
+                else if (currentMode === 4) {
+                    let isMax = Math.random() > 0.5;
+                    promptText = `Find the x-value of the local ${isMax ? 'MAXIMUM' : 'MINIMUM'}:`;
+                    
+                    let r1 = getRandomInt(-3, 1);
+                    let r2 = getRandomInt(r1 + 2, 4); 
+                    let a = getRandomEl([-1, 1]); 
+                    
+                    let c3 = 2 * a;
+                    let c2 = -3 * a * (r1 + r2);
+                    let c1 = 6 * a * r1 * r2;
+                    
+                    let p1 = formatTerm(c3, 'x', 3, true);
+                    let p2 = formatTerm(c2, 'x', 2, false);
+                    let p3 = formatTerm(c1, 'x', 1, p1 === "" && p2 === "");
+                    
+                    promptHTML = `f(x) = ${p1}${p2}${p3}`;
+                    
+                    let localMax = a > 0 ? r1 : r2;
+                    let localMin = a > 0 ? r2 : r1;
+                    
+                    correctAns = `x = ${isMax ? localMax : localMin}`;
+                    distractors.add(`x = ${isMax ? localMin : localMax}`); 
+                    distractors.add(`x = ${-(isMax ? localMax : localMin)}`); 
+                    distractors.add(`x = ${0}`); 
+                }
+
+                // MODE 5: Critical Numbers (Rationals & Radicals)
+                else if (currentMode === 5) {
+                    promptText = "Find the critical number(s) of f(x):";
+                    
+                    let isRational = Math.random() > 0.5;
+                    
+                    if (isRational) {
+                        // f(x) = (x^2 + a) / x. f'(x) = (x^2 - a) / x^2. C.N. at x = +-sqrt(a). (VA at 0 is NOT a CN)
+                        let k = getRandomInt(2, 5);
+                        let a = k * k;
+                        let isPlus = Math.random() > 0.3; // Mostly real roots
+                        
+                        if (isPlus) {
+                            promptHTML = `f(x) = \\frac{x^2 + ${a}}{x}`;
+                            correctAns = `x = \\pm ${k}`;
+                            distractors.add(`x = \\pm ${k}, \\; 0`); // Fell for VA trap
+                            distractors.add(`x = 0`); // Only gave VA
+                            distractors.add(`\\text{None}`); // Thought it never equals zero
+                        } else {
+                            // f(x) = (x^2 - a) / x. f'(x) = (x^2 + a) / x^2. Never zero.
+                            promptHTML = `f(x) = \\frac{x^2 - ${a}}{x}`;
+                            correctAns = `\\text{None}`;
+                            distractors.add(`x = 0`); // VA trap
+                            distractors.add(`x = \\pm ${k}`); // Assumed factored top
+                            distractors.add(`x = \\pm ${k}, \\; 0`);
+                        }
+                    } else {
+                        // f(x) = sqrt(k^2 - x^2). f'(x) = -x / sqrt(k^2 - x^2).
+                        // C.N. at x=0 (f'=0) and x=+-k (f' undefined but in domain).
+                        let k = getRandomInt(2, 5);
+                        let a = k * k;
+                        
+                        promptHTML = `f(x) = \\sqrt{${a} - x^2}`;
+                        correctAns = `x = 0, \\; \\pm ${k}`;
+                        
+                        distractors.add(`x = 0`); // Forgot undefined points
+                        distractors.add(`x = \\pm ${k}`); // Forgot numerator = 0
+                        distractors.add(`\\text{None}`); 
+                    }
+                }
+
+                // MODE 6: Rational & Radical Sign Charts (Inc/Dec)
+                else if (currentMode === 6) {
+                    let isInc = Math.random() > 0.5;
+                    promptText = `Find the interval(s) where f(x) is ${isInc ? 'INCREASING' : 'DECREASING'}:`;
+                    forceFullWidth = true;
+                    
+                    let isRational = Math.random() > 0.5;
+                    
+                    if (isRational) {
+                        // f'(x) = (x - a) / (x - b)^2. Sign changes only at a.
+                        let a = getRandomInt(-4, 4);
+                        let b; do { b = getRandomInt(-4, 4); } while (Math.abs(a - b) < 2);
+                        
+                        let num = a === 0 ? "x" : `(x ${a < 0 ? '+' : '-'} ${Math.abs(a)})`;
+                        let den = b === 0 ? "x^2" : `(x ${b < 0 ? '+' : '-'} ${Math.abs(b)})^2`;
+                        
+                        let isNeg = Math.random() > 0.5;
+                        promptHTML = `f'(x) = ${isNeg ? '-' : ''}\\frac{${num}}{${den}}`;
+                        
+                        let posInt, negInt;
+                        if (a < b) {
+                            posInt = `(${a}, ${b}) \\cup (${b}, \\infty)`;
+                            negInt = `(-\\infty, ${a})`;
+                        } else {
+                            posInt = `(${a}, \\infty)`;
+                            negInt = `(-\\infty, ${b}) \\cup (${b}, ${a})`;
+                        }
+                        
+                        if (isNeg) {
+                            correctAns = isInc ? negInt : posInt;
+                            distractors.add(isInc ? posInt : negInt);
+                        } else {
+                            correctAns = isInc ? posInt : negInt;
+                            distractors.add(isInc ? negInt : posInt);
+                        }
+                        
+                        // Trap: Treat b as a crossing root
+                        let r1 = Math.min(a, b); let r2 = Math.max(a, b);
+                        distractors.add(`(${r1}, ${r2})`);
+                        distractors.add(`(-\\infty, ${r1}) \\cup (${r2}, \\infty)`);
+                    } else {
+                        // Radical: f'(x) = (x - a) / sqrt(x - b). Domain x > b. Root at a (a > b).
+                        let b = getRandomInt(-3, 3);
+                        let a = b + getRandomInt(2, 5);
+                        
+                        let num = a === 0 ? "x" : `(x ${a < 0 ? '+' : '-'} ${Math.abs(a)})`;
+                        let den = b === 0 ? "\\sqrt{x}" : `\\sqrt{x ${b < 0 ? '+' : '-'} ${Math.abs(b)}}`;
+                        
+                        promptHTML = `f'(x) = \\frac{${num}}{${den}}`;
+                        
+                        // Pos on (a, inf). Neg on (b, a).
+                        let posInt = `(${a}, \\infty)`;
+                        let negInt = `(${b}, ${a})`;
+                        
+                        correctAns = isInc ? posInt : negInt;
+                        
+                        distractors.add(isInc ? negInt : posInt); // Flipped
+                        distractors.add(`(-\\infty, ${a})`); // Ignored domain restriction
+                        distractors.add(`(-\\infty, ${b}) \\cup (${a}, \\infty)`); // Treated as standard rational
+                    }
+                }
+
+                // MODE 7: Local Max/Min (Non-Polynomials)
+                else if (currentMode === 7) {
+                    let isMax = Math.random() > 0.5;
+                    promptText = `For which x-value does the local ${isMax ? 'MAXIMUM' : 'MINIMUM'} occur?`;
+                    
+                    let isRational = Math.random() > 0.5;
+                    
+                    if (isRational) {
+                        // f(x) = x + (k^2 / x). f'(x) = 1 - k^2/x^2. Roots at +-k.
+                        // Max at -k, Min at k.
+                        let k = getRandomInt(2, 6);
+                        let a = k * k;
+                        
+                        promptHTML = `f(x) = x + \\frac{${a}}{x}`;
+                        
+                        correctAns = isMax ? `x = -${k}` : `x = ${k}`;
+                        
+                        distractors.add(isMax ? `x = ${k}` : `x = -${k}`); // Gave opposite extrema
+                        distractors.add(`x = 0`); // Picked asymptote
+                        distractors.add(`\\text{None}`);
+                    } else {
+                        // f(x) = sqrt(x) - x / (2k). f'(x) = 1/(2sqrt(x)) - 1/(2k). Root at sqrt(x) = k => x = k^2.
+                        // f' goes from + to - (Local Max). No Local Min.
+                        let k = getRandomInt(2, 5);
+                        let den = 2 * k;
+                        
+                        promptHTML = `f(x) = \\sqrt{x} - \\frac{x}{${den}}`;
+                        
+                        if (isMax) {
+                            correctAns = `x = ${k * k}`;
+                            distractors.add(`x = ${k}`); // Forgot to square
+                            distractors.add(`x = 0`); // Picked endpoint
+                            distractors.add(`\\text{None}`);
+                        } else {
+                            correctAns = `\\text{None}`;
+                            distractors.add(`x = ${k * k}`); // Picked the max instead
+                            distractors.add(`x = ${k}`); 
+                            distractors.add(`x = 0`);
+                        }
+                    }
+                }
+
+                problemSignature = promptText + promptHTML + correctAns;
+                loopCount++;
+
+            } while (problemSignature === lastPrompt && loopCount < 10); 
+            
+            lastPrompt = problemSignature;
+
+            // --- Safe DOM Updates ---
+            document.getElementById('promptTitle').innerText = promptText; 
+            
+            let displayBox = document.getElementById('problemDisplay');
+            displayBox.innerHTML = `\\( ${promptHTML} \\)`; 
+
+            let finalOptions = new Set();
+            finalOptions.add(correctAns);
+            let distArray = Array.from(distractors);
+            let i = 0;
+
+            while(finalOptions.size < targetOptionsSize && i < distArray.length) {
+                finalOptions.add(distArray[i]); i++;
+            }
+            
+            // Pad safely
+            let pad = 1;
+            while(finalOptions.size < targetOptionsSize) { 
+                if (currentMode === 3 || currentMode === 6) {
+                    finalOptions.add(`(-\\infty, ${pad}) \\cup (${pad+2}, \\infty)`);
+                } else if (currentMode === 5) {
+                    finalOptions.add(`x = \\pm ${pad}`);
+                } else {
+                    finalOptions.add(`x = ${pad}`);
+                }
+                pad++;
+            }
+            
+            let options = shuffle(Array.from(finalOptions));
+
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = ''; 
+
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'option-btn';
+                
+                if (forceFullWidth || opt.length > 15) {
+                    btn.classList.add('full-width');
+                }
+                
+                btn.innerHTML = `\\(${opt}\\)`;
+                btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                grid.appendChild(btn);
+            });
+
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { 
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "\\(", right: "\\)", display: false}
+                    ] 
+                });
+            }
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            setTimeout(() => display.classList.remove('error'), 400);
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['\u2B50', '\uD83C\uDFAF', '\uD83D\uDE80', '\u2728', '\uD83C\uDFC6'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+
+</body>
+</html>
