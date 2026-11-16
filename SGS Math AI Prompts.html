@@ -961,17 +961,17 @@ function buildPrompt() {
 
   lines.push('');
   if (state.style === 'worksheet') {
-    lines.push('Format: Build an HTML worksheet with a show answers toggle.');
+    lines.push('Format: Build an HTML worksheet with a show answers toggle. Answers should show steps or explain how to get to solution.');
     lines.push('Include a button to print the worksheet and answer key separately.');
   } else if (state.style === 'quiz') {
     lines.push('Format: Build an interactive HTML quiz.');
     lines.push('Include a mix of multiple choice and numeric-only enter-answer questions.');
-    lines.push('Provide right or wrong feedback immediately.');
+    lines.push('Provide right or wrong feedback immediately, with explaination.');
   } else if (state.style === 'text') {
     lines.push('Format: Plain text output directly in the chat window.');
     lines.push('Use standard Markdown and LaTeX math delimiters (like $x^2$ or $$\\frac{1}{2}$$).');
     lines.push('Do NOT output any HTML, CSS, or JavaScript code.');
-    lines.push('Format clearly with Question 1, Question 2, etc., followed by a separate Answer Key section at the end.');
+    lines.push('Format clearly with Question 1, Question 2, etc., followed by a separate Answer Key section at the end with steps.');
   }
     lines.push('');
   lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too.");
