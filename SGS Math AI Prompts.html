@@ -961,7 +961,7 @@ function buildPrompt() {
 
   lines.push('');
   if (state.style === 'worksheet') {
-    lines.push('Format: Build an HTML worksheet with a show answers toggle. Answers should show steps or explain how to get to solution.');
+    lines.push('Format: Build an HTML worksheet with a show answers toggle. Answers should show steps or explain how to get to solution. There should be some working space for the questions for printing worksheets.');
     lines.push('Include a button to print the worksheet and answer key separately.');
   } else if (state.style === 'quiz') {
     lines.push('Format: Build an interactive HTML quiz.');
