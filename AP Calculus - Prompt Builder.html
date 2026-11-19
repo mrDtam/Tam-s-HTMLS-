@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AP Calculus Prompt Builder</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+<style>
+  *{box-sizing:border-box}
+  :root{
+    --bg:#f5f6fa; --card:#ffffff; --ink:#111827; --muted:#6b7280;
+    --line:#e5e7eb; --accent:#0ea5e9; --accent-soft:#e0f2fe; --radius:14px;
+  }
+  html,body{
+    margin:0;padding:0;
+    touch-action: manipulation;
+  }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.45;
+    -webkit-text-size-adjust:100%;
+    -webkit-tap-highlight-color: rgba(14, 165, 233, 0.18);
+    overscroll-behavior-y: contain;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:22px 16px 140px}
+  h1{font-size:1.45rem;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:.92rem;margin:0 0 20px}
+  h2.step{
+    font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);margin:26px 0 10px;font-weight:700;
+  }
+
+  button, .unit, .paperbtn, .stylebtn, .skill, .difficulty-card {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .unit{
+    display:flex;gap:12px;align-items:center;
+    padding:16px 18px;margin-bottom:10px;
+    background:var(--card);border:2px solid var(--line);
+    border-radius:var(--radius);cursor:pointer;
+    transition:border-color .15s, background .12s, transform .08s;
+    outline:none; min-height:56px;
+  }
+  .unit:active{transform:scale(.99); background:var(--accent-soft)}
+  .unit:focus-visible{border-color:var(--accent)}
+  .unit .dot{
+    flex:0 0 auto;width:20px;height:20px;border-radius:50%;
+    border:2px solid #cbd5e1;position:relative;transition:.15s;
+  }
+  .unit.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .unit.sel .dot{border-color:var(--accent);background:var(--accent)}
+  .unit.sel .dot::after{
+    content:"";position:absolute;inset:3px;border-radius:50%;background:#fff;
+  }
+  .unit .uname{font-size:.95rem;font-weight:600;flex:1;min-width:0}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px;
+  }
+  .countval{font-size:2rem;font-weight:800;letter-spacing:-.03em;text-align:center;color:var(--accent)}
+  .countval small{font-size:.85rem;font-weight:600;color:var(--muted);letter-spacing:0}
+  input[type=range]{
+    width:100%;margin:12px 0 4px;accent-color:var(--accent);height:36px;
+  }
+  .rangeticks{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
+
+  .paper-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .paperbtn{
+    flex:1 1 160px;padding:14px 16px;border-radius:12px;border:2px solid var(--line);
+    background:var(--card);font-family:inherit;cursor:pointer;text-align:left;
+    transition:.15s; min-height:64px;
+  }
+  .paperbtn:active{transform:scale(.98); background:var(--accent-soft)}
+  .paperbtn .ptitle{display:block;font-weight:700;font-size:.9rem}
+  .paperbtn .pdesc{display:block;font-size:.72rem;color:var(--muted);margin-top:2px}
+  .paperbtn.active{border-color:var(--accent);background:var(--accent-soft)}
+
+  .styles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  @media (max-width: 500px) {
+    .styles { grid-template-columns: 1fr; }
+  }
+  .stylebtn{
+    display:flex;flex-direction:column;gap:4px;align-items:flex-start;
+    padding:16px;background:var(--card);border:2px solid var(--line);
+    border-radius:var(--radius);cursor:pointer;text-align:left;
+    font-family:inherit;color:inherit;transition:.15s;
+    min-height:80px;
+  }
+  .stylebtn:active{transform:scale(.98); background:var(--accent-soft)}
+  .stylebtn .sicon{font-size:1.2rem;line-height:1}
+  .stylebtn .stitle{font-weight:700;font-size:.95rem}
+  .stylebtn .sdesc{font-size:.75rem;color:var(--muted);line-height:1.3}
+  .stylebtn.active{border-color:var(--accent);background:var(--accent-soft)}
+
+  .bottombar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(255,255,255,.96);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  .bottombar .inner{max-width:720px;margin:0 auto;display:flex;gap:10px}
+  .primary{
+    flex:1;padding:16px 18px;border-radius:12px;border:none;
+    background:var(--accent);color:#fff;font-weight:700;font-size:1rem;
+    font-family:inherit;cursor:pointer;transition:.15s;
+    min-height:52px;
+  }
+  .primary:disabled{background:#c7cbd6;cursor:not-allowed}
+  .primary:not(:disabled):active{transform:scale(.99)}
+  .ghost{
+    padding:16px;border-radius:12px;border:1px solid var(--line);
+    background:#fff;color:var(--ink);font-weight:600;font-size:.95rem;
+    font-family:inherit;cursor:pointer; min-height:52px;
+  }
+  .ghost:active{background:#f1f5f9}
+
+  .backbtn{
+    background:none;border:none;padding:10px 0;margin-bottom:6px;
+    font-family:inherit;font-size:.9rem;color:var(--accent);font-weight:600;cursor:pointer;
+    min-height:44px;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+  .chip{
+    font-size:.75rem;font-weight:600;padding:6px 12px;border-radius:99px;
+    background:#fff;border:1px solid var(--line);color:var(--muted);
+  }
+  .chip.strong{background:var(--accent-soft);border-color:#bae6fd;color:var(--accent)}
+  .chip.warn{background:#fef3c7;border-color:#fde68a;color:#92400e}
+
+  .row-actions{display:flex;gap:10px;margin-bottom:14px}
+  .row-actions button{
+    flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);
+    background:#fff;font-family:inherit;font-size:.85rem;font-weight:600;
+    color:var(--muted);cursor:pointer; min-height:44px;
+  }
+  .row-actions button:active{background:var(--accent-soft)}
+
+  .skillgroup{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:8px 14px;margin-bottom:12px;
+  }
+  .skillgroup h3{
+    font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;
+    font-weight:800;color:var(--muted);margin:8px 0 4px;
+  }
+  .skill{
+    display:flex;gap:12px;align-items:flex-start;
+    padding:12px 6px;cursor:pointer;font-size:.9rem;line-height:1.4;
+    border-radius:8px; min-height:48px;
+    transition:background .12s;
+  }
+  .skill:active{background:var(--accent-soft)}
+  .skill input{
+    flex:0 0 auto;width:22px;height:22px;margin-top:0;
+    accent-color:var(--accent);cursor:pointer;
+    transform: scale(1.15); transform-origin: left center;
+  }
+  .skill .stext{flex:1;min-width:0}
+  .skill .stext .katex{font-size:1em}
+
+  .difficulty-card{
+    background:var(--card);border:2px solid var(--line);
+    border-radius:var(--radius);padding:18px;margin-bottom:12px;
+    cursor:pointer;transition:.15s; min-height:56px;
+  }
+  .difficulty-card:active{transform:scale(.99); background:var(--accent-soft)}
+  .difficulty-card.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .difficulty-card .dhead{
+    display:flex;align-items:center;gap:12px;margin-bottom:8px;
+  }
+  .difficulty-card .dtier{
+    font-size:.95rem;font-weight:800;color:var(--accent);
+    text-transform:uppercase;letter-spacing:.04em;
+  }
+  .difficulty-card .ddot{
+    flex:0 0 auto;width:20px;height:20px;border-radius:50%;
+    border:2px solid #cbd5e1;transition:.15s;
+  }
+  .difficulty-card.sel .ddot{border-color:var(--accent);background:var(--accent);position:relative}
+  .difficulty-card.sel .ddot::after{
+    content:"";position:absolute;inset:3px;border-radius:50%;background:#fff;
+  }
+  .difficulty-card .ddesc{
+    font-size:.86rem;color:#374151;line-height:1.5;margin:0 0 8px;
+  }
+  .difficulty-card .dexample{
+    font-size:.79rem;font-style:italic;color:#475569;
+    background:#f8fafc;border-left:3px solid var(--accent);
+    padding:10px 12px;border-radius:0 6px 6px 0;margin:0;
+  }
+
+  .hint{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+  .hint strong{color:var(--ink)}
+
+  .promptcard{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;margin:0 0 14px;
+    box-shadow:0 1px 2px rgba(16,24,40,.05);
+  }
+  .promptcard-head{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:10px 12px 10px 16px;border-bottom:1px solid var(--line);
+    background:#f8fafc;font-size:.72rem;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  }
+  .copybtn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:11px 18px;border-radius:10px;border:none;
+    background:var(--accent);color:#fff;font-family:inherit;
+    font-weight:700;font-size:.85rem;cursor:pointer;
+    transition:background .15s, transform .06s;
+    min-height:44px;
+  }
+  .copybtn:active{transform:scale(.97)}
+  .copybtn.done{background:#16a34a}
+
+  .promptbox{
+    margin:0;background:#0f172a;color:#e2e8f0;padding:16px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.8rem;line-height:1.55;
+    white-space:pre-wrap;word-break:break-word;
+    max-height:54vh;overflow:auto;-webkit-overflow-scrolling:touch;
+  }
+  .promptbox::selection,.promptbox ::selection{background:#3b82f6;color:#fff}
+
+  .toast{
+    position:fixed;left:50%;bottom:92px;transform:translate(-50%,16px);
+    background:#111827;color:#fff;padding:12px 20px;border-radius:99px;
+    font-size:.85rem;font-weight:600;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:60;max-width:88vw;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ SCREEN 0 ============ -->
+  <section id="screen0">
+    <h1>AP Calculus Prompt Builder</h1>
+    <p class="sub">Select your course to begin building Multiple Choice practice.</p>
+    <h2 class="step">Select Course</h2>
+    <div id="courseList"></div>
+    <div class="bottombar"><div class="inner">
+      <button id="courseContinueBtn" class="primary" disabled type="button">Choose a course to continue</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 1 ============ -->
+  <section id="screen1" hidden>
+    <button class="backbtn" id="backToCoursesBtn" type="button">← Back to courses</button>
+    <h1 id="courseTitle">Course</h1>
+    <p class="sub">Pick a unit, question count, and calculator policy.</p>
+
+    <h2 class="step">1 · AP CED Unit</h2>
+    <div id="unitList"></div>
+
+    <h2 class="step">2 · Number of questions</h2>
+    <div class="card">
+      <div class="countval"><span id="countVal">10</span> <small>questions</small></div>
+      <input id="countRange" type="range" min="5" max="20" step="1" value="10" aria-label="Number of questions">
+      <div class="rangeticks"><span>5</span><span>10</span><span>15</span><span>20</span></div>
+    </div>
+
+    <h2 class="step">3 · Calculator Policy</h2>
+    <div class="paper-group" id="paperGroup">
+      <button class="paperbtn active" data-paper="nocalc" type="button">
+        <span class="ptitle">Section I, Part A</span>
+        <span class="pdesc">No Calculator · Exact values, algebraic manipulation</span>
+      </button>
+      <button class="paperbtn" data-paper="calc" type="button">
+        <span class="ptitle">Section I, Part B</span>
+        <span class="pdesc">Calculator Required · Numerical derivatives/integrals, graphing</span>
+      </button>
+    </div>
+
+    <h2 class="step">4 · Format (All M/C)</h2>
+    <div class="styles">
+      <button class="stylebtn" data-style="worksheet" type="button">
+        <span class="sicon">🖨️</span>
+        <span class="stitle">Worksheet</span>
+        <span class="sdesc">Printable HTML</span>
+      </button>
+      <button class="stylebtn" data-style="quiz" type="button">
+        <span class="sicon">⚡</span>
+        <span class="stitle">Quiz</span>
+        <span class="sdesc">Interactive HTML</span>
+      </button>
+      <button class="stylebtn" data-style="text" type="button">
+        <span class="sicon">💬</span>
+        <span class="stitle">Chat Text</span>
+        <span class="sdesc">Read in AI window</span>
+      </button>
+    </div>
+
+    <div class="bottombar"><div class="inner">
+      <button id="continueBtn" class="primary" disabled type="button">Choose a unit to continue</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 2 ============ -->
+  <section id="screen2" hidden>
+    <button class="backbtn" id="backBtn" type="button">← Back to units</button>
+    <h1>Choose your focus</h1>
+    <p class="sub">Pick the skills to assess, then pick the difficulty structure for those skills.</p>
+
+    <div class="chips" id="summaryChips"></div>
+
+    <h2 class="step">1 · Skills to assess</h2>
+    <p class="hint">Every generated M/C question will assess at least one of the skills you check below.</p>
+    <div class="row-actions">
+      <button id="selectAllSkillsBtn" type="button">Select all</button>
+      <button id="clearAllSkillsBtn" type="button">Clear all</button>
+    </div>
+    <div id="skillList"></div>
+
+    <h2 class="step">2 · Multiple Choice Difficulty Structure</h2>
+    <p class="hint">Each tier describes <strong>how</strong> the chosen skills are tested in classic AP style. Pick at least one — the AI will distribute the questions across the tiers you select.</p>
+    <div id="difficultyList"></div>
+
+    <div class="bottombar"><div class="inner">
+      <button id="generateBtn" class="primary" type="button">Generate prompt</button>
+    </div></div>
+  </section>
+
+  <!-- ============ SCREEN 3 ============ -->
+  <section id="screen3" hidden>
+    <button class="backbtn" id="backBtn2" type="button">← Edit selection</button>
+    <h1>Your prompt</h1>
+    <p class="hint">Tap <strong>Copy</strong> on the card below, then paste it into your AI assistant.</p>
+
+    <div class="promptcard">
+      <div class="promptcard-head">
+        <span>AI Prompt</span>
+        <button class="copybtn" id="copyTop" type="button">📋 Copy</button>
+      </div>
+      <pre class="promptbox" id="promptOut"></pre>
+    </div>
+
+    <div class="bottombar"><div class="inner">
+      <button class="ghost" id="startOverBtn" type="button">Start over</button>
+      <button class="primary" id="copyBtn" type="button">Copy prompt</button>
+    </div></div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   DIFFICULTY TIER DEFINITIONS (AP Calculus M/C Style)
+   ========================================================= */
+const DIFFICULTY_TIERS = {
+  easy: {
+    label: 'Direct Application',
+    summary: 'Straightforward use of theorems or rules.',
+    definition: 'Questions provide an explicit function (e.g., polynomial, trig, exp) and ask for a direct calculation, derivative, integral, or limit. Standard first 10 questions of Section I.',
+    example: 'If f(x) = x^3 - 4x + 1, what is f\'(2)?'
+  },
+  medium: {
+    label: 'Analytical & Contextual',
+    summary: 'Tabular data, word problems, and multi-step logic.',
+    definition: 'Questions require interpreting tables of values, applying rules contextually (e.g. particle motion where v(t) is given), or combining two rules (e.g. quotient rule with chain rule).',
+    example: 'Given a table of values for f, f\', g, and g\', evaluate the derivative of h(x) = f(g(x)) at x = 2.'
+  },
+  hard: {
+    label: 'Abstract, Reverse, & Conceptual',
+    summary: 'Roman numeral formats, abstract graphs, and parameter solving.',
+    definition: 'Classic AP curveballs. Must include "Roman Numeral (I, II, III)" multiple true/false questions, "Which of the following statements is true" questions, interpreting an abstract graph (e.g. given the graph of f\', determine where f is concave up), or reverse parameter solving (e.g., finding unknown constants k or c to satisfy a theorem).',
+    example: 'Given the graph of f\', which of the following is true? I. f has a relative max at x=1. II. f is concave down on (1,3).'
+  }
+};
+
+/* =========================================================
+   MASTER DATA (AP Calculus AB and BC)
+   ========================================================= */
+const COURSES = {
+  ap_calc_ab: {
+    name: "AP Calculus AB",
+    units: [
+      {
+        id: 'ab1', name: 'Unit 1: Limits & Continuity',
+        skills: [
+          'Evaluate limits analytically (algebraic manipulation)',
+          'Evaluate limits from graphs and tables',
+          'Determine one-sided limits',
+          'Evaluate limits at infinity (horizontal asymptotes)',
+          'Identify vertical asymptotes using limits',
+          'Apply the Squeeze Theorem',
+          'Determine continuity at a point and over an interval',
+          'Apply the Intermediate Value Theorem (IVT)'
+        ]
+      },
+      {
+        id: 'ab2', name: 'Unit 2: Differentiation: Fundamental',
+        skills: [
+          'Calculate average rate of change vs instantaneous rate of change',
+          'Apply the limit definition of the derivative',
+          'Determine differentiability and continuity',
+          'Apply the Power Rule',
+          'Apply the Product and Quotient Rules',
+          'Find derivatives of trigonometric functions',
+          'Find derivatives of exponential and logarithmic functions'
+        ]
+      },
+      {
+        id: 'ab3', name: 'Unit 3: Differentiation: Composite/Implicit/Inverse',
+        skills: [
+          'Apply the Chain Rule',
+          'Perform implicit differentiation',
+          'Find derivatives of inverse functions',
+          'Find derivatives of inverse trigonometric functions',
+          'Calculate higher-order derivatives'
+        ]
+      },
+      {
+        id: 'ab4', name: 'Unit 4: Contextual Apps of Differentiation',
+        skills: [
+          'Interpret the meaning of the derivative in context',
+          'Solve related rates problems',
+          'Analyze straight-line particle motion (position, velocity, acceleration)',
+          'Use local linear approximation (linearization)',
+          'Apply L\'Hospital\'s Rule for indeterminate limits'
+        ]
+      },
+      {
+        id: 'ab5', name: 'Unit 5: Analytical Apps of Differentiation',
+        skills: [
+          'Apply the Mean Value Theorem (MVT)',
+          'Apply the Extreme Value Theorem (EVT)',
+          'Use the First Derivative Test (increasing/decreasing/extrema)',
+          'Use the Second Derivative Test (concavity/inflection points)',
+          'Sketch properties of f given graphs of f\' or f\'\'',
+          'Solve optimization problems'
+        ]
+      },
+      {
+        id: 'ab6', name: 'Unit 6: Integration & Accumulation of Change',
+        skills: [
+          'Approximate area using Riemann Sums (left, right, midpoint, trapezoidal)',
+          'Understand the definite integral as a limit of Riemann sums',
+          'Apply the Fundamental Theorem of Calculus (Part 1 and 2)',
+          'Evaluate basic antiderivatives',
+          'Apply integration by substitution (U-substitution)',
+          'Integrate using long division and completing the square'
+        ]
+      },
+      {
+        id: 'ab7', name: 'Unit 7: Differential Equations',
+        skills: [
+          'Sketch and interpret slope fields',
+          'Verify solutions to differential equations',
+          'Solve differential equations using separation of variables',
+          'Model exponential growth and decay'
+        ]
+      },
+      {
+        id: 'ab8', name: 'Unit 8: Applications of Integration',
+        skills: [
+          'Find the average value of a function on an interval',
+          'Calculate the area between curves',
+          'Find volumes with known cross sections',
+          'Find volumes of revolution (Disk and Washer methods)',
+          'Solve particle motion accumulation problems (net/total distance)'
+        ]
+      }
+    ]
+  },
+
+  ap_calc_bc: {
+    name: "AP Calculus BC",
+    units: [
+      {
+        id: 'bc1', name: 'Unit 1: Limits & Continuity',
+        skills: [
+          'Evaluate limits analytically (algebraic manipulation)',
+          'Evaluate limits from graphs and tables',
+          'Determine one-sided limits and limits at infinity',
+          'Apply the Squeeze Theorem and IVT'
+        ]
+      },
+      {
+        id: 'bc2', name: 'Unit 2: Differentiation: Fundamental',
+        skills: [
+          'Apply the limit definition of the derivative',
+          'Determine differentiability and continuity',
+          'Apply Power, Product, and Quotient Rules',
+          'Derivatives of trig, exp, and log functions'
+        ]
+      },
+      {
+        id: 'bc3', name: 'Unit 3: Differentiation: Composite/Implicit/Inverse',
+        skills: [
+          'Apply the Chain Rule',
+          'Perform implicit differentiation',
+          'Derivatives of inverse and inverse trig functions',
+          'Calculate higher-order derivatives'
+        ]
+      },
+      {
+        id: 'bc4', name: 'Unit 4: Contextual Apps of Differentiation',
+        skills: [
+          'Solve related rates problems',
+          'Analyze straight-line particle motion',
+          'Use local linear approximation',
+          'Apply L\'Hospital\'s Rule'
+        ]
+      },
+      {
+        id: 'bc5', name: 'Unit 5: Analytical Apps of Differentiation',
+        skills: [
+          'Apply MVT and EVT',
+          'First and Second Derivative Tests',
+          'Sketch f from f\' or f\'\' graphs',
+          'Solve optimization problems'
+        ]
+      },
+      {
+        id: 'bc6', name: 'Unit 6: Integration & Accumulation of Change',
+        skills: [
+          'Approximate area using Riemann Sums and Trapezoidal rule',
+          'Apply the Fundamental Theorem of Calculus',
+          'Apply integration by substitution',
+          'Apply Integration by Parts (BC)',
+          'Apply Linear Partial Fractions (BC)',
+          'Evaluate Improper Integrals (BC)'
+        ]
+      },
+      {
+        id: 'bc7', name: 'Unit 7: Differential Equations',
+        skills: [
+          'Interpret slope fields and verify solutions',
+          'Solve via separation of variables',
+          'Approximate solutions using Euler\'s Method (BC)',
+          'Model and solve Logistic Growth differential equations (BC)'
+        ]
+      },
+      {
+        id: 'bc8', name: 'Unit 8: Applications of Integration',
+        skills: [
+          'Find average value and area between curves',
+          'Find volumes (cross sections, disks, washers)',
+          'Calculate Arc Length of a smooth curve (BC)'
+        ]
+      },
+      {
+        id: 'bc9', name: 'Unit 9: Parametric, Polar & Vectors (BC Only)',
+        skills: [
+          'Find derivatives of parametric equations',
+          'Analyze planar motion with vector-valued functions (velocity/accel/speed)',
+          'Find arc length / distance traveled for parametric and vector functions',
+          'Find derivatives of polar functions',
+          'Calculate area bounded by polar curves'
+        ]
+      },
+      {
+        id: 'bc10', name: 'Unit 10: Infinite Sequences & Series (BC Only)',
+        skills: [
+          'Determine limits of sequences',
+          'Determine convergence of Geometric and p-series',
+          'Apply convergence tests (Integral, Comparison, Limit Comparison, Ratio, Alternating)',
+          'Determine absolute vs conditional convergence',
+          'Calculate Alternating Series Error Bound',
+          'Find Radius and Interval of Convergence for Power Series',
+          'Construct Taylor and Maclaurin polynomials',
+          'Calculate Lagrange Error Bound',
+          'Manipulate familiar Maclaurin series (e^x, sinx, cosx, 1/(1-x))'
+        ]
+      }
+    ]
+  }
+};
+
+/* =========================================================
+   STATE / HELPERS
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const state = {
+  courseId: null,
+  unitId: null,
+  count: 10,
+  paper: 'nocalc',
+  style: 'worksheet',
+  selectedSkills: new Set(),
+  selectedTiers: new Set()
+};
+
+const getCourse = id => COURSES[id];
+const getUnit = (courseId, unitId) => getCourse(courseId).units.find(u => u.id === unitId);
+
+function renderMath(el) {
+  if (typeof renderMathInElement !== 'function' || !el) return;
+  renderMathInElement(el, {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '$', right: '$', display: false },
+      { left: '\\(', right: '\\)', display: false }
+    ],
+    throwOnError: false
+  });
+}
+
+function show(id) {
+  ['screen0','screen1','screen2','screen3'].forEach(s => {
+    document.getElementById(s).hidden = (s !== id);
+  });
+  window.scrollTo(0, 0);
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2300);
+}
+
+async function copyPrompt(btn) {
+  const text = $('#promptOut').textContent;
+  let ok = false;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    }
+  } catch (e) {}
+  if (!ok) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+  }
+  if (!ok) {
+    const pre = $('#promptOut');
+    const range = document.createRange();
+    range.selectNodeContents(pre);
+    const sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+    showToast('Text selected — press Ctrl / ⌘ + C to copy');
+    return;
+  }
+  showToast('Prompt copied to clipboard ✓');
+  if (btn) {
+    const original = btn.innerHTML;
+    btn.classList.add('done');
+    btn.innerHTML = '✓ Copied';
+    setTimeout(() => {
+      btn.classList.remove('done');
+      btn.innerHTML = original;
+    }, 1700);
+  }
+}
+
+/* =========================================================
+   SCREEN 0
+   ========================================================= */
+function renderCourses() {
+  $('#courseList').innerHTML = Object.keys(COURSES).map(key => {
+    const c = COURSES[key];
+    return `
+      <div class="unit" data-id="${key}" role="button" tabindex="0">
+        <span class="dot"></span>
+        <span class="uname">${c.name}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectCourse(id) {
+  state.courseId = id;
+  const newUrl = window.location.protocol + "//" + window.location.host +
+                 window.location.pathname + '?course=' + id;
+  window.history.pushState({ path: newUrl }, '', newUrl);
+  document.querySelectorAll('#courseList .unit')
+    .forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+  $('#courseTitle').textContent = getCourse(id).name + " · Prompt Builder";
+  const btn = $('#courseContinueBtn');
+  btn.disabled = false;
+  btn.textContent = 'Continue →';
+}
+
+/* =========================================================
+   SCREEN 1
+   ========================================================= */
+function renderUnits() {
+  const course = getCourse(state.courseId);
+  $('#unitList').innerHTML = course.units.map(u => `
+    <div class="unit" data-id="${u.id}" role="button" tabindex="0">
+      <span class="dot"></span>
+      <span class="uname">${u.name}</span>
+    </div>
+  `).join('');
+}
+
+function selectUnit(id) {
+  state.unitId = id;
+  document.querySelectorAll('#unitList .unit')
+    .forEach(c => c.classList.toggle('sel', c.dataset.id === id));
+  const btn = $('#continueBtn');
+  btn.disabled = false;
+  btn.textContent = 'Continue →';
+}
+
+function setPaper(paper) {
+  state.paper = paper;
+  document.querySelectorAll('.paperbtn')
+    .forEach(b => b.classList.toggle('active', b.dataset.paper === paper));
+}
+
+function setStyle(style) {
+  state.style = style;
+  document.querySelectorAll('.stylebtn')
+    .forEach(b => b.classList.toggle('active', b.dataset.style === style));
+}
+
+/* =========================================================
+   SCREEN 2 — RENDERERS
+   ========================================================= */
+function selectAllSkillsForUnit() {
+  const unit = getUnit(state.courseId, state.unitId);
+  unit.skills.forEach((_, i) => state.selectedSkills.add(`${unit.id}:skill:${i}`));
+}
+
+function renderSkills() {
+  const unit = getUnit(state.courseId, state.unitId);
+  $('#skillList').innerHTML = `
+    <div class="skillgroup">
+      ${unit.skills.map((s, i) => {
+        const id = `${unit.id}:skill:${i}`;
+        const checked = state.selectedSkills.has(id) ? 'checked' : '';
+        return `<label class="skill">
+          <input type="checkbox" data-id="${id}" ${checked}>
+          <span class="stext">${s}</span>
+        </label>`;
+      }).join('')}
+    </div>
+  `;
+  renderMath($('#skillList'));
+  updateGenerateState();
+}
+
+function renderDifficulty() {
+  $('#difficultyList').innerHTML = ['easy', 'medium', 'hard'].map(tier => {
+    const info = DIFFICULTY_TIERS[tier];
+    const sel = state.selectedTiers.has(tier) ? 'sel' : '';
+    return `<div class="difficulty-card ${sel}" data-tier="${tier}" role="button" tabindex="0">
+      <div class="dhead">
+        <span class="ddot"></span>
+        <span class="dtier">${info.label}</span>
+      </div>
+      <p class="ddesc">${info.summary} ${info.definition}</p>
+      <p class="dexample">e.g. ${info.example}</p>
+    </div>`;
+  }).join('');
+  updateGenerateState();
+}
+
+function renderChips() {
+  const unit = getUnit(state.courseId, state.unitId);
+  let styleLabel = 'Worksheet';
+  if (state.style === 'quiz') styleLabel = 'Interactive Quiz';
+  if (state.style === 'text') styleLabel = 'Chat Text';
+  
+  const paperLabel = state.paper === 'nocalc' ? 'No Calculator' : 'Calculator Required';
+  const paperClass = state.paper === 'nocalc' ? 'chip warn' : 'chip';
+
+  const s = state.selectedSkills.size;
+  const t = state.selectedTiers.size;
+
+  $('#summaryChips').innerHTML = `
+    <span class="chip strong">${unit.name.split(':')[0]}</span>
+    <span class="chip">${state.count} questions</span>
+    <span class="${paperClass}">${paperLabel}</span>
+    <span class="chip">${styleLabel}</span>
+    <span class="chip strong">${s} skill${s === 1 ? '' : 's'}</span>
+    <span class="chip strong">${t} tier${t === 1 ? '' : 's'}</span>
+  `;
+}
+
+function updateGenerateState() {
+  const btn = $('#generateBtn');
+  const s = state.selectedSkills.size;
+  const t = state.selectedTiers.size;
+  btn.disabled = s === 0 || t === 0;
+  if (s === 0 && t === 0) {
+    btn.textContent = 'Select skills and difficulty tiers';
+  } else if (s === 0) {
+    btn.textContent = 'Select at least one skill';
+  } else if (t === 0) {
+    btn.textContent = 'Select at least one difficulty tier';
+  } else {
+    btn.textContent = `Generate prompt (${s} skill${s === 1 ? '' : 's'} · ${t} tier${t === 1 ? '' : 's'})`;
+  }
+}
+
+/* =========================================================
+   PROMPT
+   ========================================================= */
+function buildPrompt() {
+  const unit = getUnit(state.courseId, state.unitId);
+  const course = getCourse(state.courseId);
+  const paperText = state.paper === 'nocalc'
+    ? 'Section I, Part A (No Calculator) – exact values, algebraic manipulation, no graphing calculator required.'
+    : 'Section I, Part B (Calculator Required) – questions may require finding numerical derivatives/integrals or intersecting graphs on a calculator.';
+  const styleWord = state.style === 'worksheet' ? 'HTML worksheet'
+                   : state.style === 'quiz'      ? 'HTML interactive quiz'
+                   : 'plain text';
+  const formatIntro = state.style === 'text' ? 'Generate' : 'Build a';
+
+  const lines = [];
+  lines.push(`${formatIntro} ${styleWord} with ${state.count} multiple-choice questions, using KaTeX, for ${course.name}, focusing on the following selection:`);
+  lines.push('');
+  lines.push(`Topic: ${unit.name}`);
+  lines.push(`Calculator Policy: ${paperText}`);
+  lines.push('');
+
+  // ---- Skills section ----
+  const pickedSkills = unit.skills.filter((_, i) => state.selectedSkills.has(`${unit.id}:skill:${i}`));
+  lines.push('=== SKILLS TO ASSESS ===');
+  lines.push('Every multiple-choice question you generate must assess at least one of the following skills:');
+  pickedSkills.forEach(s => lines.push(`- ${s}`));
+  lines.push('');
+
+  // ---- Difficulty section ----
+  const tiers = ['easy', 'medium', 'hard'].filter(t => state.selectedTiers.has(t));
+  lines.push('=== MULTIPLE CHOICE STRUCTURE ===');
+  lines.push('The questions must be distributed across the following AP-style cognitive tiers. Match the structure of each tier precisely.');
+  lines.push('');
+  tiers.forEach(t => {
+    const info = DIFFICULTY_TIERS[t];
+    lines.push(`--- ${info.label.toUpperCase()} ---`);
+    lines.push(info.summary + ' ' + info.definition);
+    lines.push(`Example: ${info.example}`);
+    lines.push('');
+  });
+  lines.push('Guidance for the AI:');
+  lines.push('- EVERY question must be Multiple Choice with 4 options (A, B, C, D) following current AP guidelines.');
+  lines.push('- Do NOT include any Free Response Questions.');
+  lines.push('- Ensure the distractors (incorrect options) reflect common student errors, sign mistakes, or misapplied theorems.');
+  lines.push('- For "Abstract, Reverse & Conceptual" questions, make sure to include "Which of the following statements is true (I, II, or III)" logic questions and abstract table/graph analysis questions.');
+  lines.push('');
+
+  // ---- Format section ----
+  if (state.style === 'worksheet') {
+    lines.push('Format: Build an HTML worksheet with the following features:');
+    lines.push('- Present each question followed by its 4 multiple choice options neatly aligned.');
+    lines.push('- NO markschemes. Instead, provide a detailed step-by-step Solution/Explanation for each question.');
+    lines.push('- Include a "Show Solution" toggle button for EACH question individually, plus a global "Toggle All Solutions" button at the top.');
+    lines.push('- Include a separate "Print Worksheet" button (which hides all solutions before printing) and a "Print Solutions" button (which shows all solutions before printing).');
+    lines.push('- The solutions must clearly state the correct letter option before providing the mathematical reasoning.');
+  } else if (state.style === 'quiz') {
+    lines.push('Format: Build an interactive HTML quiz with the following features:');
+    lines.push('- Present each question as a multiple choice layout with clickable A, B, C, D buttons.');
+    lines.push('- Provide immediate visual feedback (right/wrong) when the student clicks an option.');
+    lines.push('- Provide a "Show Explanation" toggle button for EACH question to reveal the step-by-step math reasoning.');
+    lines.push('- Include a global "Toggle All Explanations" button at the top.');
+    lines.push('- The explanations must clearly outline the mathematical steps to arrive at the correct answer.');
+  } else if (state.style === 'text') {
+    lines.push('Format: Plain text output directly in the chat window.');
+    lines.push('Use standard Markdown and LaTeX math delimiters (like $x^2$ or $$\\frac{1}{2}$$).');
+    lines.push('Do NOT output any HTML, CSS, or JavaScript code.');
+    lines.push('Format clearly with Question 1, followed by options A, B, C, D.');
+    lines.push('At the very end of the output, provide an "Answer Key & Explanations" section containing the correct letters and brief step-by-step reasoning.');
+  }
+
+  lines.push('');
+  lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too.");
+  lines.push("CRITICAL: Load KaTeX synchronously (WITHOUT the defer attribute) from cdnjs (https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css, katex.min.js, and contrib/auto-render.min.js). Do NOT use Subresource Integrity (SRI) hashes. Trigger renderMathInElement inside window.addEventListener('load', ...) so all scripts finish loading before math renders.");  
+  lines.push("Include diagrams (using inline SVG) ONLY where necessary to solve the problem (e.g., area, abstract derivative graphs, slope fields). Do not add images for basic algebraic expressions. Ensure diagrams DO NOT reveal the answer.");
+
+  return lines.join('\n');
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function init() {
+  renderCourses();
+
+  // --- screen 0 ---
+  $('#courseList').addEventListener('click', e => {
+    const card = e.target.closest('.unit');
+    if (card) selectCourse(card.dataset.id);
+  });
+  $('#courseList').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.unit');
+    if (card) { e.preventDefault(); selectCourse(card.dataset.id); }
+  });
+
+  $('#courseContinueBtn').addEventListener('click', () => {
+    if (!state.courseId) return;
+    renderUnits();
+    show('screen1');
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const courseFromUrl = params.get('course');
+  if (courseFromUrl && COURSES[courseFromUrl]) {
+    selectCourse(courseFromUrl);
+    renderUnits();
+    show('screen1');
+  }
+
+  // --- screen 1 ---
+  $('#backToCoursesBtn').addEventListener('click', () => {
+    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+    state.courseId = null;
+    state.unitId = null;
+    document.querySelectorAll('#courseList .unit').forEach(c => c.classList.remove('sel'));
+    const btn = $('#courseContinueBtn');
+    btn.disabled = true;
+    btn.textContent = 'Choose a course to continue';
+    show('screen0');
+  });
+
+  $('#unitList').addEventListener('click', e => {
+    const card = e.target.closest('.unit');
+    if (card) selectUnit(card.dataset.id);
+  });
+  $('#unitList').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.unit');
+    if (card) { e.preventDefault(); selectUnit(card.dataset.id); }
+  });
+
+  $('#countRange').addEventListener('input', e => {
+    state.count = Number(e.target.value);
+    $('#countVal').textContent = state.count;
+    if (!$('#screen2').hidden) renderChips();
+  });
+
+  document.querySelectorAll('.paperbtn')
+    .forEach(btn => btn.addEventListener('click', () => setPaper(btn.dataset.paper)));
+  setPaper('nocalc');
+
+  document.querySelectorAll('.stylebtn')
+    .forEach(btn => btn.addEventListener('click', () => setStyle(btn.dataset.style)));
+  setStyle('worksheet');
+
+  $('#continueBtn').addEventListener('click', () => {
+    if (!state.unitId) return;
+    state.selectedSkills.clear();
+    state.selectedTiers.clear();
+    selectAllSkillsForUnit();
+    state.selectedTiers = new Set(['easy', 'medium', 'hard']);
+
+    renderSkills();
+    renderDifficulty();
+    renderChips();
+    show('screen2');
+  });
+
+  // --- screen 2 ---
+  $('#backBtn').addEventListener('click', () => show('screen1'));
+
+  $('#skillList').addEventListener('change', e => {
+    const cb = e.target.closest('input[type=checkbox]');
+    if (!cb) return;
+    if (cb.checked) state.selectedSkills.add(cb.dataset.id);
+    else state.selectedSkills.delete(cb.dataset.id);
+    renderChips();
+    updateGenerateState();
+  });
+
+  $('#selectAllSkillsBtn').addEventListener('click', () => {
+    selectAllSkillsForUnit();
+    renderSkills();
+    renderChips();
+  });
+
+  $('#clearAllSkillsBtn').addEventListener('click', () => {
+    state.selectedSkills.clear();
+    renderSkills();
+    renderChips();
+  });
+
+  function toggleTier(tier) {
+    if (state.selectedTiers.has(tier)) state.selectedTiers.delete(tier);
+    else state.selectedTiers.add(tier);
+    renderDifficulty();
+    renderChips();
+  }
+
+  $('#difficultyList').addEventListener('click', e => {
+    const card = e.target.closest('.difficulty-card');
+    if (!card) return;
+    toggleTier(card.dataset.tier);
+  });
+
+  $('#difficultyList').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.difficulty-card');
+    if (!card) return;
+    e.preventDefault();
+    toggleTier(card.dataset.tier);
+  });
+
+  $('#generateBtn').addEventListener('click', () => {
+    if (state.selectedSkills.size === 0 || state.selectedTiers.size === 0) return;
+    $('#promptOut').textContent = buildPrompt();
+
+    const top = $('#copyTop');
+    top.classList.remove('done');
+    top.innerHTML = '📋 Copy';
+    const bottom = $('#copyBtn');
+    bottom.classList.remove('copied');
+    bottom.textContent = 'Copy prompt';
+
+    show('screen3');
+  });
+
+  // --- screen 3 ---
+  $('#backBtn2').addEventListener('click', () => show('screen2'));
+
+  $('#startOverBtn').addEventListener('click', () => {
+    state.selectedSkills.clear();
+    state.selectedTiers.clear();
+    state.unitId = null;
+    document.querySelectorAll('#unitList .unit').forEach(c => c.classList.remove('sel'));
+    const unitBtn = $('#continueBtn');
+    unitBtn.disabled = true;
+    unitBtn.textContent = 'Choose a unit to continue';
+    show('screen1');
+  });
+
+  $('#copyTop').addEventListener('click', e => copyPrompt(e.currentTarget));
+  $('#copyBtn').addEventListener('click', e => copyPrompt(e.currentTarget));
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
