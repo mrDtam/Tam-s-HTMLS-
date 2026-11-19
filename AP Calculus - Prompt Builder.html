@@ -885,7 +885,7 @@ function buildPrompt() {
 
   lines.push('');
   lines.push("Use KaTeX anywhere that's needed for math fonts, keep it mobile friendly too.");
-  lines.push("CRITICAL: Load KaTeX synchronously (WITHOUT the defer attribute) from cdnjs (https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css, katex.min.js, and contrib/auto-render.min.js). Do NOT use Subresource Integrity (SRI) hashes. Trigger renderMathInElement inside window.addEventListener('load', ...) so all scripts finish loading before math renders.");  
+lines.push("CRITICAL: Load KaTeX synchronously (WITHOUT the defer attribute) from cdnjs (https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css, katex.min.js, and contrib/auto-render.min.js). Do NOT use Subresource Integrity (SRI) hashes. Trigger renderMathInElement inside window.addEventListener('load', ...) so all scripts finish loading before math renders.");  lines.push("Include diagrams (using inline SVG) ONLY where necessary to solve the problem (e.g., geometry, nets, coordinate planes). Do not add images for basic algebraic expressions. Ensure diagrams DO NOT reveal the answer.");
   lines.push("Include diagrams (using inline SVG) ONLY where necessary to solve the problem (e.g., area, abstract derivative graphs, slope fields). Do not add images for basic algebraic expressions. Ensure diagrams DO NOT reveal the answer.");
 
   return lines.join('\n');
