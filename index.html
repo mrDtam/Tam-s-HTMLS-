@@ -49,18 +49,27 @@
             border: 2px solid transparent;
             transition: all 0.2s ease;
             display: flex;
+            flex-direction: column; /* Changed to stack category and title */
             align-items: center;
             justify-content: center;
             text-align: center;
             font-size: 20px;
             font-weight: bold;
-            min-height: 80px;
+            min-height: 90px;
         }
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.1);
             border-color: #3498db;
             background-color: #f0f8ff;
+        }
+        .category-tag {
+            font-size: 0.75em;
+            color: #95a5a6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
         #status-msg {
             text-align: center;
@@ -79,15 +88,19 @@
 
     <div id="status-msg">Scanning repository for tools...</div>
     
-    <div class="grid" id="app-grid">
-        </div>
+    <div class="grid" id="app-grid"></div>
 </div>
 
 <script>
-    // Point the fetcher to your exact GitHub repository API
-    const repoApiUrl = "https://api.github.com/repos/mr-tam-sgs/Tam-s-HTMLS-/contents/";
+    const repoOwner = "mr-tam-sgs";
+    const repoName = "Tam-s-HTMLS-";
+    
+    // ==========================================================
+    // ADD NEW FOLDERS HERE AS YOU CREATE THEM!
+    // Leave '' (empty string) to also scan the root directory.
+    // ==========================================================
+    const foldersToScan = ['', 'math8', 'pc11', 'pc12', 'calculus'];
 
-    // Helper function to turn "complex-factoring.html" into "Complex Factoring"
     function formatTitle(filename) {
         let nameWithoutExt = filename.replace('.html', '');
         return nameWithoutExt
@@ -96,34 +109,74 @@
             .join(' ');
     }
 
-    // Fetch the contents of the repository
-    fetch(repoApiUrl)
-        .then(response => {
-            if (!response.ok) throw new Error("Network response was not ok");
-            return response.json();
-        })
-        .then(data => {
-            const grid = document.getElementById('app-grid');
-            document.getElementById('status-msg').style.display = 'none';
+    async function loadTools() {
+        const grid = document.getElementById('app-grid');
+        const statusMsg = document.getElementById('status-msg');
+        let allFiles = [];
 
-            // Loop through every file in the GitHub folder
-            data.forEach(file => {
-                // Only create buttons for .html files, and ignore this index file itself
-                if (file.name.endsWith('.html') && file.name !== 'index.html') {
-                    
-                    let linkCard = document.createElement('a');
-                    linkCard.href = file.name;
-                    linkCard.className = 'card';
-                    linkCard.innerText = formatTitle(file.name);
-                    
-                    grid.appendChild(linkCard);
-                }
-            });
-        })
-        .catch(error => {
-            document.getElementById('status-msg').innerText = "Unable to load tools directory.";
-            console.error("Error fetching repository contents:", error);
+        // Fetch contents of each specified folder
+        for (const folder of foldersToScan) {
+            const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${folder}`;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) continue; // Skip if folder doesn't exist yet (e.g., you haven't made 'calculus' yet)
+                
+                const data = await response.json();
+                
+                // Filter for .html files, ignoring index.html
+                const htmlFiles = data.filter(file => 
+                    file.type === 'file' && 
+                    file.name.toLowerCase().endsWith('.html') && 
+                    file.name.toLowerCase() !== 'index.html'
+                );
+                
+                // Attach the folder path to the file object for correct linking
+                htmlFiles.forEach(file => {
+                    file.folder = folder;
+                    allFiles.push(file);
+                });
+            } catch (error) {
+                console.warn(`Could not load folder: ${folder}`, error);
+            }
+        }
+
+        if (allFiles.length === 0) {
+            statusMsg.innerText = "No tools found. Add some .html files to the repository!";
+            return;
+        }
+
+        statusMsg.style.display = 'none';
+
+        // Sort alphabetically by filename
+        allFiles.sort((a, b) => a.name.localeCompare(b.name));
+
+        // Generate the cards
+        allFiles.forEach(file => {
+            let linkCard = document.createElement('a');
+            
+            // Build the correct href: 'folder/filename.html' or just 'filename.html'
+            linkCard.href = file.folder ? `${file.folder}/${file.name}` : file.name;
+            linkCard.className = 'card';
+            
+            // Format the display name
+            let displayName = formatTitle(file.name);
+            
+            // If it's in a folder, add a nice little category tag above the title
+            if (file.folder) {
+                let categoryLabel = file.folder === '' ? 'General' : formatTitle(file.folder);
+                displayName = `<span class="category-tag">${categoryLabel}</span>${displayName}`;
+            }
+            
+            linkCard.innerHTML = displayName;
+            grid.appendChild(linkCard);
         });
+    }
+
+    // Run the loader
+    loadTools().catch(error => {
+        document.getElementById('status-msg').innerText = "Unable to load tools directory.";
+        console.error("Error fetching repository contents:", error);
+    });
 </script>
 
 </body>
