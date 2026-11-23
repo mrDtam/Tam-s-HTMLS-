@@ -92,34 +92,38 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 5px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap; /* Forces single line */
             gap: 10px;
+            width: 100%;
         }
 
-        .btn-group { display: flex; gap: 10px; }
+        .btn-group { display: flex; gap: 8px; flex-shrink: 0; }
 
         .icon-btn {
             background-color: #ecf0f1;
             color: #7f8c8d;
             border: none;
-            padding: 8px 12px;
+            padding: 6px 10px; /* Shrunk padding */
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 14px; /* Shrunk font */
             cursor: pointer;
             font-weight: bold;
             font-family: inherit;
             transition: background-color 0.2s;
+            flex-shrink: 0;
         }
         .icon-btn:hover { background-color: #e0e6ed; }
 
         .streak-counter {
-            font-size: 16px;
+            font-size: 14px; /* Shrunk font */
             font-weight: bold;
             color: #f39c12;
             background: #fff3e0;
-            padding: 8px 12px;
+            padding: 6px 10px; /* Shrunk padding */
             border-radius: 12px;
             border: 2px solid #f39c12;
+            white-space: nowrap; /* Prevent text wrapping */
+            flex-shrink: 0;
         }
 
         /* --- Grid Board Layout --- */
@@ -141,7 +145,7 @@
             gap: 4px;
             justify-content: center;
             align-content: center;
-            font-size: 34px;
+            font-size: 44px; /* Increased font size */
             font-weight: bold;
             font-family: monospace;
             position: relative;
@@ -149,8 +153,8 @@
         }
 
         .cell {
-            width: 55px;
-            height: 40px;
+            width: 70px; /* Slightly wider for larger font */
+            height: 52px; /* Slightly taller */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -178,10 +182,11 @@
         /* Currently Active Input */
         .active-input {
             visibility: visible;
-            border: 4px solid var(--accent);
-            background: #fff9c4;
+            border: 4px solid #F1C40F; /* Yellow border */
+            background: #FEF9E7; /* Light yellow background */
+            border-radius: 8px; /* Rectangular with rounded corners */
             animation: pulse 1s infinite;
-            box-shadow: 0 0 15px rgba(255, 230, 109, 0.5);
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
             color: transparent; 
         }
 
@@ -244,7 +249,7 @@
 
         /* --- Basic Division Board --- */
         .basic-div-board {
-            font-size: 48px;
+            font-size: 56px; /* Increased font size */
             font-weight: bold;
             display: flex;
             flex-direction: column;
@@ -267,27 +272,28 @@
         .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            max-width: 320px;
-            margin: 5px auto 0 auto;
+            gap: 15px; /* Comfortable gaps */
+            width: 100%;
+            max-width: 380px; /* Expanded width */
+            margin: 15px auto 0 auto;
         }
 
         .num-btn {
             background-color: white;
             border: 3px solid #bdc3c7;
-            border-radius: 12px;
-            font-size: 24px;
+            border-radius: 25px; /* Pill shape / tall oval */
+            font-size: 32px; /* Larger font size */
             font-weight: bold;
             color: var(--dark);
-            padding: 10px 0;
+            padding: 15px 0; /* Taller */
             cursor: pointer;
-            box-shadow: 0 4px 0 #bdc3c7;
+            box-shadow: 0 6px 0 #bdc3c7;
             font-family: inherit;
             transition: all 0.1s;
         }
 
         .num-btn:active {
-            transform: translateY(4px);
+            transform: translateY(6px);
             box-shadow: 0 0 0 #bdc3c7;
             background-color: #ecf0f1;
         }
@@ -296,12 +302,12 @@
         
         .num-btn.back-btn { 
             grid-column: 3; 
-            background-color: #fadbd8; 
-            border-color: var(--error); 
-            box-shadow: 0 4px 0 var(--error); 
-            color: var(--error);
+            background-color: var(--error); /* Red background */
+            border-color: #c0392b; 
+            box-shadow: 0 6px 0 #c0392b; 
+            color: white; /* White icon */
         }
-        .num-btn.back-btn:active { box-shadow: 0 0 0 var(--error); background-color: #f5b7b1; }
+        .num-btn.back-btn:active { box-shadow: 0 0 0 #c0392b; background-color: #c0392b; }
 
         .confetti {
             position: absolute;
@@ -318,10 +324,13 @@
 
         @media (max-width: 480px) {
             .menu-grid { grid-template-columns: 1fr; }
-            .cell { width: 48px; height: 35px; font-size: 28px; }
+            .game-header { gap: 5px; }
+            .icon-btn { padding: 5px 8px; font-size: 13px; }
+            .streak-counter { font-size: 13px; padding: 5px 8px; }
+            .cell { width: 62px; height: 46px; font-size: 38px; }
             .carry-box { font-size: 16px; width: 26px !important; height: 26px !important; }
-            .numpad { max-width: 100%; gap: 10px; }
-            .num-btn { padding: 8px 0; font-size: 20px; }
+            .numpad { max-width: 100%; gap: 12px; }
+            .num-btn { padding: 12px 0; font-size: 28px; border-radius: 20px; }
             #boardArea { min-height: 180px; }
         }
     </style>
