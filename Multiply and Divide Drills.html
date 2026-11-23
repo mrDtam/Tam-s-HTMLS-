@@ -3,56 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Magic Math Drills</title>
-    
+    <title>Magic Math Drills!</title>
     <style>
         :root {
             --primary: #FF6B6B;
+            --primary-dark: #c95555;
             --secondary: #4ECDC4;
+            --secondary-dark: #3b9b95;
             --accent: #FFE66D;
             --dark: #2C3E50;
             --light: #F7FFF7;
             --purple: #9b59b6;
+            --purple-dark: #7d3c98;
             --blue: #3498db;
+            --success: #2ecc71;
+            --success-bg: #eafaf1;
             --error: #e74c3c;
+            --error-bg: #fadbd8;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: var(--light);
+            color: var(--dark);
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            user-select: none;
+            overflow-x: hidden;
         }
 
         body {
-            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
-            margin: 0;
-            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            user-select: none;
-            box-sizing: border-box;
+            justify-content: center;
+            padding: 8px;
+            min-height: 100dvh;
         }
 
         .container {
-            background: white;
-            padding: 15px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
+            background: #ffffff;
             border: 4px solid var(--secondary);
-            box-sizing: border-box;
+            border-radius: 25px;
+            box-shadow: 0 10px 28px rgba(44, 62, 80, 0.1);
+            max-width: 500px;
+            width: 100%;
+            padding: 14px 14px 16px 14px;
+            text-align: center;
             position: relative;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            max-height: calc(100dvh - 16px);
         }
 
-        h1 { color: var(--primary); font-size: 32px; margin: 0 0 5px 0; }
-        h2 { color: var(--purple); font-size: 18px; margin-top: 0; margin-bottom: 15px; }
+        /* --- Menu Screen --- */
+        #menuScreen {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            padding: 2px;
+        }
 
-        /* --- Menu Layout --- */
-        #menuScreen { display: block; }
-        
+        h1 {
+            color: var(--primary);
+            font-size: 28px;
+            margin: 2px 0 0 0;
+            line-height: 1.15;
+        }
+
+        .menu-subtitle {
+            color: #7f8c8d;
+            font-size: 14px;
+            font-weight: bold;
+            margin: -6px 0 2px 0;
+        }
+
+        .menu-section {
+            background: #f8fbfb;
+            border: 2px dashed #b2dfdb;
+            border-radius: 18px;
+            padding: 12px;
+        }
+
+        .menu-section.div-section {
+            border-color: #d2b4de;
+            background: #fcf9fe;
+        }
+
+        .menu-section h2 {
+            margin: 0 0 10px 0;
+            font-size: 17px;
+            color: var(--dark);
+            letter-spacing: 0.3px;
+        }
+
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -60,305 +111,488 @@
         }
 
         .menu-btn {
-            background-color: var(--secondary);
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 12px;
-            font-size: 18px;
+            padding: 12px 8px;
+            font-size: 16px;
             font-weight: bold;
-            border-radius: 15px;
+            border-radius: 14px;
             cursor: pointer;
-            box-shadow: 0 6px 0 #3b9b95;
-            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 5px 0 var(--primary-dark);
+            transition: transform 0.08s, box-shadow 0.08s;
             font-family: inherit;
         }
 
-        .menu-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #3b9b95; }
-        .menu-btn.alt { background-color: var(--primary); box-shadow: 0 6px 0 #c95555; }
-        .menu-btn.alt:active { box-shadow: 0 0 0 #c95555; }
-        .menu-btn.purple { background-color: var(--purple); box-shadow: 0 6px 0 #732d91; }
-        .menu-btn.purple:active { box-shadow: 0 0 0 #732d91; }
-
-        /* --- Game Screen --- */
-        #gameScreen { 
-            display: none; 
-            flex-grow: 1; 
-            flex-direction: column;
-            width: 100%;
+        .menu-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 var(--primary-dark);
         }
 
+        .menu-btn.teal {
+            background-color: var(--secondary);
+            box-shadow: 0 5px 0 var(--secondary-dark);
+        }
+        .menu-btn.teal:active {
+            box-shadow: 0 0 0 var(--secondary-dark);
+        }
+
+        .menu-btn.purple {
+            background-color: var(--purple);
+            box-shadow: 0 5px 0 var(--purple-dark);
+        }
+        .menu-btn.purple:active {
+            box-shadow: 0 0 0 var(--purple-dark);
+        }
+
+        /* --- Game Screen --- */
+        #gameScreen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Single-row compact Game Header */
         .game-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 5px;
-            flex-wrap: nowrap; /* Forces single line */
-            gap: 10px;
+            flex-wrap: nowrap;
+            gap: 6px;
             width: 100%;
+            margin-bottom: 6px;
+            flex-shrink: 0;
         }
 
-        .btn-group { display: flex; gap: 8px; flex-shrink: 0; }
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
 
         .icon-btn {
             background-color: #ecf0f1;
-            color: #7f8c8d;
+            color: #5d6d7e;
             border: none;
-            padding: 6px 10px; /* Shrunk padding */
+            padding: 6px 9px;
             border-radius: 10px;
-            font-size: 14px; /* Shrunk font */
+            font-size: 13px;
             cursor: pointer;
             font-weight: bold;
             font-family: inherit;
-            transition: background-color 0.2s;
-            flex-shrink: 0;
+            white-space: nowrap;
+            transition: background-color 0.15s;
         }
-        .icon-btn:hover { background-color: #e0e6ed; }
 
-        .streak-counter {
-            font-size: 14px; /* Shrunk font */
+        .icon-btn:hover { background-color: #dfe6e9; }
+        .icon-btn:active { transform: scale(0.96); }
+
+        .counter-pill {
+            font-size: 12.5px;
             font-weight: bold;
-            color: #f39c12;
-            background: #fff3e0;
-            padding: 6px 10px; /* Shrunk padding */
+            color: #d68910;
+            background: #fff8e7;
+            padding: 5px 9px;
             border-radius: 12px;
-            border: 2px solid #f39c12;
-            white-space: nowrap; /* Prevent text wrapping */
+            border: 2px solid #f5b041;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             flex-shrink: 0;
         }
 
-        /* --- Grid Board Layout --- */
+        .counter-pill .sep {
+            color: #f5b041;
+        }
+
+        .counter-pill .correct-part {
+            color: #239b56;
+        }
+
+        /* --- Status Hint Bar (compact, fixed height so layout never jumps) --- */
+        .status-hint {
+            height: 18px;
+            line-height: 18px;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--error);
+            margin-bottom: 4px;
+            flex-shrink: 0;
+        }
+
+        /* --- Math Board Area --- */
         #boardArea {
-            min-height: 200px;
             width: 100%;
+            flex: 1;
+            min-height: 160px;
+            max-height: 360px;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
-            margin-bottom: 10px;
-            padding: 5px;
+            background: #fffef5;
+            border: 2px solid #f9e79f;
+            border-radius: 18px;
+            padding: 10px 8px;
+            overflow-y: auto;
             overflow-x: auto;
-            box-sizing: border-box;
         }
 
+        #boardArea.long-div-area {
+            align-items: flex-start;
+            padding-top: 12px;
+        }
+
+        #boardContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: auto;
+        }
+
+        /* --- Grid Board for Multiplication & Long Division --- */
         .grid-board {
             display: grid;
-            gap: 4px;
             justify-content: center;
             align-content: center;
-            font-size: 44px; /* Increased font size */
+            font-family: 'Courier New', 'SF Mono', Menlo, Consolas, monospace;
             font-weight: bold;
-            font-family: monospace;
             position: relative;
-            margin: 0 auto;
         }
 
         .cell {
-            width: 70px; /* Slightly wider for larger font */
-            height: 52px; /* Slightly taller */
+            width: var(--cell-w, 48px);
+            height: var(--cell-h, 46px);
+            font-size: var(--cell-fs, 38px);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            box-sizing: border-box;
-            flex-shrink: 0;
         }
 
-        .line-bottom { border-bottom: 4px solid var(--dark); margin-bottom: 2px; }
-        .line-top { border-top: 4px solid var(--dark); margin-top: -2px; }
-        .bracket { transform: scaleY(1.3); font-weight: normal; margin-right: -10px; }
-        
-        /* Empty/Hidden Inputs */
-        .step-input {
+        .cell.carry-row-cell {
+            height: var(--carry-row-h, 30px);
+        }
+
+        .cell.op-cell {
+            color: var(--dark);
+        }
+
+        .cell.minus-cell {
+            color: #7f8c8d;
+            font-size: calc(var(--cell-fs, 34px) * 0.85);
+        }
+
+        .cell.arrow-cell {
+            color: var(--purple);
+            font-size: calc(var(--cell-fs, 34px) * 0.55);
+            opacity: 0.75;
+            pointer-events: none;
+        }
+
+        .line-bottom {
+            border-bottom: 3.5px solid var(--dark);
+            align-self: end;
             width: 100%;
-            height: 100%;
+            height: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .div-top-bar {
+            border-top: 3.5px solid var(--dark);
+        }
+
+        .bracket-cell {
+            padding: 0;
+            overflow: visible;
+        }
+
+        /* --- Interactive Step Boxes --- */
+        .step-box {
+            width: calc(var(--cell-w, 48px) - 6px);
+            height: calc(var(--cell-h, 46px) - 6px);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
+            border-radius: 10px;
+            font-size: var(--cell-fs, 36px);
+            font-family: 'Courier New', 'SF Mono', Menlo, Consolas, monospace;
+            font-weight: bold;
+            transition: background-color 0.15s, border-color 0.15s, transform 0.12s;
             visibility: hidden;
-            box-sizing: border-box;
         }
 
-        /* Currently Active Input */
-        .active-input {
+        /* Currently Active Input Box */
+        .step-box.active {
             visibility: visible;
-            border: 4px solid #F1C40F; /* Yellow border */
-            background: #FEF9E7; /* Light yellow background */
-            border-radius: 8px; /* Rectangular with rounded corners */
-            animation: pulse 1s infinite;
-            box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
-            color: transparent; 
-        }
-
-        /* Filled Inputs */
-        .filled-input {
-            visibility: visible;
-            border: 2px solid transparent;
-        }
-
-        .paired-visible {
-            visibility: visible;
-            border: 4px solid #bdc3c7;
-            background: #f8f9fa;
-            opacity: 0.6;
-            animation: none;
+            background-color: #fff9c4;
+            border: 3.5px solid var(--purple);
+            box-shadow: 0 0 12px rgba(155, 89, 182, 0.35);
+            animation: activePulse 1.1s ease-in-out infinite;
             color: transparent;
         }
 
-        /* Error States for Self-Correction */
-        .error-input {
-            border: 3px solid var(--error) !important;
-            background-color: #fadbd8 !important;
-            color: var(--error) !important;
-            animation: none !important;
-            box-shadow: inset 0 0 10px rgba(231, 76, 60, 0.2);
+        /* Paired Waiting Box (Ones box waiting while Tens box is active) */
+        .step-box.paired-waiting {
+            visibility: visible;
+            background-color: #f8f9fa;
+            border: 2.5px dashed #aeb6bf;
+            color: transparent;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        /* Filled Input Box */
+        .step-box.filled {
+            visibility: visible;
+            background-color: #ffffff;
+            border: 2px solid #d5dbdb;
+            color: var(--dark);
+            cursor: pointer;
         }
 
-        .carry-box { 
-            color: var(--blue); 
-            font-size: 22px; 
-            width: 32px !important;
-            height: 32px !important;
+        .step-box.filled:hover {
+            border-color: var(--secondary);
+        }
+
+        /* Carry Boxes (Smaller blue circular/rounded) */
+        .step-box.carry-box {
+            width: var(--carry-sz, 26px);
+            height: var(--carry-sz, 26px);
+            font-size: var(--carry-fs, 16px);
             border-radius: 50%;
-            margin: auto;
-            border: 2px dashed #aed6f1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: var(--blue);
         }
 
-        /* Special style for active carry box to make it clear */
-        .carry-box.active-input {
-            border: 3px solid var(--blue);
-            background: #ebf5fb;
-            box-shadow: 0 0 10px rgba(52, 152, 219, 0.4);
-            animation: pulse 1s infinite;
+        .step-box.carry-box.active {
+            background-color: #ebf5fb;
+            border: 2.5px solid var(--blue);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.45);
+            color: transparent;
         }
 
-        .carry-box.filled-input {
-            border: 2px solid transparent;
-            background: transparent;
+        .step-box.carry-box.paired-waiting {
+            background-color: #f4faff;
+            border: 2px dashed #85c1e9;
+            color: transparent;
         }
 
-        .bring-down { color: var(--purple); }
+        .step-box.carry-box.filled {
+            background-color: #ebf5fb;
+            border: 2px solid #85c1e9;
+            color: var(--blue);
+        }
 
-        .error-shake { animation: shake 0.4s; }
+        /* Bring Down digit subtle accent */
+        .step-box.bring-down.filled {
+            color: var(--purple);
+            border-color: #d7bde2;
+            background-color: #faf5fd;
+        }
+
+        /* Validation States */
+        .step-box.error {
+            visibility: visible;
+            background-color: var(--error-bg) !important;
+            border: 3px solid var(--error) !important;
+            color: var(--error) !important;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.25);
+            cursor: pointer;
+            animation: none !important;
+        }
+
+        .step-box.correct {
+            visibility: visible;
+            background-color: var(--success-bg) !important;
+            border: 3px solid var(--success) !important;
+            color: #1e8449 !important;
+            animation: none !important;
+        }
+
+        @keyframes activePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            50% { transform: translateX(8px); }
-            75% { transform: translateX(-8px); }
+            20% { transform: translateX(-7px); }
+            40% { transform: translateX(7px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+
+        .error-shake {
+            animation: shake 0.38s ease;
         }
 
         /* --- Basic Division Board --- */
         .basic-div-board {
-            font-size: 56px; /* Increased font size */
-            font-weight: bold;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 15px;
             justify-content: center;
+            gap: 12px;
+            font-size: 42px;
+            font-weight: bold;
+            font-family: 'Courier New', 'SF Mono', Menlo, Consolas, monospace;
+            color: var(--dark);
+            flex-wrap: nowrap;
         }
 
-        .basic-div-equation {
-            margin-bottom: 5px;
+        .basic-div-board .step-box {
+            width: 58px;
+            height: 58px;
+            font-size: 42px;
+            border-radius: 14px;
         }
 
-        .basic-div-inputs {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-
-        /* --- Digital Keyboard (Numpad) --- */
+        /* --- On-Screen Digital Numpad --- */
         .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px; /* Comfortable gaps */
+            gap: 9px;
             width: 100%;
-            max-width: 380px; /* Expanded width */
-            margin: 15px auto 0 auto;
+            max-width: 360px;
+            margin: 10px auto 0 auto;
+            flex-shrink: 0;
         }
 
         .num-btn {
-            background-color: white;
-            border: 3px solid #bdc3c7;
-            border-radius: 25px; /* Pill shape / tall oval */
-            font-size: 32px; /* Larger font size */
-            font-weight: bold;
+            background-color: #ffffff;
             color: var(--dark);
-            padding: 15px 0; /* Taller */
-            cursor: pointer;
-            box-shadow: 0 6px 0 #bdc3c7;
+            border: 2.5px solid #bdc3c7;
+            border-radius: 16px;
+            padding: 11px 0;
+            font-size: 26px;
+            font-weight: bold;
             font-family: inherit;
-            transition: all 0.1s;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #bdc3c7;
+            transition: transform 0.07s, box-shadow 0.07s, background-color 0.1s;
+            line-height: 1;
         }
 
         .num-btn:active {
-            transform: translateY(6px);
+            transform: translateY(5px);
             box-shadow: 0 0 0 #bdc3c7;
-            background-color: #ecf0f1;
+            background-color: #f2f4f4;
         }
 
-        .num-btn.zero { grid-column: 2; }
-        
-        .num-btn.back-btn { 
-            grid-column: 3; 
-            background-color: var(--error); /* Red background */
-            border-color: #c0392b; 
-            box-shadow: 0 6px 0 #c0392b; 
-            color: white; /* White icon */
+        .num-btn.back-btn {
+            background-color: #fdecea;
+            color: var(--error);
+            border-color: #f1948a;
+            box-shadow: 0 5px 0 #e67e73;
+            font-size: 24px;
         }
-        .num-btn.back-btn:active { box-shadow: 0 0 0 #c0392b; background-color: #c0392b; }
 
+        .num-btn.back-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #e67e73;
+            background-color: #fadbd8;
+        }
+
+        /* --- Celebratory Sparkles --- */
         .confetti {
-            position: absolute;
-            font-size: 40px;
+            position: fixed;
+            font-size: 34px;
             pointer-events: none;
             animation: floatUp 1s ease-out forwards;
-            z-index: 100;
+            z-index: 999;
         }
 
         @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
+            0% { opacity: 1; transform: translateY(0) scale(0.9); }
+            100% { opacity: 0; transform: translateY(-95px) scale(1.45); }
         }
 
-        @media (max-width: 480px) {
-            .menu-grid { grid-template-columns: 1fr; }
-            .game-header { gap: 5px; }
-            .icon-btn { padding: 5px 8px; font-size: 13px; }
-            .streak-counter { font-size: 13px; padding: 5px 8px; }
-            .cell { width: 62px; height: 46px; font-size: 38px; }
-            .carry-box { font-size: 16px; width: 26px !important; height: 26px !important; }
-            .numpad { max-width: 100%; gap: 12px; }
-            .num-btn { padding: 12px 0; font-size: 28px; border-radius: 20px; }
-            #boardArea { min-height: 180px; }
+        /* --- Responsive Fine-Tuning for Small Mobile Screens --- */
+        @media (max-width: 400px) {
+            .container {
+                padding: 10px 10px 12px 10px;
+                border-radius: 20px;
+            }
+            .icon-btn {
+                padding: 5px 7px;
+                font-size: 12px;
+            }
+            .counter-pill {
+                font-size: 11.5px;
+                padding: 5px 7px;
+                gap: 4px;
+            }
+            .basic-div-board {
+                font-size: 36px;
+                gap: 8px;
+            }
+            .basic-div-board .step-box {
+                width: 50px;
+                height: 50px;
+                font-size: 36px;
+            }
+            .numpad {
+                gap: 7px;
+                margin-top: 8px;
+            }
+            .num-btn {
+                padding: 10px 0;
+                font-size: 24px;
+                border-radius: 14px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .counter-pill .stat-word {
+                display: none;
+            }
+        }
+
+        @media (max-height: 680px) {
+            .num-btn {
+                padding: 8px 0;
+                font-size: 22px;
+            }
+            .numpad {
+                gap: 7px;
+                margin-top: 6px;
+            }
+            #boardArea {
+                min-height: 140px;
+                padding: 6px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    
+
     <!-- Menu Screen -->
     <div id="menuScreen">
-        <h1>✨ Magic Math! ✨</h1>
-        <h2>Step-by-Step Mastery</h2>
-        <div class="menu-grid">
-            <button class="menu-btn" onclick="startGame('2x1')">2x1 Mult.</button>
-            <button class="menu-btn" onclick="startGame('3x1')">3x1 Mult.</button>
-            <button class="menu-btn" onclick="startGame('4x1')">4x1 Mult.</button>
-            <button class="menu-btn alt" onclick="startGame('2x2')">2x2 Mult.</button>
-            <button class="menu-btn purple" onclick="startGame('basicDiv')">Basic Division</button>
-            <button class="menu-btn purple" onclick="startGame('longDiv')">Long Division</button>
+        <h1>✨ Magic Math Drills! ✨</h1>
+        <p class="menu-subtitle">Step-by-Step Multiplication &amp; Division</p>
+
+        <div class="menu-section">
+            <h2>✖️ Multiplication</h2>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame('mult2x1')">2 × 1 Digit</button>
+                <button class="menu-btn" onclick="startGame('mult3x1')">3 × 1 Digit</button>
+                <button class="menu-btn" onclick="startGame('mult4x1')">4 × 1 Digit</button>
+                <button class="menu-btn teal" onclick="startGame('mult2x2')">2 × 2 Digit</button>
+            </div>
+        </div>
+
+        <div class="menu-section div-section">
+            <h2>➗ Division</h2>
+            <div class="menu-grid">
+                <button class="menu-btn purple" onclick="startGame('divBasic')">Basic Facts (÷)</button>
+                <button class="menu-btn purple" onclick="startGame('divLong2')">Long Div (2÷1)</button>
+                <button class="menu-btn purple" onclick="startGame('divLong3')">Long Div (3÷1)</button>
+                <button class="menu-btn purple" onclick="startGame('divLong4')">Long Div (4÷1)</button>
+            </div>
         </div>
     </div>
 
@@ -369,14 +603,21 @@
                 <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
                 <button class="icon-btn" id="muteBtn" onclick="toggleMusic()">🎵 On</button>
             </div>
-            <div class="streak-counter">⭐ Streak: <span id="streakDisplay">0</span> | 🏆 Best: <span id="highStreakDisplay">0</span></div>
+            <div class="counter-pill" title="Streak | Total Correct">
+                <span>🔥 <span class="stat-word">Streak: </span><span id="streakDisplay">0</span></span>
+                <span class="sep">|</span>
+                <span class="correct-part">✅ <span class="stat-word">Correct: </span><span id="correctDisplay">0</span></span>
+            </div>
         </div>
+
+        <div class="status-hint" id="statusHint"></div>
 
         <div id="boardArea">
             <div id="boardContainer"></div>
         </div>
 
-        <div class="numpad" id="numpad">
+        <!-- On-Screen Digital Numpad -->
+        <div class="numpad" aria-label="Number Pad">
             <button class="num-btn" onclick="handleInput('1')">1</button>
             <button class="num-btn" onclick="handleInput('2')">2</button>
             <button class="num-btn" onclick="handleInput('3')">3</button>
@@ -386,288 +627,683 @@
             <button class="num-btn" onclick="handleInput('7')">7</button>
             <button class="num-btn" onclick="handleInput('8')">8</button>
             <button class="num-btn" onclick="handleInput('9')">9</button>
-            <button class="num-btn zero" onclick="handleInput('0')">0</button>
-            <button class="num-btn back-btn" onclick="handleBack()">⌫</button>
+            <div></div>
+            <button class="num-btn" onclick="handleInput('0')">0</button>
+            <button class="num-btn back-btn" onclick="handleBackspace()" aria-label="Backspace">⌫</button>
         </div>
     </div>
 
 </div>
 
 <script>
-    // --- Application State ---
+    // =========================================================================
+    //  STATE
+    // =========================================================================
     let currentMode = '';
     let currentProblem = null;
-    let stepIdx = 0;
-    let userInputs = []; // Tracks user's given answers
-    let isErrorState = false; // True when final answer is submitted but wrong
-    let streak = 0;
-    let highStreak = 0;
-    let isTransitioning = false;
+    let userInputs = [];          // Array of strings ('0'-'9') or null
+    let activeIdx = 0;            // Currently focused step index (0..steps.length)
+    let hasCheckedErrors = false; // True after validation fails; marks wrong boxes red
+    let isSolvedSuccess = false;  // True briefly after all boxes pass validation
+    let isTransitioning = false;  // Blocks input during celebratory pause
 
-    // --- Audio Engine ---
-    let audioCtx;
-    let bgmInterval;
+    let streak = 0;
+    let correctCount = 0;
+
+    // =========================================================================
+    //  WEB AUDIO API ENGINE (Pentatonic BGM + Sound Effects)
+    // =========================================================================
+    let audioCtx = null;
+    let bgmInterval = null;
     let isMusicPlaying = true;
     const pentatonicScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
 
     function initAudio() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        try {
+            if (!audioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (AC) audioCtx = new AC();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        } catch (e) {}
     }
 
     function playBGMNote() {
         if (!audioCtx || !isMusicPlaying) return;
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        
-        osc.type = 'sine';
-        osc.frequency.value = pentatonicScale[Math.floor(Math.random() * pentatonicScale.length)];
-        
-        const now = audioCtx.currentTime;
-        gainNode.gain.setValueAtTime(0.2, now);
-        gainNode.gain.linearRampToValueAtTime(0.02, now + 0.1); 
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.5); 
-        
-        osc.start(now);
-        osc.stop(now + 1.5);
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.type = 'sine';
+            osc.frequency.value = pentatonicScale[Math.floor(Math.random() * pentatonicScale.length)];
+
+            const now = audioCtx.currentTime;
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(0.045, now + 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.45);
+
+            osc.start(now);
+            osc.stop(now + 1.5);
+        } catch (e) {}
     }
 
-    function toggleMusic() {
-        isMusicPlaying = !isMusicPlaying;
-        document.getElementById('muteBtn').innerText = isMusicPlaying ? "🎵 On" : "🔇 Off";
-        if (isMusicPlaying) {
-            initAudio();
-            if(!bgmInterval) bgmInterval = setInterval(playBGMNote, 450);
-        } else {
+    function startBackgroundMusic() {
+        initAudio();
+        if (!isMusicPlaying || bgmInterval) return;
+        bgmInterval = setInterval(playBGMNote, 450);
+    }
+
+    function stopBackgroundMusic() {
+        if (bgmInterval) {
             clearInterval(bgmInterval);
             bgmInterval = null;
         }
     }
 
-    function playSound(type) {
+    function toggleMusic() {
+        isMusicPlaying = !isMusicPlaying;
+        document.getElementById('muteBtn').innerText = isMusicPlaying ? '🎵 On' : '🔇 Off';
+        if (isMusicPlaying) {
+            startBackgroundMusic();
+        } else {
+            stopBackgroundMusic();
+        }
+    }
+
+    function playClickSound() {
         if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        
-        const now = audioCtx.currentTime;
-        
-        if (type === 'success') {
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(620, now);
+            osc.frequency.exponentialRampToValueAtTime(420, now + 0.06);
+
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+            osc.start(now);
+            osc.stop(now + 0.08);
+        } catch (e) {}
+    }
+
+    function playSuccessSound() {
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
             osc.type = 'triangle';
+            // C5 -> E5 -> G5 cheerful arpeggio
             osc.frequency.setValueAtTime(523.25, now);
             osc.frequency.setValueAtTime(659.25, now + 0.1);
             osc.frequency.setValueAtTime(783.99, now + 0.2);
-            gainNode.gain.setValueAtTime(0.6, now);
-            gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05); 
-            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-            osc.start(now); osc.stop(now + 0.6);
-        } else if (type === 'wrong') {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(200, now); 
-            osc.frequency.exponentialRampToValueAtTime(120, now + 0.3);
-            gainNode.gain.setValueAtTime(0, now);
-            gainNode.gain.linearRampToValueAtTime(0.3, now + 0.02);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-            osc.start(now); osc.stop(now + 0.3);
-        } else if (type === 'click') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, now);
-            gainNode.gain.setValueAtTime(0.3, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-            osc.start(now); osc.stop(now + 0.1);
-        }
+
+            gain.gain.setValueAtTime(0.28, now);
+            gain.gain.linearRampToValueAtTime(0.18, now + 0.2);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.62);
+
+            osc.start(now);
+            osc.stop(now + 0.65);
+        } catch (e) {}
     }
 
-    // --- Math Generators ---
-    const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    function playWrongSound() {
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
 
+            const now = audioCtx.currentTime;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(210, now);
+            osc.frequency.exponentialRampToValueAtTime(140, now + 0.24);
+
+            gain.gain.setValueAtTime(0.01, now);
+            gain.gain.linearRampToValueAtTime(0.18, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+            osc.start(now);
+            osc.stop(now + 0.27);
+        } catch (e) {}
+    }
+
+    // =========================================================================
+    //  MATH UTILITIES & PROBLEM GENERATORS
+    // =========================================================================
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    /**
+     * Generates N x 1 Multiplication (N = 2, 3, or 4)
+     * Right-to-left column order, Tens-first paired entry whenever product >= 10.
+     */
     function buildNx1(n) {
-        const top = randomInt(Math.pow(10, n-1), Math.pow(10, n)-1).toString();
-        const bot = randomInt(2, 9).toString();
-        let staticItems = [];
-        let steps = [];
-        const cols = n + 1;
-        const rows = 4;
+        const minTop = Math.pow(10, n - 1);
+        const maxTop = Math.pow(10, n) - 1;
+        const topNum = randomInt(minTop, maxTop);
+        const botNum = randomInt(2, 9);
+        const topStr = String(topNum);
+        const botStr = String(botNum);
 
-        // Static Layout
-        for (let i = 0; i < n; i++) staticItems.push({ val: top[i], r: 1, c: i + 1 });
-        staticItems.push({ val: '×', r: 2, c: 0 });
-        staticItems.push({ val: bot, r: 2, c: n });
+        const cols = n + 1;
+        const rows = 4; // r0: carry, r1: top, r2: × bot + line, r3: answer
+        const staticItems = [];
+        const steps = [];
+
+        for (let i = 0; i < n; i++) {
+            staticItems.push({ val: topStr[i], r: 1, c: i + 1 });
+        }
+        staticItems.push({ val: '×', r: 2, c: 0, isOp: true });
+        staticItems.push({ val: botStr, r: 2, c: n });
         staticItems.push({ isLine: true, r: 2, c: 0, span: cols });
 
-        // Logic strictly enforces Right-to-Left step entry
-        // Tens digit MUST be entered first (either in carry box, or in final answer row)
         let carry = 0;
         for (let i = n - 1; i >= 0; i--) {
-            let p = parseInt(top[i]) * parseInt(bot) + carry;
-            carry = Math.floor(p / 10);
-            let rem = p % 10;
+            const p = parseInt(topStr[i], 10) * botNum + carry;
+            const nextCarry = Math.floor(p / 10);
+            const ones = p % 10;
 
-            if (i > 0) { // Not the leftmost digit
-                if (carry > 0) {
-                    // Carry Tens digit entered into the carry box ABOVE the next column
-                    steps.push({ val: carry.toString(), r: 0, c: i, isCarry: true, pairsWithNext: true });
+            if (i > 0) {
+                if (nextCarry > 0) {
+                    const pairId = 'col_' + i;
+                    steps.push({ val: String(nextCarry), r: 0, c: i, isCarry: true, pairId });
+                    steps.push({ val: String(ones), r: 3, c: i + 1, pairId });
+                } else {
+                    steps.push({ val: String(ones), r: 3, c: i + 1 });
                 }
-                // Ones digit entered into the answer box
-                steps.push({ val: rem.toString(), r: 3, c: i + 1 });
-            } else { // Leftmost digit (final column)
-                if (carry > 0) {
-                    // Final tens digit entered into the leftmost answer box
-                    steps.push({ val: carry.toString(), r: 3, c: i, pairsWithNext: true });
+            } else {
+                // Leftmost column: tens digit goes into final answer row at c = 0
+                if (nextCarry > 0) {
+                    const pairId = 'col_final';
+                    steps.push({ val: String(nextCarry), r: 3, c: 0, pairId });
+                    steps.push({ val: String(ones), r: 3, c: 1, pairId });
+                } else {
+                    steps.push({ val: String(ones), r: 3, c: 1 });
                 }
-                // Final ones digit entered next to it
-                steps.push({ val: rem.toString(), r: 3, c: i + 1 });
             }
-        }
-        return { type: 'grid', cols, rows, staticItems, steps };
-    }
-
-    function build2x2() {
-        const t = randomInt(11, 99).toString();
-        const b = randomInt(11, 99).toString();
-        let staticItems = [];
-        let steps = [];
-        const cols = 4;
-        const rows = 7;
-
-        for (let i = 0; i < 2; i++) staticItems.push({ val: t[i], r: 2, c: i + 2 });
-        staticItems.push({ val: '×', r: 3, c: 1 });
-        for (let i = 0; i < 2; i++) staticItems.push({ val: b[i], r: 3, c: i + 2 });
-        staticItems.push({ isLine: true, r: 3, c: 1, span: 3 });
-
-        let sumStr = (parseInt(t) * parseInt(b)).toString();
-        
-        // In this version, we simplify 2x2 to just entering the final answer right to left.
-        // Full algorithm entry is extremely lengthy for a mobile view, keeping it focused.
-        for (let i = sumStr.length - 1; i >= 0; i--) {
-            steps.push({ val: sumStr[i], r: 6, c: 3 - (sumStr.length - 1 - i) });
+            carry = nextCarry;
         }
 
-        return { type: 'grid', cols, rows, staticItems, steps };
-    }
-
-    function buildBasicDiv() {
-        const a = randomInt(2, 10);
-        const b = randomInt(2, 10);
+        const hasCarryRow = steps.some(s => s.r === 0);
         return {
-            type: 'basic',
-            text: `${a * b} ÷ ${a} = `,
-            steps: [{ val: b.toString() }]
+            type: 'grid',
+            modeTag: 'multNx1',
+            cols,
+            rows,
+            carryRows: hasCarryRow ? [0] : [],
+            hiddenEmptyRows: hasCarryRow ? [] : [0],
+            staticItems,
+            steps,
+            sizing: n === 4
+                ? { cellW: 48, cellH: 46, cellFs: 36, carryRowH: 30, carrySz: 26, carryFs: 16 }
+                : { cellW: 54, cellH: 50, cellFs: 40, carryRowH: 32, carrySz: 28, carryFs: 17 }
         };
     }
 
-    function buildLongDiv() {
-        const d = randomInt(2, 9);
-        const qStr = randomInt(11, 99).toString(); 
-        const divdStr = (d * parseInt(qStr)).toString(); 
-        
-        let staticItems = [];
-        let steps = [];
-        
-        staticItems.push({ val: d.toString(), r: 1, c: 0 });
-        staticItems.push({ val: ')', r: 1, c: 1, isBracket: true });
-        for (let i = 0; i < divdStr.length; i++) staticItems.push({ val: divdStr[i], r: 1, c: i + 2, borderTop: true });
+    /**
+     * Generates Full Traditional 2 x 2 Multiplication
+     * Includes partial product 1 (with carry), partial product 2 (with 0 placeholder + carry),
+     * and column-by-column addition (with carries if needed) to the final sum.
+     */
+    function build2x2() {
+        let topNum = randomInt(12, 99);
+        let botNum = randomInt(12, 99);
+        // Avoid trailing zero in bottom number so both partial products are meaningful
+        while (botNum % 10 === 0) botNum = randomInt(12, 99);
 
-        // Left to right quotient entry
-        for (let i = 0; i < qStr.length; i++) {
-            // Offset quotient placement based on whether dividend first digit was big enough
-            let cOffset = (divdStr.length > qStr.length) ? i + 3 : i + 2;
-            steps.push({ val: qStr[i], r: 0, c: cOffset });
+        const t = String(topNum);
+        const b = String(botNum);
+        const bOnes = parseInt(b[1], 10);
+        const bTens = parseInt(b[0], 10);
+
+        // Columns: 0 (+), 1 (thousands), 2 (hundreds / ×), 3 (tens), 4 (ones)
+        const cols = 5;
+        const rows = 8;
+        // r0: carry for partial 2
+        // r1: carry for partial 1
+        // r2: top number (c3, c4)
+        // r3: × (c2), bottom number (c3, c4) + line (c2..c4)
+        // r4: partial product 1
+        // r5: + (c0), partial product 2 + line (c0..c4)
+        // r6: carries for final addition
+        // r7: final sum
+
+        const staticItems = [];
+        const steps = [];
+
+        staticItems.push({ val: t[0], r: 2, c: 3 });
+        staticItems.push({ val: t[1], r: 2, c: 4 });
+        staticItems.push({ val: '×', r: 3, c: 2, isOp: true });
+        staticItems.push({ val: b[0], r: 3, c: 3 });
+        staticItems.push({ val: b[1], r: 3, c: 4 });
+        staticItems.push({ isLine: true, r: 3, c: 2, span: 3 });
+
+        // --- Partial Product 1 (top * bOnes) ---
+        let c1 = 0;
+        const p1Val = topNum * bOnes;
+        for (let i = 1; i >= 0; i--) {
+            const p = parseInt(t[i], 10) * bOnes + c1;
+            const nextC = Math.floor(p / 10);
+            const ones = p % 10;
+
+            if (i === 1) {
+                if (nextC > 0) {
+                    steps.push({ val: String(nextC), r: 1, c: 3, isCarry: true, pairId: 'p1_ones' });
+                    steps.push({ val: String(ones), r: 4, c: 4, pairId: 'p1_ones' });
+                } else {
+                    steps.push({ val: String(ones), r: 4, c: 4 });
+                }
+            } else {
+                if (nextC > 0) {
+                    steps.push({ val: String(nextC), r: 4, c: 2, pairId: 'p1_tens' });
+                    steps.push({ val: String(ones), r: 4, c: 3, pairId: 'p1_tens' });
+                } else {
+                    steps.push({ val: String(ones), r: 4, c: 3 });
+                }
+            }
+            c1 = nextC;
         }
 
-        return { type: 'grid', cols: divdStr.length + 3, rows: 2, staticItems, steps };
+        const p2StartStep = steps.length;
+        staticItems.push({ val: '+', r: 5, c: 0, isOp: true, revealAtStep: p2StartStep });
+
+        // --- Partial Product 2 (top * bTens, shifted left with 0 placeholder) ---
+        steps.push({ val: '0', r: 5, c: 4 }); // Placeholder zero
+        let c2 = 0;
+        const p2Val = topNum * bTens * 10;
+        for (let i = 1; i >= 0; i--) {
+            const p = parseInt(t[i], 10) * bTens + c2;
+            const nextC = Math.floor(p / 10);
+            const ones = p % 10;
+
+            if (i === 1) {
+                if (nextC > 0) {
+                    steps.push({ val: String(nextC), r: 0, c: 3, isCarry: true, pairId: 'p2_ones' });
+                    steps.push({ val: String(ones), r: 5, c: 3, pairId: 'p2_ones' });
+                } else {
+                    steps.push({ val: String(ones), r: 5, c: 3 });
+                }
+            } else {
+                if (nextC > 0) {
+                    steps.push({ val: String(nextC), r: 5, c: 1, pairId: 'p2_tens' });
+                    steps.push({ val: String(ones), r: 5, c: 2, pairId: 'p2_tens' });
+                } else {
+                    steps.push({ val: String(ones), r: 5, c: 2 });
+                }
+            }
+            c2 = nextC;
+        }
+
+        const addStartStep = steps.length;
+        staticItems.push({ isLine: true, r: 5, c: 0, span: 5, revealAtStep: addStartStep });
+
+        // --- Final Addition (p1Val + p2Val) right-to-left ---
+        const p1Str = String(p1Val);
+        const p2Str = String(p2Val);
+        const maxLen = Math.max(p1Str.length, p2Str.length);
+        const minInputCol = 5 - maxLen; // e.g. 4-digit p2 -> col 1; 3-digit p2 -> col 2
+
+        const getDigitAtCol = (numStr, col) => {
+            const idxFromRight = 4 - col;
+            const strIdx = numStr.length - 1 - idxFromRight;
+            return strIdx >= 0 ? parseInt(numStr[strIdx], 10) : 0;
+        };
+
+        let addCarry = 0;
+        for (let col = 4; col >= minInputCol; col--) {
+            const s = getDigitAtCol(p1Str, col) + getDigitAtCol(p2Str, col) + addCarry;
+            const nextC = Math.floor(s / 10);
+            const ones = s % 10;
+
+            if (col > minInputCol) {
+                if (nextC > 0) {
+                    const pairId = 'add_' + col;
+                    steps.push({ val: String(nextC), r: 6, c: col - 1, isCarry: true, pairId });
+                    steps.push({ val: String(ones), r: 7, c: col, pairId });
+                } else {
+                    steps.push({ val: String(ones), r: 7, c: col });
+                }
+            } else {
+                if (nextC > 0) {
+                    const pairId = 'add_final';
+                    steps.push({ val: String(nextC), r: 7, c: col - 1, pairId });
+                    steps.push({ val: String(ones), r: 7, c: col, pairId });
+                } else {
+                    steps.push({ val: String(ones), r: 7, c: col });
+                }
+            }
+            addCarry = nextC;
+        }
+
+        const carryRows = [];
+        const hiddenEmptyRows = [];
+        [0, 1, 6].forEach(r => {
+            if (steps.some(s => s.r === r)) carryRows.push(r);
+            else hiddenEmptyRows.push(r);
+        });
+
+        return {
+            type: 'grid',
+            modeTag: 'mult2x2',
+            cols,
+            rows,
+            carryRows,
+            hiddenEmptyRows,
+            staticItems,
+            steps,
+            sizing: { cellW: 42, cellH: 36, cellFs: 28, carryRowH: 24, carrySz: 22, carryFs: 14 }
+        };
     }
 
-    // --- UI Logic ---
+    /**
+     * Generates Basic Division Facts (horizontal: 36 ÷ 4 = [ ])
+     * Divisor: 2–10, Quotient strictly 1–9 (single digit).
+     */
+    function buildBasicDiv() {
+        const divisor = randomInt(2, 10);
+        const quotient = randomInt(1, 9);
+        const dividend = divisor * quotient;
+
+        return {
+            type: 'basic',
+            modeTag: 'divBasic',
+            equationText: `${dividend} ÷ ${divisor} =`,
+            steps: [{ val: String(quotient) }]
+        };
+    }
+
+    /**
+     * Generates Full Traditional Long Division (2÷1, 3÷1, or 4÷1)
+     * Exact division (no remainders) with progressive Divide -> Multiply -> Subtract -> Bring Down steps.
+     */
+    function buildLongDiv(digits) {
+        const minDivd = Math.pow(10, digits - 1);
+        const maxDivd = Math.pow(10, digits) - 1;
+
+        let divisor, quotient, dividend;
+        // For 2÷1, use divisor 2..8 so there is a wide variety of 2-digit quotients (10..49)
+        const maxDivisor = (digits === 2) ? 8 : 9;
+
+        for (let attempt = 0; attempt < 200; attempt++) {
+            divisor = randomInt(2, maxDivisor);
+            const minQ = (digits === 2)
+                ? Math.max(10, Math.ceil(minDivd / divisor))
+                : Math.ceil(minDivd / divisor);
+            const maxQ = Math.floor(maxDivd / divisor);
+            if (minQ <= maxQ) {
+                quotient = randomInt(minQ, maxQ);
+                dividend = divisor * quotient;
+                if (String(dividend).length === digits) break;
+            }
+        }
+
+        const divdStr = String(dividend);
+        const L = divdStr.length;
+        const cols = L + 2; // c0: divisor, c1: bracket / minus, c2..L+1: dividend digits
+
+        const staticItems = [];
+        const steps = [];
+
+        // Row 1: Divisor, natural curved bracket, Dividend with continuous top bar
+        staticItems.push({ val: String(divisor), r: 1, c: 0 });
+        staticItems.push({ isBracket: true, r: 1, c: 1 });
+        for (let i = 0; i < L; i++) {
+            staticItems.push({ val: divdStr[i], r: 1, c: i + 2, isDividend: true });
+        }
+
+        // Determine starting digit(s)
+        let idx = 0;
+        let working = parseInt(divdStr[0], 10);
+        if (working < divisor && L > 1) {
+            idx = 1;
+            working = working * 10 + parseInt(divdStr[1], 10);
+        }
+
+        let curRow = 2;
+
+        while (idx < L) {
+            const qt = Math.floor(working / divisor);
+            const prod = qt * divisor;
+            const rem = working - prod;
+
+            // 1. DIVIDE: Quotient digit above current column
+            steps.push({ val: String(qt), r: 0, c: idx + 2 });
+
+            // 2. MULTIPLY: Subtract (qt * divisor) aligned to current column
+            const prodStr = String(prod);
+            const prodStartCol = (idx + 2) - prodStr.length + 1;
+            const multRevealStep = steps.length;
+
+            // Reveal minus sign & subtraction line as soon as student enters the multiply phase
+            staticItems.push({
+                val: '−',
+                r: curRow,
+                c: prodStartCol - 1,
+                isMinus: true,
+                revealAtStep: multRevealStep
+            });
+
+            // Make subtraction line cover both the working number and product cleanly
+            const workLen = String(working).length;
+            const lineStartCol = Math.min(prodStartCol, (idx + 2) - workLen + 1);
+            const lineSpan = (idx + 2) - lineStartCol + 1;
+            staticItems.push({
+                isLine: true,
+                r: curRow,
+                c: lineStartCol,
+                span: lineSpan,
+                revealAtStep: multRevealStep
+            });
+
+            const prodPairId = prodStr.length > 1 ? `ld_prod_${idx}` : null;
+            for (let j = 0; j < prodStr.length; j++) {
+                const sObj = { val: prodStr[j], r: curRow, c: prodStartCol + j };
+                if (prodPairId) sObj.pairId = prodPairId;
+                steps.push(sObj);
+            }
+            curRow++;
+
+            // 3. SUBTRACT: Remainder (always 0..8 since divisor <= 9)
+            steps.push({ val: String(rem), r: curRow, c: idx + 2 });
+
+            // 4. BRING DOWN: Next dividend digit if any remain
+            if (idx < L - 1) {
+                const bringDownStepIdx = steps.length;
+                // Subtle downward arrow above the bring-down box
+                staticItems.push({
+                    val: '↓',
+                    r: curRow - 1,
+                    c: idx + 3,
+                    isArrow: true,
+                    revealAtStep: bringDownStepIdx
+                });
+                steps.push({
+                    val: divdStr[idx + 1],
+                    r: curRow,
+                    c: idx + 3,
+                    isBringDown: true
+                });
+                working = rem * 10 + parseInt(divdStr[idx + 1], 10);
+                curRow++;
+            }
+
+            idx++;
+        }
+
+        // Auto-scale sizing neatly so 2÷1 and 3÷1 fit comfortably and 4÷1 stays compact
+        let sizing;
+        if (digits === 2) {
+            sizing = { cellW: 48, cellH: 40, cellFs: 32, carryRowH: 26, carrySz: 24, carryFs: 15 };
+        } else if (digits === 3) {
+            sizing = { cellW: 44, cellH: 34, cellFs: 27, carryRowH: 24, carrySz: 22, carryFs: 14 };
+        } else {
+            sizing = { cellW: 40, cellH: 30, cellFs: 23, carryRowH: 22, carrySz: 20, carryFs: 13 };
+        }
+
+        return {
+            type: 'grid',
+            modeTag: 'divLong',
+            cols,
+            rows: curRow + 1,
+            carryRows: [],
+            hiddenEmptyRows: [],
+            staticItems,
+            steps,
+            sizing
+        };
+    }
+
+    // =========================================================================
+    //  NAVIGATION & GAME FLOW
+    // =========================================================================
     function startGame(mode) {
         currentMode = mode;
         streak = 0;
-        updateStreakUI();
+        correctCount = 0;
+        updateCountersUI();
+
         document.getElementById('menuScreen').style.display = 'none';
         document.getElementById('gameScreen').style.display = 'flex';
-        
+
         initAudio();
-        if(isMusicPlaying && !bgmInterval) bgmInterval = setInterval(playBGMNote, 450);
-        
+        if (isMusicPlaying) startBackgroundMusic();
+
         loadProblem();
     }
 
     function showMenu() {
+        stopBackgroundMusic();
         document.getElementById('gameScreen').style.display = 'none';
-        document.getElementById('menuScreen').style.display = 'block';
-        if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+        document.getElementById('menuScreen').style.display = 'flex';
+        streak = 0;
+        correctCount = 0;
+        updateCountersUI();
     }
 
     function loadProblem() {
         isTransitioning = false;
-        stepIdx = 0;
-        userInputs = [];
-        isErrorState = false;
+        hasCheckedErrors = false;
+        isSolvedSuccess = false;
+        activeIdx = 0;
 
-        if (currentMode === '2x1') currentProblem = buildNx1(2);
-        else if (currentMode === '3x1') currentProblem = buildNx1(3);
-        else if (currentMode === '4x1') currentProblem = buildNx1(4);
-        else if (currentMode === '2x2') currentProblem = build2x2();
-        else if (currentMode === 'basicDiv') currentProblem = buildBasicDiv();
-        else if (currentMode === 'longDiv') currentProblem = buildLongDiv();
-        
+        if (currentMode === 'mult2x1') currentProblem = buildNx1(2);
+        else if (currentMode === 'mult3x1') currentProblem = buildNx1(3);
+        else if (currentMode === 'mult4x1') currentProblem = buildNx1(4);
+        else if (currentMode === 'mult2x2') currentProblem = build2x2();
+        else if (currentMode === 'divBasic') currentProblem = buildBasicDiv();
+        else if (currentMode === 'divLong2') currentProblem = buildLongDiv(2);
+        else if (currentMode === 'divLong3') currentProblem = buildLongDiv(3);
+        else if (currentMode === 'divLong4') currentProblem = buildLongDiv(4);
+
+        userInputs = new Array(currentProblem.steps.length).fill(null);
+
+        const boardArea = document.getElementById('boardArea');
+        boardArea.classList.toggle('long-div-area', currentProblem.modeTag === 'divLong');
+        boardArea.scrollTop = 0;
+
+        updateStatusHint();
         renderBoard();
+    }
+
+    function updateCountersUI() {
+        document.getElementById('streakDisplay').innerText = streak;
+        document.getElementById('correctDisplay').innerText = correctCount;
+    }
+
+    function updateStatusHint() {
+        const hint = document.getElementById('statusHint');
+        if (hasCheckedErrors) {
+            hint.innerText = 'Tap a red box or press ⌫ to fix!';
+        } else {
+            hint.innerText = '';
+        }
+    }
+
+    // =========================================================================
+    //  BOARD RENDERING
+    // =========================================================================
+    function getHighestRevealedStep() {
+        let highest = activeIdx;
+        for (let i = userInputs.length - 1; i >= 0; i--) {
+            if (userInputs[i] !== null) {
+                highest = Math.max(highest, i);
+                break;
+            }
+        }
+        return highest;
     }
 
     function renderBoard() {
         const container = document.getElementById('boardContainer');
         container.innerHTML = '';
 
+        // --- Basic Division Horizontal Layout ---
         if (currentProblem.type === 'basic') {
             const wrap = document.createElement('div');
             wrap.className = 'basic-div-board';
-            
-            const eqDiv = document.createElement('div');
-            eqDiv.className = 'basic-div-equation';
-            eqDiv.innerText = currentProblem.text;
-            wrap.appendChild(eqDiv);
 
-            const inputsDiv = document.createElement('div');
-            inputsDiv.className = 'basic-div-inputs';
-            
-            currentProblem.steps.forEach((step, idx) => {
-                const cellBox = document.createElement('div');
-                cellBox.className = 'cell';
+            const eqSpan = document.createElement('span');
+            eqSpan.innerText = currentProblem.equationText;
+            wrap.appendChild(eqSpan);
 
-                const inputDiv = document.createElement('div');
-                inputDiv.className = 'step-input';
-                
-                if (stepIdx > idx || isErrorState) {
-                    inputDiv.innerText = userInputs[idx];
-                    inputDiv.classList.add('filled-input');
-                    if (isErrorState && userInputs[idx] !== step.val) {
-                        inputDiv.classList.add('error-input');
-                    }
-                } else if (idx === stepIdx) {
-                    if (!isErrorState) {
-                        inputDiv.classList.add('active-input');
-                    }
-                }
-
-                cellBox.appendChild(inputDiv);
-                inputsDiv.appendChild(cellBox);
-            });
-            
-            wrap.appendChild(inputsDiv);
+            const box = createStepBoxElement(0);
+            wrap.appendChild(box);
             container.appendChild(wrap);
             return;
         }
 
+        // --- Grid Layout (Multiplication & Long Division) ---
+        const p = currentProblem;
         const grid = document.createElement('div');
         grid.className = 'grid-board';
-        grid.style.gridTemplateColumns = `repeat(${currentProblem.cols}, min-content)`;
-        grid.style.gridTemplateRows = `repeat(${currentProblem.rows}, min-content)`;
 
-        // Render Static
-        currentProblem.staticItems.forEach(item => {
+        // Apply sizing CSS variables
+        const s = p.sizing;
+        grid.style.setProperty('--cell-w', s.cellW + 'px');
+        grid.style.setProperty('--cell-h', s.cellH + 'px');
+        grid.style.setProperty('--cell-fs', s.cellFs + 'px');
+        grid.style.setProperty('--carry-row-h', s.carryRowH + 'px');
+        grid.style.setProperty('--carry-sz', s.carrySz + 'px');
+        grid.style.setProperty('--carry-fs', s.carryFs + 'px');
+
+        grid.style.gridTemplateColumns = `repeat(${p.cols}, ${s.cellW}px)`;
+
+        // Build row template (collapsing unused carry rows so layout stays compact)
+        const rowHeights = [];
+        for (let r = 0; r < p.rows; r++) {
+            if (p.hiddenEmptyRows && p.hiddenEmptyRows.includes(r)) {
+                rowHeights.push('0px');
+            } else if (p.carryRows && p.carryRows.includes(r)) {
+                rowHeights.push(s.carryRowH + 'px');
+            } else {
+                rowHeights.push(s.cellH + 'px');
+            }
+        }
+        grid.style.gridTemplateRows = rowHeights.join(' ');
+
+        const highestRevealed = getHighestRevealedStep();
+
+        // Render Static Items
+        p.staticItems.forEach(item => {
+            if (item.revealAtStep !== undefined && highestRevealed < item.revealAtStep) {
+                return;
+            }
+
             if (item.isLine) {
                 const line = document.createElement('div');
                 line.className = 'line-bottom';
@@ -676,156 +1312,275 @@
                 grid.appendChild(line);
                 return;
             }
+
             const el = document.createElement('div');
             el.className = 'cell';
-            if (item.isBracket) el.classList.add('bracket');
-            if (item.borderTop) el.classList.add('line-top');
             el.style.gridRow = item.r + 1;
             el.style.gridColumn = item.c + 1;
-            el.innerText = item.val;
+
+            if (item.isBracket) {
+                el.classList.add('bracket-cell');
+                // Natural curved long division bracket connecting seamlessly to dividend top bar
+                el.innerHTML = `
+                    <svg viewBox="0 0 40 44" preserveAspectRatio="none" style="width:100%; height:100%; overflow:visible; display:block;">
+                        <path d="M 32 1.75 Q 42 22 26 42" fill="none" stroke="#2C3E50" stroke-width="3.5" stroke-linecap="round"/>
+                        <line x1="32" y1="1.75" x2="41" y2="1.75" stroke="#2C3E50" stroke-width="3.5"/>
+                    </svg>
+                `;
+            } else {
+                if (item.isDividend) el.classList.add('div-top-bar');
+                if (item.isOp) el.classList.add('op-cell');
+                if (item.isMinus) el.classList.add('minus-cell');
+                if (item.isArrow) el.classList.add('arrow-cell');
+                el.innerText = item.val;
+            }
+
             grid.appendChild(el);
         });
 
+        // Determine active pairId for dual-visibility pairing
+        const activeStepObj = (activeIdx < p.steps.length) ? p.steps[activeIdx] : null;
+        const activePairId = (activeStepObj && activeStepObj.pairId) ? activeStepObj.pairId : null;
+
         // Render Interactive Steps
-        currentProblem.steps.forEach((step, idx) => {
-            let isPairedVisible = false;
-            if (idx > stepIdx && !isErrorState) {
-                const prevStep = currentProblem.steps[idx - 1];
-                if (idx === stepIdx + 1 && prevStep && prevStep.pairsWithNext) {
-                    isPairedVisible = true;
-                } else {
-                    return; // Future steps are hidden until reached
-                }
-            }
-            
-            const cellBox = document.createElement('div');
-            cellBox.className = 'cell';
-            cellBox.style.gridRow = step.r + 1;
-            cellBox.style.gridColumn = step.c + 1;
+        let activeEl = null;
+        p.steps.forEach((step, idx) => {
+            const val = userInputs[idx];
+            const isActive = (idx === activeIdx && !isSolvedSuccess && !isTransitioning);
+            const isFilled = (val !== null);
+            const isPairedWaiting = (!isActive && !isFilled && activePairId && step.pairId === activePairId);
 
-            const inputDiv = document.createElement('div');
-            inputDiv.className = 'step-input';
-            if (step.isCarry) inputDiv.classList.add('carry-box');
-            if (step.isBringDown) inputDiv.classList.add('bring-down');
-
-            if (idx < stepIdx) {
-                // Filled input
-                inputDiv.innerText = userInputs[idx];
-                inputDiv.classList.add('filled-input');
-                // Check if it's wrong during error state
-                if (isErrorState && userInputs[idx] !== step.val) {
-                    inputDiv.classList.add('error-input');
-                }
-            } else if (idx === stepIdx) {
-                // Active input
-                if (!isErrorState) {
-                    inputDiv.classList.add('active-input');
-                }
-            } else if (isPairedVisible) {
-                inputDiv.classList.add('paired-visible');
+            // Progressive reveal: hide future steps not yet reached (unless paired with active)
+            if (!isActive && !isFilled && !isPairedWaiting) {
+                return;
             }
 
-            cellBox.appendChild(inputDiv);
-            grid.appendChild(cellBox);
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            if (p.carryRows && p.carryRows.includes(step.r)) {
+                cell.classList.add('carry-row-cell');
+            }
+            cell.style.gridRow = step.r + 1;
+            cell.style.gridColumn = step.c + 1;
+
+            const box = createStepBoxElement(idx, isPairedWaiting);
+            if (isActive) activeEl = box;
+
+            cell.appendChild(box);
+            grid.appendChild(cell);
         });
 
         container.appendChild(grid);
+
+        // Smoothly keep the active box visible inside scrollable long division area
+        if (activeEl && p.modeTag === 'divLong') {
+            requestAnimationFrame(() => {
+                activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+        }
     }
 
-    function handleInput(val) {
-        if (isTransitioning || isErrorState || !currentProblem || stepIdx >= currentProblem.steps.length) return;
+    function createStepBoxElement(idx, isPairedWaiting = false) {
+        const step = currentProblem.steps[idx];
+        const val = userInputs[idx];
+        const isActive = (idx === activeIdx && !isSolvedSuccess && !isTransitioning);
+        const isFilled = (val !== null);
 
-        // Save user's input regardless if right or wrong
-        userInputs[stepIdx] = val;
-        stepIdx++;
-        playSound('click');
+        const box = document.createElement('div');
+        box.className = 'step-box';
+        if (step.isCarry) box.classList.add('carry-box');
+        if (step.isBringDown) box.classList.add('bring-down');
 
-        if (stepIdx >= currentProblem.steps.length) {
-            // Validation step
+        if (isSolvedSuccess) {
+            box.classList.add('correct');
+            box.innerText = val;
+        } else if (isActive) {
+            box.classList.add('active');
+            box.innerText = '';
+        } else if (isFilled) {
+            box.classList.add('filled');
+            box.innerText = val;
+            if (hasCheckedErrors && val !== step.val) {
+                box.classList.add('error');
+            }
+            // Allow tapping any filled box (especially red error boxes) to jump & edit it
+            box.onclick = () => jumpToStep(idx);
+        } else if (isPairedWaiting) {
+            box.classList.add('paired-waiting');
+            box.innerText = '';
+        }
+
+        return box;
+    }
+
+    // =========================================================================
+    //  INPUT, SELF-CORRECTION & VALIDATION
+    // =========================================================================
+    function jumpToStep(idx) {
+        if (isTransitioning || isSolvedSuccess) return;
+        initAudio();
+        playClickSound();
+        userInputs[idx] = null;
+        activeIdx = idx;
+        renderBoard();
+    }
+
+    function handleInput(digit) {
+        if (isTransitioning || isSolvedSuccess || !currentProblem) return;
+        initAudio();
+
+        // If all boxes are filled in an error state, prompt user cleanly without overwriting
+        if (activeIdx >= currentProblem.steps.length) {
+            if (hasCheckedErrors) {
+                // Auto-jump to the first red box so typing immediately fixes it!
+                const firstErrIdx = currentProblem.steps.findIndex((s, i) => userInputs[i] !== s.val);
+                if (firstErrIdx !== -1) {
+                    activeIdx = firstErrIdx;
+                } else {
+                    return;
+                }
+            } else {
+                return;
+            }
+        }
+
+        playClickSound();
+        userInputs[activeIdx] = digit;
+
+        // Find next empty box (searching forward first, then wrapping from 0)
+        let nextEmpty = -1;
+        for (let i = activeIdx + 1; i < currentProblem.steps.length; i++) {
+            if (userInputs[i] === null) {
+                nextEmpty = i;
+                break;
+            }
+        }
+        if (nextEmpty === -1) {
+            for (let i = 0; i < activeIdx; i++) {
+                if (userInputs[i] === null) {
+                    nextEmpty = i;
+                    break;
+                }
+            }
+        }
+
+        if (nextEmpty === -1) {
+            // All boxes are filled -> validate!
+            activeIdx = currentProblem.steps.length;
             validateAnswers();
         } else {
+            activeIdx = nextEmpty;
             renderBoard();
         }
     }
 
-    function handleBack() {
-        if (isTransitioning || stepIdx === 0) return;
-        
-        playSound('click');
-        // Move back one step
-        stepIdx--;
-        userInputs[stepIdx] = null; // Clear the entry
-        
-        // Instantly clear error state if user goes back to self-correct
-        isErrorState = false; 
-        
-        renderBoard();
+    function handleBackspace() {
+        if (isTransitioning || isSolvedSuccess || !currentProblem) return;
+        initAudio();
+
+        // If currently sitting past the end (after a failed validation), step back to last box
+        if (activeIdx >= currentProblem.steps.length) {
+            hasCheckedErrors = false;
+            activeIdx = currentProblem.steps.length - 1;
+            userInputs[activeIdx] = null;
+            playClickSound();
+            updateStatusHint();
+            renderBoard();
+            return;
+        }
+
+        // If current active box somehow has a value, clear it; otherwise step back one
+        if (userInputs[activeIdx] !== null) {
+            userInputs[activeIdx] = null;
+            hasCheckedErrors = false;
+            playClickSound();
+            updateStatusHint();
+            renderBoard();
+        } else if (activeIdx > 0) {
+            hasCheckedErrors = false;
+            activeIdx--;
+            userInputs[activeIdx] = null;
+            playClickSound();
+            updateStatusHint();
+            renderBoard();
+        }
     }
 
     function validateAnswers() {
-        let isCorrect = true;
+        let allCorrect = true;
         for (let i = 0; i < currentProblem.steps.length; i++) {
             if (userInputs[i] !== currentProblem.steps[i].val) {
-                isCorrect = false;
+                allCorrect = false;
                 break;
             }
         }
 
-        if (isCorrect) {
-            // Full problem solved correctly
+        if (allCorrect) {
             isTransitioning = true;
-            renderBoard(); // Final clean render
-            playSound('success');
-            createConfetti();
+            isSolvedSuccess = true;
+            hasCheckedErrors = false;
+            updateStatusHint();
+
             streak++;
-            if (streak > highStreak) highStreak = streak;
-            updateStreakUI();
-            setTimeout(loadProblem, 1500);
+            correctCount++;
+            updateCountersUI();
+
+            playSuccessSound();
+            renderBoard();
+            spawnSparkles();
+
+            setTimeout(loadProblem, 1100);
         } else {
-            // Errors found
-            isErrorState = true;
-            playSound('wrong');
-            streak = 0;
-            updateStreakUI();
-            
-            // Visual feedback
-            renderBoard(); // Will highlight errors based on isErrorState
-            const board = document.getElementById('boardArea');
-            board.classList.add('error-shake');
-            setTimeout(() => board.classList.remove('error-shake'), 400);
+            hasCheckedErrors = true;
+            streak = 0; // Reset streak on error; correctCount is NEVER decremented
+            updateCountersUI();
+            updateStatusHint();
+
+            playWrongSound();
+            renderBoard();
+
+            const boardArea = document.getElementById('boardArea');
+            boardArea.classList.remove('error-shake');
+            void boardArea.offsetWidth; // Force reflow
+            boardArea.classList.add('error-shake');
         }
     }
 
-    function updateStreakUI() {
-        document.getElementById('streakDisplay').innerText = streak;
-        document.getElementById('highStreakDisplay').innerText = highStreak;
-    }
-
-    function createConfetti() {
+    // =========================================================================
+    //  CELEBRATORY SPARKLES
+    // =========================================================================
+    function spawnSparkles() {
         const emojis = ['⭐', '🎉', '🚀', '🌟', '✨'];
-        const boardArea = document.getElementById('boardArea');
+        const rect = document.getElementById('boardArea').getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+
         for (let i = 0; i < 6; i++) {
-            const sparkle = document.createElement('div');
-            sparkle.innerText = emojis[randomInt(0, emojis.length - 1)];
-            sparkle.className = 'confetti';
-            sparkle.style.left = `calc(50% + ${randomInt(-60, 60)}px)`;
-            sparkle.style.top = `calc(50% + ${randomInt(-40, 40)}px)`;
-            boardArea.appendChild(sparkle);
-            setTimeout(() => sparkle.remove(), 1000);
+            setTimeout(() => {
+                const el = document.createElement('div');
+                el.className = 'confetti';
+                el.innerText = emojis[randomInt(0, emojis.length - 1)];
+                el.style.left = (cx + randomInt(-90, 90) - 16) + 'px';
+                el.style.top = (cy + randomInt(-40, 40) - 16) + 'px';
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 1000);
+            }, i * 70);
         }
     }
 
-    // Keyboard Listener
+    // =========================================================================
+    //  PHYSICAL KEYBOARD SUPPORT
+    // =========================================================================
     window.addEventListener('keydown', (e) => {
-        if (document.getElementById('gameScreen').style.display === 'flex') {
-            if (e.key >= '0' && e.key <= '9') {
-                handleInput(e.key);
-            } else if (e.key === 'Backspace' || e.key === 'Delete') {
-                handleBack();
-            }
+        if (document.getElementById('gameScreen').style.display !== 'flex') return;
+        if (e.key >= '0' && e.key <= '9') {
+            e.preventDefault();
+            handleInput(e.key);
+        } else if (e.key === 'Backspace' || e.key === 'Delete') {
+            e.preventDefault();
+            handleBackspace();
         }
     });
-
 </script>
 
 </body>
