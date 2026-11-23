@@ -196,6 +196,15 @@
             border: 2px solid transparent;
         }
 
+        .paired-visible {
+            visibility: visible;
+            border: 4px solid #bdc3c7;
+            background: #f8f9fa;
+            opacity: 0.6;
+            animation: none;
+            color: transparent;
+        }
+
         /* Error States for Self-Correction */
         .error-input {
             border: 3px solid var(--error) !important;
@@ -500,14 +509,14 @@
             if (i > 0) { // Not the leftmost digit
                 if (carry > 0) {
                     // Carry Tens digit entered into the carry box ABOVE the next column
-                    steps.push({ val: carry.toString(), r: 0, c: i, isCarry: true });
+                    steps.push({ val: carry.toString(), r: 0, c: i, isCarry: true, pairsWithNext: true });
                 }
                 // Ones digit entered into the answer box
                 steps.push({ val: rem.toString(), r: 3, c: i + 1 });
             } else { // Leftmost digit (final column)
                 if (carry > 0) {
                     // Final tens digit entered into the leftmost answer box
-                    steps.push({ val: carry.toString(), r: 3, c: i });
+                    steps.push({ val: carry.toString(), r: 3, c: i, pairsWithNext: true });
                 }
                 // Final ones digit entered next to it
                 steps.push({ val: rem.toString(), r: 3, c: i + 1 });
@@ -679,7 +688,15 @@
 
         // Render Interactive Steps
         currentProblem.steps.forEach((step, idx) => {
-            if (idx > stepIdx && !isErrorState) return; // Future steps are hidden until reached
+            let isPairedVisible = false;
+            if (idx > stepIdx && !isErrorState) {
+                const prevStep = currentProblem.steps[idx - 1];
+                if (idx === stepIdx + 1 && prevStep && prevStep.pairsWithNext) {
+                    isPairedVisible = true;
+                } else {
+                    return; // Future steps are hidden until reached
+                }
+            }
             
             const cellBox = document.createElement('div');
             cellBox.className = 'cell';
@@ -704,6 +721,8 @@
                 if (!isErrorState) {
                     inputDiv.classList.add('active-input');
                 }
+            } else if (isPairedVisible) {
+                inputDiv.classList.add('paired-visible');
             }
 
             cellBox.appendChild(inputDiv);
