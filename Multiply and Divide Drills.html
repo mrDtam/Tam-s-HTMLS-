@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Magic Math Drills</title>
+    
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7FFF7;
+            --purple: #9b59b6;
+            --blue: #3498db;
+            --error: #e74c3c;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            border: 4px solid var(--secondary);
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 { color: var(--primary); font-size: 32px; margin: 0 0 5px 0; }
+        h2 { color: var(--purple); font-size: 18px; margin-top: 0; margin-bottom: 15px; }
+
+        /* --- Menu Layout --- */
+        #menuScreen { display: block; }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .menu-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #3b9b95;
+            transition: transform 0.1s, box-shadow 0.1s;
+            font-family: inherit;
+        }
+
+        .menu-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #3b9b95; }
+        .menu-btn.alt { background-color: var(--primary); box-shadow: 0 6px 0 #c95555; }
+        .menu-btn.alt:active { box-shadow: 0 0 0 #c95555; }
+        .menu-btn.purple { background-color: var(--purple); box-shadow: 0 6px 0 #732d91; }
+        .menu-btn.purple:active { box-shadow: 0 0 0 #732d91; }
+
+        /* --- Game Screen --- */
+        #gameScreen { 
+            display: none; 
+            flex-grow: 1; 
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn-group { display: flex; gap: 10px; }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: #f39c12;
+            background: #fff3e0;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 2px solid #f39c12;
+        }
+
+        /* --- Grid Board Layout --- */
+        #boardArea {
+            min-height: 200px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 10px;
+            padding: 5px;
+            overflow-x: auto;
+            box-sizing: border-box;
+        }
+
+        .grid-board {
+            display: grid;
+            gap: 4px;
+            justify-content: center;
+            align-content: center;
+            font-size: 34px;
+            font-weight: bold;
+            font-family: monospace;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .cell {
+            width: 55px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .line-bottom { border-bottom: 4px solid var(--dark); margin-bottom: 2px; }
+        .line-top { border-top: 4px solid var(--dark); margin-top: -2px; }
+        .bracket { transform: scaleY(1.3); font-weight: normal; margin-right: -10px; }
+        
+        /* Empty/Hidden Inputs */
+        .step-input {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            visibility: hidden;
+            box-sizing: border-box;
+        }
+
+        /* Currently Active Input */
+        .active-input {
+            visibility: visible;
+            border: 4px solid var(--accent);
+            background: #fff9c4;
+            animation: pulse 1s infinite;
+            box-shadow: 0 0 15px rgba(255, 230, 109, 0.5);
+            color: transparent; 
+        }
+
+        /* Filled Inputs */
+        .filled-input {
+            visibility: visible;
+            border: 2px solid transparent;
+        }
+
+        /* Error States for Self-Correction */
+        .error-input {
+            border: 3px solid var(--error) !important;
+            background-color: #fadbd8 !important;
+            color: var(--error) !important;
+            animation: none !important;
+            box-shadow: inset 0 0 10px rgba(231, 76, 60, 0.2);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .carry-box { 
+            color: var(--blue); 
+            font-size: 22px; 
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50%;
+            margin: auto;
+            border: 2px dashed #aed6f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Special style for active carry box to make it clear */
+        .carry-box.active-input {
+            border: 3px solid var(--blue);
+            background: #ebf5fb;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.4);
+            animation: pulse 1s infinite;
+        }
+
+        .carry-box.filled-input {
+            border: 2px solid transparent;
+            background: transparent;
+        }
+
+        .bring-down { color: var(--purple); }
+
+        .error-shake { animation: shake 0.4s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+
+        /* --- Basic Division Board --- */
+        .basic-div-board {
+            font-size: 48px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .basic-div-equation {
+            margin-bottom: 5px;
+        }
+
+        .basic-div-inputs {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* --- Digital Keyboard (Numpad) --- */
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 320px;
+            margin: 5px auto 0 auto;
+        }
+
+        .num-btn {
+            background-color: white;
+            border: 3px solid #bdc3c7;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--dark);
+            padding: 10px 0;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #bdc3c7;
+            font-family: inherit;
+            transition: all 0.1s;
+        }
+
+        .num-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #bdc3c7;
+            background-color: #ecf0f1;
+        }
+
+        .num-btn.zero { grid-column: 2; }
+        
+        .num-btn.back-btn { 
+            grid-column: 3; 
+            background-color: #fadbd8; 
+            border-color: var(--error); 
+            box-shadow: 0 4px 0 var(--error); 
+            color: var(--error);
+        }
+        .num-btn.back-btn:active { box-shadow: 0 0 0 var(--error); background-color: #f5b7b1; }
+
+        .confetti {
+            position: absolute;
+            font-size: 40px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
+        }
+
+        @media (max-width: 480px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .cell { width: 48px; height: 35px; font-size: 28px; }
+            .carry-box { font-size: 16px; width: 26px !important; height: 26px !important; }
+            .numpad { max-width: 100%; gap: 10px; }
+            .num-btn { padding: 8px 0; font-size: 20px; }
+            #boardArea { min-height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Menu Screen -->
+    <div id="menuScreen">
+        <h1>✨ Magic Math! ✨</h1>
+        <h2>Step-by-Step Mastery</h2>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="startGame('2x1')">2x1 Mult.</button>
+            <button class="menu-btn" onclick="startGame('3x1')">3x1 Mult.</button>
+            <button class="menu-btn" onclick="startGame('4x1')">4x1 Mult.</button>
+            <button class="menu-btn alt" onclick="startGame('2x2')">2x2 Mult.</button>
+            <button class="menu-btn purple" onclick="startGame('basicDiv')">Basic Division</button>
+            <button class="menu-btn purple" onclick="startGame('longDiv')">Long Division</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen">
+        <div class="game-header">
+            <div class="btn-group">
+                <button class="icon-btn" onclick="showMenu()">🔙 Menu</button>
+                <button class="icon-btn" id="muteBtn" onclick="toggleMusic()">🎵 On</button>
+            </div>
+            <div class="streak-counter">⭐ Streak: <span id="streakDisplay">0</span> | 🏆 Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="boardArea">
+            <div id="boardContainer"></div>
+        </div>
+
+        <div class="numpad" id="numpad">
+            <button class="num-btn" onclick="handleInput('1')">1</button>
+            <button class="num-btn" onclick="handleInput('2')">2</button>
+            <button class="num-btn" onclick="handleInput('3')">3</button>
+            <button class="num-btn" onclick="handleInput('4')">4</button>
+            <button class="num-btn" onclick="handleInput('5')">5</button>
+            <button class="num-btn" onclick="handleInput('6')">6</button>
+            <button class="num-btn" onclick="handleInput('7')">7</button>
+            <button class="num-btn" onclick="handleInput('8')">8</button>
+            <button class="num-btn" onclick="handleInput('9')">9</button>
+            <button class="num-btn zero" onclick="handleInput('0')">0</button>
+            <button class="num-btn back-btn" onclick="handleBack()">⌫</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Application State ---
+    let currentMode = '';
+    let currentProblem = null;
+    let stepIdx = 0;
+    let userInputs = []; // Tracks user's given answers
+    let isErrorState = false; // True when final answer is submitted but wrong
+    let streak = 0;
+    let highStreak = 0;
+    let isTransitioning = false;
+
+    // --- Audio Engine ---
+    let audioCtx;
+    let bgmInterval;
+    let isMusicPlaying = true;
+    const pentatonicScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playBGMNote() {
+        if (!audioCtx || !isMusicPlaying) return;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.value = pentatonicScale[Math.floor(Math.random() * pentatonicScale.length)];
+        
+        const now = audioCtx.currentTime;
+        gainNode.gain.setValueAtTime(0.2, now);
+        gainNode.gain.linearRampToValueAtTime(0.02, now + 0.1); 
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.5); 
+        
+        osc.start(now);
+        osc.stop(now + 1.5);
+    }
+
+    function toggleMusic() {
+        isMusicPlaying = !isMusicPlaying;
+        document.getElementById('muteBtn').innerText = isMusicPlaying ? "🎵 On" : "🔇 Off";
+        if (isMusicPlaying) {
+            initAudio();
+            if(!bgmInterval) bgmInterval = setInterval(playBGMNote, 450);
+        } else {
+            clearInterval(bgmInterval);
+            bgmInterval = null;
+        }
+    }
+
+    function playSound(type) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        const now = audioCtx.currentTime;
+        
+        if (type === 'success') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.setValueAtTime(659.25, now + 0.1);
+            osc.frequency.setValueAtTime(783.99, now + 0.2);
+            gainNode.gain.setValueAtTime(0.6, now);
+            gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05); 
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+            osc.start(now); osc.stop(now + 0.6);
+        } else if (type === 'wrong') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, now); 
+            osc.frequency.exponentialRampToValueAtTime(120, now + 0.3);
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.3, now + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'click') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+            osc.start(now); osc.stop(now + 0.1);
+        }
+    }
+
+    // --- Math Generators ---
+    const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    function buildNx1(n) {
+        const top = randomInt(Math.pow(10, n-1), Math.pow(10, n)-1).toString();
+        const bot = randomInt(2, 9).toString();
+        let staticItems = [];
+        let steps = [];
+        const cols = n + 1;
+        const rows = 4;
+
+        // Static Layout
+        for (let i = 0; i < n; i++) staticItems.push({ val: top[i], r: 1, c: i + 1 });
+        staticItems.push({ val: '×', r: 2, c: 0 });
+        staticItems.push({ val: bot, r: 2, c: n });
+        staticItems.push({ isLine: true, r: 2, c: 0, span: cols });
+
+        // Logic strictly enforces Right-to-Left step entry
+        // Tens digit MUST be entered first (either in carry box, or in final answer row)
+        let carry = 0;
+        for (let i = n - 1; i >= 0; i--) {
+            let p = parseInt(top[i]) * parseInt(bot) + carry;
+            carry = Math.floor(p / 10);
+            let rem = p % 10;
+
+            if (i > 0) { // Not the leftmost digit
+                if (carry > 0) {
+                    // Carry Tens digit entered into the carry box ABOVE the next column
+                    steps.push({ val: carry.toString(), r: 0, c: i, isCarry: true });
+                }
+                // Ones digit entered into the answer box
+                steps.push({ val: rem.toString(), r: 3, c: i + 1 });
+            } else { // Leftmost digit (final column)
+                if (carry > 0) {
+                    // Final tens digit entered into the leftmost answer box
+                    steps.push({ val: carry.toString(), r: 3, c: i });
+                }
+                // Final ones digit entered next to it
+                steps.push({ val: rem.toString(), r: 3, c: i + 1 });
+            }
+        }
+        return { type: 'grid', cols, rows, staticItems, steps };
+    }
+
+    function build2x2() {
+        const t = randomInt(11, 99).toString();
+        const b = randomInt(11, 99).toString();
+        let staticItems = [];
+        let steps = [];
+        const cols = 4;
+        const rows = 7;
+
+        for (let i = 0; i < 2; i++) staticItems.push({ val: t[i], r: 2, c: i + 2 });
+        staticItems.push({ val: '×', r: 3, c: 1 });
+        for (let i = 0; i < 2; i++) staticItems.push({ val: b[i], r: 3, c: i + 2 });
+        staticItems.push({ isLine: true, r: 3, c: 1, span: 3 });
+
+        let sumStr = (parseInt(t) * parseInt(b)).toString();
+        
+        // In this version, we simplify 2x2 to just entering the final answer right to left.
+        // Full algorithm entry is extremely lengthy for a mobile view, keeping it focused.
+        for (let i = sumStr.length - 1; i >= 0; i--) {
+            steps.push({ val: sumStr[i], r: 6, c: 3 - (sumStr.length - 1 - i) });
+        }
+
+        return { type: 'grid', cols, rows, staticItems, steps };
+    }
+
+    function buildBasicDiv() {
+        const a = randomInt(2, 10);
+        const b = randomInt(2, 10);
+        return {
+            type: 'basic',
+            text: `${a * b} ÷ ${a} = `,
+            steps: [{ val: b.toString() }]
+        };
+    }
+
+    function buildLongDiv() {
+        const d = randomInt(2, 9);
+        const qStr = randomInt(11, 99).toString(); 
+        const divdStr = (d * parseInt(qStr)).toString(); 
+        
+        let staticItems = [];
+        let steps = [];
+        
+        staticItems.push({ val: d.toString(), r: 1, c: 0 });
+        staticItems.push({ val: ')', r: 1, c: 1, isBracket: true });
+        for (let i = 0; i < divdStr.length; i++) staticItems.push({ val: divdStr[i], r: 1, c: i + 2, borderTop: true });
+
+        // Left to right quotient entry
+        for (let i = 0; i < qStr.length; i++) {
+            // Offset quotient placement based on whether dividend first digit was big enough
+            let cOffset = (divdStr.length > qStr.length) ? i + 3 : i + 2;
+            steps.push({ val: qStr[i], r: 0, c: cOffset });
+        }
+
+        return { type: 'grid', cols: divdStr.length + 3, rows: 2, staticItems, steps };
+    }
+
+    // --- UI Logic ---
+    function startGame(mode) {
+        currentMode = mode;
+        streak = 0;
+        updateStreakUI();
+        document.getElementById('menuScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'flex';
+        
+        initAudio();
+        if(isMusicPlaying && !bgmInterval) bgmInterval = setInterval(playBGMNote, 450);
+        
+        loadProblem();
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        if (bgmInterval) { clearInterval(bgmInterval); bgmInterval = null; }
+    }
+
+    function loadProblem() {
+        isTransitioning = false;
+        stepIdx = 0;
+        userInputs = [];
+        isErrorState = false;
+
+        if (currentMode === '2x1') currentProblem = buildNx1(2);
+        else if (currentMode === '3x1') currentProblem = buildNx1(3);
+        else if (currentMode === '4x1') currentProblem = buildNx1(4);
+        else if (currentMode === '2x2') currentProblem = build2x2();
+        else if (currentMode === 'basicDiv') currentProblem = buildBasicDiv();
+        else if (currentMode === 'longDiv') currentProblem = buildLongDiv();
+        
+        renderBoard();
+    }
+
+    function renderBoard() {
+        const container = document.getElementById('boardContainer');
+        container.innerHTML = '';
+
+        if (currentProblem.type === 'basic') {
+            const wrap = document.createElement('div');
+            wrap.className = 'basic-div-board';
+            
+            const eqDiv = document.createElement('div');
+            eqDiv.className = 'basic-div-equation';
+            eqDiv.innerText = currentProblem.text;
+            wrap.appendChild(eqDiv);
+
+            const inputsDiv = document.createElement('div');
+            inputsDiv.className = 'basic-div-inputs';
+            
+            currentProblem.steps.forEach((step, idx) => {
+                const cellBox = document.createElement('div');
+                cellBox.className = 'cell';
+
+                const inputDiv = document.createElement('div');
+                inputDiv.className = 'step-input';
+                
+                if (stepIdx > idx || isErrorState) {
+                    inputDiv.innerText = userInputs[idx];
+                    inputDiv.classList.add('filled-input');
+                    if (isErrorState && userInputs[idx] !== step.val) {
+                        inputDiv.classList.add('error-input');
+                    }
+                } else if (idx === stepIdx) {
+                    if (!isErrorState) {
+                        inputDiv.classList.add('active-input');
+                    }
+                }
+
+                cellBox.appendChild(inputDiv);
+                inputsDiv.appendChild(cellBox);
+            });
+            
+            wrap.appendChild(inputsDiv);
+            container.appendChild(wrap);
+            return;
+        }
+
+        const grid = document.createElement('div');
+        grid.className = 'grid-board';
+        grid.style.gridTemplateColumns = `repeat(${currentProblem.cols}, min-content)`;
+        grid.style.gridTemplateRows = `repeat(${currentProblem.rows}, min-content)`;
+
+        // Render Static
+        currentProblem.staticItems.forEach(item => {
+            if (item.isLine) {
+                const line = document.createElement('div');
+                line.className = 'line-bottom';
+                line.style.gridRow = item.r + 1;
+                line.style.gridColumn = `${item.c + 1} / span ${item.span}`;
+                grid.appendChild(line);
+                return;
+            }
+            const el = document.createElement('div');
+            el.className = 'cell';
+            if (item.isBracket) el.classList.add('bracket');
+            if (item.borderTop) el.classList.add('line-top');
+            el.style.gridRow = item.r + 1;
+            el.style.gridColumn = item.c + 1;
+            el.innerText = item.val;
+            grid.appendChild(el);
+        });
+
+        // Render Interactive Steps
+        currentProblem.steps.forEach((step, idx) => {
+            if (idx > stepIdx && !isErrorState) return; // Future steps are hidden until reached
+            
+            const cellBox = document.createElement('div');
+            cellBox.className = 'cell';
+            cellBox.style.gridRow = step.r + 1;
+            cellBox.style.gridColumn = step.c + 1;
+
+            const inputDiv = document.createElement('div');
+            inputDiv.className = 'step-input';
+            if (step.isCarry) inputDiv.classList.add('carry-box');
+            if (step.isBringDown) inputDiv.classList.add('bring-down');
+
+            if (idx < stepIdx) {
+                // Filled input
+                inputDiv.innerText = userInputs[idx];
+                inputDiv.classList.add('filled-input');
+                // Check if it's wrong during error state
+                if (isErrorState && userInputs[idx] !== step.val) {
+                    inputDiv.classList.add('error-input');
+                }
+            } else if (idx === stepIdx) {
+                // Active input
+                if (!isErrorState) {
+                    inputDiv.classList.add('active-input');
+                }
+            }
+
+            cellBox.appendChild(inputDiv);
+            grid.appendChild(cellBox);
+        });
+
+        container.appendChild(grid);
+    }
+
+    function handleInput(val) {
+        if (isTransitioning || isErrorState || !currentProblem || stepIdx >= currentProblem.steps.length) return;
+
+        // Save user's input regardless if right or wrong
+        userInputs[stepIdx] = val;
+        stepIdx++;
+        playSound('click');
+
+        if (stepIdx >= currentProblem.steps.length) {
+            // Validation step
+            validateAnswers();
+        } else {
+            renderBoard();
+        }
+    }
+
+    function handleBack() {
+        if (isTransitioning || stepIdx === 0) return;
+        
+        playSound('click');
+        // Move back one step
+        stepIdx--;
+        userInputs[stepIdx] = null; // Clear the entry
+        
+        // Instantly clear error state if user goes back to self-correct
+        isErrorState = false; 
+        
+        renderBoard();
+    }
+
+    function validateAnswers() {
+        let isCorrect = true;
+        for (let i = 0; i < currentProblem.steps.length; i++) {
+            if (userInputs[i] !== currentProblem.steps[i].val) {
+                isCorrect = false;
+                break;
+            }
+        }
+
+        if (isCorrect) {
+            // Full problem solved correctly
+            isTransitioning = true;
+            renderBoard(); // Final clean render
+            playSound('success');
+            createConfetti();
+            streak++;
+            if (streak > highStreak) highStreak = streak;
+            updateStreakUI();
+            setTimeout(loadProblem, 1500);
+        } else {
+            // Errors found
+            isErrorState = true;
+            playSound('wrong');
+            streak = 0;
+            updateStreakUI();
+            
+            // Visual feedback
+            renderBoard(); // Will highlight errors based on isErrorState
+            const board = document.getElementById('boardArea');
+            board.classList.add('error-shake');
+            setTimeout(() => board.classList.remove('error-shake'), 400);
+        }
+    }
+
+    function updateStreakUI() {
+        document.getElementById('streakDisplay').innerText = streak;
+        document.getElementById('highStreakDisplay').innerText = highStreak;
+    }
+
+    function createConfetti() {
+        const emojis = ['⭐', '🎉', '🚀', '🌟', '✨'];
+        const boardArea = document.getElementById('boardArea');
+        for (let i = 0; i < 6; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.innerText = emojis[randomInt(0, emojis.length - 1)];
+            sparkle.className = 'confetti';
+            sparkle.style.left = `calc(50% + ${randomInt(-60, 60)}px)`;
+            sparkle.style.top = `calc(50% + ${randomInt(-40, 40)}px)`;
+            boardArea.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 1000);
+        }
+    }
+
+    // Keyboard Listener
+    window.addEventListener('keydown', (e) => {
+        if (document.getElementById('gameScreen').style.display === 'flex') {
+            if (e.key >= '0' && e.key <= '9') {
+                handleInput(e.key);
+            } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                handleBack();
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>
