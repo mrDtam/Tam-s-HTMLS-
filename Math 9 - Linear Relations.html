@@ -615,7 +615,7 @@
     }
 
     function generateStaticGraph(A, B, C) {
-        let svgStr = `<svg width="240" height="240" viewBox="0 0 300 300" style="background: white; border: 2px solid var(--dark); border-radius: 8px;">`;
+        let svgStr = `<svg width="400" height="400" viewBox="0 0 300 300" style="background: white; border: 2px solid var(--dark); border-radius: 8px;">`;
         for (let i = 0; i <= 20; i++) {
             let pos = i * 15;
             svgStr += `<line x1="${pos}" y1="0" x2="${pos}" y2="300" stroke="#e0e0e0" stroke-width="1"/>`;
