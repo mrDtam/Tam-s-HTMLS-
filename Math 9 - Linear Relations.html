@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 9: Linear Relations</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        :root {
+            --level1: #e67e22; 
+            --level2: #f39c12;
+            --level3: #27ae60;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --secondary: #3498db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+            user-select: none;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 850px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        #menuScreen { display: block; }
+        
+        .level-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            background: white;
+            border: 2px solid var(--level1);
+        }
+        
+        .level-section.lvl-2 { border-color: var(--level2); }
+        .level-section.lvl-3 { border-color: var(--level3); }
+
+        .level-title { 
+            background: var(--level1); 
+            color: white; 
+            display: inline-block; 
+            padding: 5px 15px; 
+            border-radius: 5px; 
+            margin-top: -35px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+        }
+        
+        .lvl-2 .level-title { background: var(--level2); }
+        .lvl-3 .level-title { background: var(--level3); }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-btn span {
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        
+        .lvl-2 .menu-btn span { background-color: var(--level2); }
+        .lvl-3 .menu-btn span { background-color: var(--level3); }
+
+        .menu-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .lvl-2 .menu-btn:hover { background-color: var(--level2); border-color: var(--level2); }
+        .lvl-3 .menu-btn:hover { background-color: var(--level3); border-color: var(--level3); }
+
+        #gameScreen { display: none; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .icon-btn {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .icon-btn:hover { background-color: #e0e6ed; }
+
+        .streak-counter {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--secondary);
+            background: #ebf5fb;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--secondary);
+        }
+
+        .prompt-text {
+            font-size: 20px;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .problem-display {
+            font-size: 32px;
+            margin: 0 0 25px 0;
+            padding: 20px 30px;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 2px solid var(--level1);
+            color: var(--dark);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+        
+        .problem-display.error {
+            background-color: #fadbd8;
+            border-color: #e74c3c;
+            animation: shake 0.4s;
+        }
+
+        #errorAlert {
+            display: none;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #fadbd8;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .option-btn {
+            flex: 1 1 calc(50% - 15px); 
+            background-color: white;
+            color: var(--dark);
+            border: 2px solid #bdc3c7;
+            padding: 15px 10px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 0 #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+        
+        .option-btn.full-width { flex: 1 1 100%; }
+
+        .option-btn:hover {
+            background-color: #f0f8ff;
+            border-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-btn.correct {
+            background-color: #e8f8f5 !important;
+            border-color: #27ae60 !important;
+            color: #27ae60 !important;
+            box-shadow: 0 4px 0 #2ecc71 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #fadbd8 !important;
+            border-color: #c0392b !important;
+            color: #c0392b !important;
+            box-shadow: 0 2px 0 #e74c3c !important;
+            transform: translateY(2px);
+        }
+
+        .interactive-graph-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .svg-grid {
+            background: white;
+            border: 2px solid var(--dark);
+            border-radius: 8px;
+            touch-action: none;
+            cursor: crosshair;
+            margin-bottom: 20px;
+            max-width: 100%;
+        }
+
+        .submit-btn {
+            background-color: var(--level3);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #1e8449;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .submit-btn:hover { transform: translateY(2px); box-shadow: 0 2px 0 #1e8449; }
+        .submit-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .confetti {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .option-btn { flex: 1 1 100%; font-size: 18px; } 
+            .problem-display { font-size: 26px; }
+            .prompt-text { font-size: 18px; }
+            .svg-grid { width: 100%; height: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="menuScreen">
+        <h1>Linear Relations</h1>
+        <p class="subtitle">Math 9 Core Skills</p>
+        
+        <div class="level-section">
+            <div class="level-title">Emerging Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(1)"><span>1</span> Linear Patterns</button>
+                <button class="menu-btn" onclick="startGame(2)"><span>2</span> Evaluate Equations</button>
+                <button class="menu-btn" onclick="startGame(3)" style="grid-column: 1 / -1;"><span>3</span> Write Equation for a Pattern</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-2">
+            <div class="level-title">Developing Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(4)"><span>4</span> Sketch y = mx + b</button>
+                <button class="menu-btn" onclick="startGame(5)"><span>5</span> Sketch Horiz. / Vertical Lines</button>
+            </div>
+        </div>
+
+        <div class="level-section lvl-3">
+            <div class="level-title">Proficient Level</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="startGame(6)"><span>6</span> Sketch Ax + By = C</button>
+                <button class="menu-btn" onclick="startGame(7)"><span>7</span> Write Equation from Graph</button>
+                <button class="menu-btn" onclick="startGame(8)" style="grid-column: 1 / -1;"><span>8</span> Solve for Missing Coordinates</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="game-header">
+            <div>
+                <button class="icon-btn" onclick="showMenu()">&#128281; Menu</button>
+            </div>
+            <div class="streak-counter">&#128293; Streak: <span id="streakDisplay">0</span> | &#127942; Best: <span id="highStreakDisplay">0</span></div>
+        </div>
+
+        <div id="errorAlert"></div>
+
+        <div class="prompt-text" id="promptTitle">Question:</div>
+        <div class="problem-display" id="problemDisplay"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+
+        <div class="interactive-graph-container" id="graphContainer">
+            <svg class="svg-grid" id="interactiveGrid" width="300" height="300" viewBox="0 0 300 300">
+                <g id="gridLines" stroke="#e0e0e0" stroke-width="1"></g>
+                <g id="axisLabels"></g>
+                <line x1="150" y1="0" x2="150" y2="300" stroke="#2c3e50" stroke-width="2"/>
+                <line x1="0" y1="150" x2="300" y2="150" stroke="#2c3e50" stroke-width="2"/>
+                <line id="connectingLine" x1="0" y1="0" x2="0" y2="0" stroke="var(--secondary)" stroke-width="3" style="pointer-events: none;"/>
+                <g id="p1Group" style="cursor: pointer;">
+                    <circle id="p1Hit" cx="150" cy="150" r="20" fill="transparent"/>
+                    <circle id="p1Vis" cx="150" cy="150" r="6" fill="#e74c3c"/>
+                </g>
+                <g id="p2Group" style="cursor: pointer;">
+                    <circle id="p2Hit" cx="150" cy="150" r="20" fill="transparent"/>
+                    <circle id="p2Vis" cx="150" cy="150" r="6" fill="#8e44ad"/>
+                </g>
+            </svg>
+            <button class="submit-btn" onclick="submitGraph()">Submit Graph</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentMode = 1;
+    let currentStreak = 0;
+    let highestStreak = 0; 
+    let isTransitioning = false;
+    let lastPrompt = "";
+    let graphInitialized = false;
+
+    let isGraphMode = false;
+    let validGraphEquation = null;
+    let p1 = { x: -3, y: -3 };
+    let p2 = { x: 3, y: 3 };
+    let draggedPoint = null;
+
+    let audioCtx;
+    function lazyInitAudio() { 
+        if (audioCtx) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            try { audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') audioCtx.resume(); } 
+            catch(e) {}
+        }
+    }
+    function playTone(freq, type, duration, vol) {
+        lazyInitAudio();
+        if (!audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    function playSuccess() { playTone(523.25, 'triangle', 0.15, 0.3); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.3), 100); setTimeout(() => playTone(783.99, 'triangle', 0.4, 0.3), 200); }
+    function playWrong() { playTone(200, 'sine', 0.3, 0.3); }
+
+    function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandomNonZero(min, max) {
+        let val; do { val = Math.floor(Math.random() * (max - min + 1)) + min; } while (val === 0); return val;
+    }
+    function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    
+    function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while(b) { let t = b; b = a % b; a = t; } return a || 1; }
+    
+    function formatFrac(n, d) {
+        if (n === 0) return "0";
+        if (d === 0) return "undefined";
+        let g = gcd(n, d);
+        n /= g; d /= g;
+        if (d < 0) { n = -n; d = -d; }
+        if (d === 1) return n.toString();
+        if (n < 0) return `-\\frac{${Math.abs(n)}}{${d}}`;
+        return `\\frac{${n}}{${d}}`;
+    }
+
+    function getLineCoeffs(x1, y1, x2, y2) {
+        let A = y1 - y2;
+        let B = x2 - x1;
+        let C = A * x1 + B * y1;
+        if (A === 0 && B === 0) return null;
+        let g = gcd(gcd(A, B), C);
+        A /= g; B /= g; C /= g;
+        if (A < 0 || (A === 0 && B < 0)) { A = -A; B = -B; C = -C; }
+        return { A, B, C };
+    }
+
+    function initGraph() {
+        if (graphInitialized) return;
+        graphInitialized = true;
+        
+        const svg = document.getElementById('interactiveGrid');
+        const gridLines = document.getElementById('gridLines');
+        const axisLabels = document.getElementById('axisLabels');
+        gridLines.innerHTML = '';
+        axisLabels.innerHTML = '';
+        
+        for (let i = 0; i <= 20; i++) {
+            let pos = i * 15;
+            let vl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            vl.setAttribute('x1', pos); vl.setAttribute('y1', 0);
+            vl.setAttribute('x2', pos); vl.setAttribute('y2', 300);
+            gridLines.appendChild(vl);
+            let hl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            hl.setAttribute('x1', 0); hl.setAttribute('y1', pos);
+            hl.setAttribute('x2', 300); hl.setAttribute('y2', pos);
+            gridLines.appendChild(hl);
+        }
+
+        // Add axis labels (unit markers)
+        for (let i = -10; i <= 10; i += 2) {
+            if (i === 0) continue;
+            let xPos = (i + 10) * 15;
+            let yPos = (10 - i) * 15;
+            
+            // X-axis labels (bottom)
+            let xLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            xLabel.setAttribute('x', xPos);
+            xLabel.setAttribute('y', 165);
+            xLabel.setAttribute('text-anchor', 'middle');
+            xLabel.setAttribute('font-size', '10');
+            xLabel.setAttribute('fill', '#7f8c8d');
+            xLabel.textContent = i;
+            axisLabels.appendChild(xLabel);
+            
+            // Y-axis labels (left)
+            let yLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            yLabel.setAttribute('x', 140);
+            yLabel.setAttribute('y', yPos + 3);
+            yLabel.setAttribute('text-anchor', 'end');
+            yLabel.setAttribute('font-size', '10');
+            yLabel.setAttribute('fill', '#7f8c8d');
+            yLabel.textContent = i;
+            axisLabels.appendChild(yLabel);
+        }
+
+        let p1g = document.getElementById('p1Group');
+        let p2g = document.getElementById('p2Group');
+        
+        p1g.onmousedown = (e) => startDrag(e, 'p1');
+        p2g.onmousedown = (e) => startDrag(e, 'p2');
+        svg.onmousemove = drag;
+        window.onmouseup = endDrag;
+        
+        p1g.addEventListener('touchstart', (e) => startDrag(e, 'p1'), {passive: false});
+        p2g.addEventListener('touchstart', (e) => startDrag(e, 'p2'), {passive: false});
+        svg.addEventListener('touchmove', drag, {passive: false});
+        window.addEventListener('touchend', endDrag);
+
+        resetGraphPoints();
+    }
+
+    function logicalToScreen(pt) {
+        return { x: (pt.x + 10) * 15, y: (10 - pt.y) * 15 };
+    }
+
+    function screenToLogical(clientX, clientY, rect) {
+        let sx = clientX - rect.left;
+        let sy = clientY - rect.top;
+        sx = (sx / rect.width) * 300;
+        sy = (sy / rect.height) * 300;
+        let lx = (sx / 15) - 10;
+        let ly = 10 - (sy / 15);
+        return { x: Math.round(lx), y: Math.round(ly) };
+    }
+
+    function updateGraphVisuals() {
+        let s1 = logicalToScreen(p1);
+        let s2 = logicalToScreen(p2);
+        
+        document.getElementById('p1Hit').setAttribute('cx', s1.x);
+        document.getElementById('p1Hit').setAttribute('cy', s1.y);
+        document.getElementById('p1Vis').setAttribute('cx', s1.x);
+        document.getElementById('p1Vis').setAttribute('cy', s1.y);
+        document.getElementById('p2Hit').setAttribute('cx', s2.x);
+        document.getElementById('p2Hit').setAttribute('cy', s2.y);
+        document.getElementById('p2Vis').setAttribute('cx', s2.x);
+        document.getElementById('p2Vis').setAttribute('cy', s2.y);
+
+        const line = document.getElementById('connectingLine');
+        if (p1.x === p2.x && p1.y === p2.y) {
+            line.setAttribute('x1', 0); line.setAttribute('y1', 0);
+            line.setAttribute('x2', 0); line.setAttribute('y2', 0);
+            return;
+        }
+
+        let dx = s2.x - s1.x;
+        let dy = s2.y - s1.y;
+        line.setAttribute('x1', s1.x - dx * 20);
+        line.setAttribute('y1', s1.y - dy * 20);
+        line.setAttribute('x2', s1.x + dx * 20);
+        line.setAttribute('y2', s1.y + dy * 20);
+    }
+
+    function startDrag(e, ptName) {
+        if (isTransitioning) return;
+        draggedPoint = ptName;
+        e.preventDefault();
+    }
+
+    function drag(e) {
+        if (!draggedPoint || isTransitioning) return;
+        e.preventDefault();
+        
+        let svg = document.getElementById('interactiveGrid');
+        let rect = svg.getBoundingClientRect();
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        let log = screenToLogical(clientX, clientY, rect);
+        log.x = Math.max(-10, Math.min(10, log.x));
+        log.y = Math.max(-10, Math.min(10, log.y));
+        
+        if (draggedPoint === 'p1' && (log.x !== p2.x || log.y !== p2.y)) { p1.x = log.x; p1.y = log.y; }
+        if (draggedPoint === 'p2' && (log.x !== p1.x || log.y !== p1.y)) { p2.x = log.x; p2.y = log.y; }
+        
+        updateGraphVisuals();
+    }
+
+    function endDrag(e) { draggedPoint = null; }
+    function resetGraphPoints() {
+        p1 = { x: -2, y: -2 };
+        p2 = { x: 2, y: 2 };
+        updateGraphVisuals();
+    }
+
+    function generateStaticGraph(A, B, C) {
+        let svgStr = `<svg width="240" height="240" viewBox="0 0 300 300" style="background: white; border: 2px solid var(--dark); border-radius: 8px;">`;
+        for (let i = 0; i <= 20; i++) {
+            let pos = i * 15;
+            svgStr += `<line x1="${pos}" y1="0" x2="${pos}" y2="300" stroke="#e0e0e0" stroke-width="1"/>`;
+            svgStr += `<line x1="0" y1="${pos}" x2="300" y2="${pos}" stroke="#e0e0e0" stroke-width="1"/>`;
+        }
+        svgStr += `<line x1="150" y1="0" x2="150" y2="300" stroke="#2c3e50" stroke-width="2"/>`;
+        svgStr += `<line x1="0" y1="150" x2="300" y2="150" stroke="#2c3e50" stroke-width="2"/>`;
+        
+        // Add axis labels to static graph
+        for (let i = -10; i <= 10; i += 2) {
+            if (i === 0) continue;
+            let xPos = (i + 10) * 15;
+            let yPos = (10 - i) * 15;
+            svgStr += `<text x="${xPos}" y="165" text-anchor="middle" font-size="10" fill="#7f8c8d">${i}</text>`;
+            svgStr += `<text x="140" y="${yPos + 3}" text-anchor="end" font-size="10" fill="#7f8c8d">${i}</text>`;
+        }
+        
+        let pts = [];
+        for (let x = -10; x <= 10; x++) {
+            if (B !== 0) {
+                let y = (C - A*x)/B;
+                if (Number.isInteger(y) && y >= -10 && y <= 10) pts.push({x, y});
+            } else {
+                if (x === C/A) pts.push({x, y: -10}, {x, y: 10});
+            }
+        }
+        if (pts.length >= 2) {
+            let s1 = logicalToScreen(pts[0]);
+            let s2 = logicalToScreen(pts[1]);
+            let dx = s2.x - s1.x; let dy = s2.y - s1.y;
+            svgStr += `<line x1="${s1.x - dx*20}" y1="${s1.y - dy*20}" x2="${s1.x + dx*20}" y2="${s1.y + dy*20}" stroke="var(--secondary)" stroke-width="3"/>`;
+        }
+        svgStr += `</svg>`;
+        return svgStr;
+    }
+
+    function startGame(mode) {
+        try {
+            document.getElementById('errorAlert').style.display = 'none';
+            currentMode = mode;
+            currentStreak = 0;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            var menu = document.getElementById('menuScreen');
+            var game = document.getElementById('gameScreen');
+            
+            menu.style.display = 'none';
+            game.style.display = 'block';
+            
+            let colorVar = mode <= 3 ? "var(--level1)" : (mode <= 5 ? "var(--level2)" : "var(--level3)");
+            game.style.borderColor = colorVar;
+            document.getElementById('problemDisplay').style.borderColor = colorVar;
+            
+            if (mode >= 4 && mode <= 7) {
+                initGraph();
+            }
+
+            generateProblem();
+        } catch (e) {
+            console.error("startGame error:", e);
+            alert("Initialization Error: " + e.message);
+        }
+    }
+
+    function showMenu() {
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('menuScreen').style.display = 'block';
+        highestStreak = 0; 
+        document.getElementById('highStreakDisplay').innerText = highestStreak;
+    }
+
+    function generateProblem() {
+        try {
+            isTransitioning = false;
+            let correctAns = "";
+            let distractors = new Set();
+            let promptHTML = "";
+            let promptText = "";
+            let problemSignature = "";
+            let loopCount = 0;
+            
+            isGraphMode = false;
+            let isRawHTML = false;
+            
+            document.getElementById('optionsGrid').style.display = 'flex';
+            document.getElementById('graphContainer').style.display = 'none';
+            
+            let displayBox = document.getElementById('problemDisplay');
+            displayBox.classList.remove('error');
+
+            do {
+                loopCount++;
+                if (loopCount > 100) break;
+                distractors.clear();
+                isRawHTML = false;
+
+                if (currentMode === 1) {
+                    let subType = getRandomInt(1, 2);
+                    let start = getRandomInt(-10, 10);
+                    let diff = getRandomNonZero(-5, 5);
+                    let seq = [start, start+diff, start+diff*2, start+diff*3];
+                    let seqStr = seq.join(", ");
+                    if (subType === 1) {
+                        promptText = "Find the next term in the pattern:";
+                        promptHTML = `${seqStr}, \\; \\text{?}`;
+                        correctAns = (start + diff*4).toString();
+                        distractors.add((start + diff*5).toString());
+                        distractors.add((start + diff*3 + Math.abs(diff)).toString());
+                        distractors.add((start + diff*3 - diff).toString());
+                    } else {
+                        promptText = "State the common difference:";
+                        promptHTML = `${seqStr}, \\dots`;
+                        correctAns = diff.toString();
+                        distractors.add((-diff).toString());
+                        distractors.add((diff*2).toString());
+                        distractors.add(start.toString());
+                    }
+                }
+                else if (currentMode === 2) {
+                    let isFindT = Math.random() > 0.5;
+                    let m = getRandomNonZero(-4, 4);
+                    let b = getRandomInt(-10, 10);
+                    let sign = b < 0 ? "-" : "+";
+                    let eq = `t = ${m === 1 ? "" : (m === -1 ? "-" : m)}n ${b === 0 ? "" : sign + " " + Math.abs(b)}`;
+                    if (isFindT) {
+                        promptText = "Evaluate the equation:";
+                        let n = getRandomInt(1, 10);
+                        promptHTML = `${eq} \\quad \\text{Find } t \\text{ if } n = ${n}`;
+                        correctAns = (m * n + b).toString();
+                        distractors.add((m * n - b).toString());
+                        distractors.add(((n - b) / m).toFixed(0));
+                    } else {
+                        promptText = "Evaluate the equation:";
+                        let n = getRandomInt(1, 10);
+                        let t = m * n + b;
+                        promptHTML = `${eq} \\quad \\text{Find } n \\text{ if } t = ${t}`;
+                        correctAns = n.toString();
+                        distractors.add((m * t + b).toString());
+                        distractors.add(((t + b) / m).toFixed(0));
+                    }
+                }
+                else if (currentMode === 3) {
+                    promptText = "Write the linear equation for the pattern:";
+                    let m = getRandomNonZero(-4, 4);
+                    let b = getRandomInt(-5, 5);
+                    let seq = [];
+                    for(let n=1; n<=4; n++) seq.push(m*n + b);
+                    promptHTML = `${seq.join(", ")}, \\dots`;
+                    let fmtEq = (mm, bb) => {
+                        let bSign = bb < 0 ? "-" : "+";
+                        return `t = ${mm === 1 ? "" : (mm === -1 ? "-" : mm)}n ${bb === 0 ? "" : bSign + " " + Math.abs(bb)}`;
+                    };
+                    correctAns = fmtEq(m, b);
+                    distractors.add(fmtEq(-m, b));
+                    distractors.add(fmtEq(m, b === 0 ? 2 : -b));
+                    distractors.add(fmtEq(b === 0 ? 2 : b, m));
+                }
+                // FIXED MODE 4: Generate lines with integer y-intercept
+                else if (currentMode === 4) {
+                    isGraphMode = true;
+                    promptText = "Sketch the line on the grid:";
+                    
+                    // Pick integer slope (as fraction) and integer y-intercept
+                    let m_num = getRandomNonZero(-4, 4);
+                    let m_den = getRandomInt(1, 4);
+                    let b = getRandomInt(-6, 6);
+                    
+                    // Simplify slope
+                    let g = gcd(Math.abs(m_num), m_den);
+                    m_num /= g;
+                    m_den /= g;
+                    
+                    // Generate two points on the line with integer coordinates
+                    // Point 1: (0, b) - the y-intercept
+                    let x1 = 0;
+                    let y1 = b;
+                    
+                    // Point 2: (m_den, b + m_num) - one "run" over
+                    let x2 = m_den;
+                    let y2 = b + m_num;
+                    
+                    // Ensure points are within grid bounds
+                    if (Math.abs(x2) > 8 || Math.abs(y2) > 8) {
+                        x2 = -m_den;
+                        y2 = b - m_num;
+                    }
+                    
+                    let m_str = formatFrac(m_num, m_den);
+                    if (m_str === "1") m_str = "";
+                    if (m_str === "-1") m_str = "-";
+                    
+                    let b_str = b === 0 ? "" : (b > 0 ? `+ ${b}` : `- ${Math.abs(b)}`);
+                    promptHTML = `y = ${m_str}x ${b_str}`;
+                    
+                    validGraphEquation = getLineCoeffs(x1, y1, x2, y2);
+                }
+                else if (currentMode === 5) {
+                    isGraphMode = true;
+                    promptText = "Sketch the line on the grid:";
+                    let isHoriz = Math.random() > 0.5;
+                    let c = getRandomInt(-8, 8);
+                    promptHTML = isHoriz ? `y = ${c}` : `x = ${c}`;
+                    if (isHoriz) validGraphEquation = getLineCoeffs(0, c, 1, c);
+                    else validGraphEquation = getLineCoeffs(c, 0, c, 1);
+                }
+                // FIXED MODE 6: Generate lines with integer x and y intercepts
+                else if (currentMode === 6) {
+                    isGraphMode = true;
+                    promptText = "Sketch the line on the grid:";
+                    
+                    // Pick integer x-intercept and y-intercept
+                    let xInt = getRandomNonZero(-8, 8);
+                    let yInt = getRandomNonZero(-8, 8);
+                    
+                    // Line equation: x/xInt + y/yInt = 1
+                    // Multiply by xInt*yInt: yInt*x + xInt*y = xInt*yInt
+                    let A = yInt;
+                    let B = xInt;
+                    let C = xInt * yInt;
+                    
+                    // Simplify
+                    let g = gcd(gcd(Math.abs(A), Math.abs(B)), Math.abs(C));
+                    A /= g;
+                    B /= g;
+                    C /= g;
+                    
+                    // Ensure A is positive (standard form)
+                    if (A < 0) {
+                        A = -A;
+                        B = -B;
+                        C = -C;
+                    }
+                    
+                    let a_str = A === 1 ? "x" : `${A}x`;
+                    let b_str = B === 1 ? "+ y" : (B === -1 ? "- y" : (B > 0 ? `+ ${B}y` : `- ${Math.abs(B)}y`));
+                    
+                    promptHTML = `${a_str} ${b_str} = ${C}`;
+                    validGraphEquation = { A, B, C };
+                }
+                else if (currentMode === 7) {
+                    promptText = "Write the equation of the line shown:";
+                    isRawHTML = true;
+                    
+                    // Generate line with integer intercepts for easier reading
+                    let xInt = getRandomNonZero(-6, 6);
+                    let yInt = getRandomNonZero(-6, 6);
+                    
+                    let A = yInt;
+                    let B = xInt;
+                    let C = xInt * yInt;
+                    
+                    let g = gcd(gcd(Math.abs(A), Math.abs(B)), Math.abs(C));
+                    A /= g;
+                    B /= g;
+                    C /= g;
+                    
+                    if (A < 0) {
+                        A = -A;
+                        B = -B;
+                        C = -C;
+                    }
+                    
+                    let eq = { A, B, C };
+                    promptHTML = generateStaticGraph(eq.A, eq.B, eq.C);
+                    
+                    let fmtEq = (A, B, C) => {
+                        let m_str = formatFrac(-A, B);
+                        if (m_str === "1") m_str = "";
+                        if (m_str === "-1") m_str = "-";
+                        if (A === 0) return `y = ${C/B}`;
+                        let yint = C/B;
+                        let b_str = yint === 0 ? "" : (yint > 0 ? `+ ${yint}` : `- ${Math.abs(yint)}`);
+                        return `y = ${m_str}x ${b_str}`;
+                    };
+                    correctAns = fmtEq(eq.A, eq.B, eq.C);
+                    distractors.add(fmtEq(-eq.A, eq.B, eq.C));
+                    distractors.add(fmtEq(eq.B, eq.A, eq.C));
+                    distractors.add(fmtEq(eq.A, eq.B, -eq.C));
+                }
+                else if (currentMode === 8) {
+                    promptText = "Find the missing coordinate to satisfy the equation:";
+                    let x1 = getRandomInt(-6, 6); let y1 = getRandomInt(-6, 6);
+                    let x2, y2;
+                    do { x2 = getRandomInt(-8, 8); y2 = getRandomInt(-8, 8); } while (x1 === x2 || y1 === y2);
+                    let eq = getLineCoeffs(x1, y1, x2, y2);
+                    if (!eq || eq.A === 0 || eq.B === 0) continue;
+                    let A = eq.A, B = eq.B, C = eq.C;
+                    let a_str = A === 1 ? "x" : (A === -1 ? "-x" : `${A}x`);
+                    let b_str = B === 1 ? "+ y" : (B === -1 ? "- y" : (B > 0 ? `+ ${B}y` : `- ${Math.abs(B)}y`));
+                    let isFindX = Math.random() > 0.5;
+                    let targetX = getRandomInt(-5, 5), targetY;
+                    if (isFindX) {
+                        let attempts = 0;
+                        do { targetY = getRandomInt(-8, 8); attempts++; } while (!Number.isInteger((C - B * targetY) / A) && attempts < 10);
+                        if (!Number.isInteger((C - B * targetY) / A)) continue;
+                        targetX = (C - B * targetY) / A;
+                        promptHTML = `${a_str} ${b_str} = ${C} \\quad \\text{Point: } (\\text{\\_\\_\\_}, ${targetY})`;
+                        correctAns = `x = ${targetX}`;
+                        distractors.add(`x = ${targetX > 0 ? -targetX : (targetX===0 ? 2 : -targetX)}`);
+                        distractors.add(`x = ${(C + B * targetY) / A | 0}`);
+                    } else {
+                        let attempts = 0;
+                        do { targetX = getRandomInt(-8, 8); attempts++; } while (!Number.isInteger((C - A * targetX) / B) && attempts < 10);
+                        if (!Number.isInteger((C - A * targetX) / B)) continue;
+                        targetY = (C - A * targetX) / B;
+                        promptHTML = `${a_str} ${b_str} = ${C} \\quad \\text{Point: } (${targetX}, \\text{\\_\\_\\_})`;
+                        correctAns = `y = ${targetY}`;
+                        distractors.add(`y = ${targetY > 0 ? -targetY : (targetY===0 ? 2 : -targetY)}`);
+                        distractors.add(`y = ${(C + A * targetX) / B | 0}`);
+                    }
+                }
+                problemSignature = promptText + promptHTML + correctAns;
+            } while (problemSignature === lastPrompt); 
+            
+            lastPrompt = problemSignature;
+            document.getElementById('promptTitle').innerText = promptText; 
+            
+            if (isRawHTML) {
+                displayBox.innerHTML = promptHTML;
+            } else {
+                displayBox.innerHTML = `\\( ${promptHTML} \\)`;
+            }
+
+            if (isGraphMode) {
+                document.getElementById('optionsGrid').style.display = 'none';
+                document.getElementById('graphContainer').style.display = 'flex';
+                resetGraphPoints();
+            } else {
+                document.getElementById('optionsGrid').style.display = 'flex';
+                document.getElementById('graphContainer').style.display = 'none';
+                
+                let finalOptions = new Set();
+                finalOptions.add(correctAns);
+                let distArray = Array.from(distractors);
+                let i = 0;
+                while(finalOptions.size < 4 && i < distArray.length) { finalOptions.add(distArray[i]); i++; }
+                
+                let pad = 1;
+                while(finalOptions.size < 4) { 
+                    let parsed = parseInt(correctAns.replace(/[^\d.-]/g, ''));
+                    if (isNaN(parsed)) parsed = getRandomInt(1, 10);
+                    let pStr = (parsed + pad).toString();
+                    if (correctAns.includes("t = ")) finalOptions.add(`t = ${pStr}`);
+                    else if (correctAns.includes("n = ")) finalOptions.add(`n = ${pStr}`);
+                    else if (correctAns.includes("x = ")) finalOptions.add(`x = ${pStr}`);
+                    else if (correctAns.includes("y = ")) finalOptions.add(`y = ${pStr}`);
+                    else finalOptions.add(pStr);
+                    pad++;
+                }
+                
+                let options = shuffle(Array.from(finalOptions));
+                const grid = document.getElementById('optionsGrid');
+                grid.innerHTML = ''; 
+
+                options.forEach(opt => {
+                    let btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    if (opt.length > 20) btn.classList.add('full-width');
+                    btn.innerHTML = `\\(${opt}\\)`;
+                    btn.onclick = (e) => handleGuess(btn, opt === correctAns, e);
+                    grid.appendChild(btn);
+                });
+            }
+
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('gameScreen'), { 
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "\\(", right: "\\)", display: false}
+                    ] 
+                });
+            }
+        } catch (err) {
+            console.error("generateProblem error:", err);
+            document.getElementById('errorAlert').innerText = "Engine Error: " + err.message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+    }
+
+    function handleGuess(btn, isCorrect, event) {
+        if (isTransitioning || btn.classList.contains('wrong')) return;
+        if (isCorrect) {
+            isTransitioning = true;
+            btn.classList.add('correct');
+            playSuccess();
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+            createSparkle(event.clientX, event.clientY);
+            setTimeout(generateProblem, 1000);
+        } else {
+            btn.classList.add('wrong');
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            let display = document.getElementById('problemDisplay');
+            display.classList.add('error');
+            setTimeout(() => display.classList.remove('error'), 400);
+        }
+    }
+
+    function submitGraph() {
+        if (isTransitioning) return;
+        let p1Valid = (validGraphEquation.A * p1.x + validGraphEquation.B * p1.y) === validGraphEquation.C;
+        let p2Valid = (validGraphEquation.A * p2.x + validGraphEquation.B * p2.y) === validGraphEquation.C;
+        let distinct = (p1.x !== p2.x || p1.y !== p2.y);
+        let btn = document.querySelector('.submit-btn');
+        if (p1Valid && p2Valid && distinct) {
+            isTransitioning = true;
+            playSuccess();
+            btn.style.backgroundColor = 'var(--level3)';
+            btn.innerText = 'Correct!';
+            currentStreak++;
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            if (currentStreak > highestStreak) {
+                highestStreak = currentStreak;
+                document.getElementById('highStreakDisplay').innerText = highestStreak;
+            }
+            let rect = btn.getBoundingClientRect();
+            createSparkle(rect.left + rect.width/2, rect.top + rect.height/2);
+            setTimeout(() => {
+                btn.style.backgroundColor = '';
+                btn.innerText = 'Submit Graph';
+                generateProblem();
+            }, 1000);
+        } else {
+            playWrong();
+            currentStreak = 0; 
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            let display = document.getElementById('interactiveGrid');
+            display.style.animation = 'shake 0.4s';
+            setTimeout(() => display.style.animation = '', 400);
+        }
+    }
+
+    function createSparkle(x, y) {
+        const emojis = ['⭐', '🎯', '🚀', '✨', '🏆'];
+        const sparkle = document.createElement('div');
+        sparkle.innerText = emojis[getRandomInt(0, emojis.length - 1)];
+        sparkle.className = 'confetti';
+        sparkle.style.left = (x - 15) + 'px';
+        sparkle.style.top = (y - 15) + 'px';
+        document.body.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+</script>
+</body>
+</html>
